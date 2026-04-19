@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<prices>
+	<attack>18</attack>
+	<defense>18</defense>
+	<damage>18</damage>
+	<LOS>1</LOS>
+</prices>

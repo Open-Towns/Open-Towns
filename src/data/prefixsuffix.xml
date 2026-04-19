@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<prefixsuffix>
+	<prefix>
+		<id>p_big</id>
+		<name esES="Gran">Big</name>
+		<attack>100</attack>
+	</prefix>
+	<prefix>
+		<id>p_small</id>
+		<name esES="Pequeño">Small</name>
+		<damage>-100</damage>
+	</prefix>
+	<prefix>
+		<id>p_green</id>
+		<name esES="Verde">Green</name>
+		<defense>1d800+100</defense>
+		<healthPoints>1d50+50</healthPoints>
+	</prefix>
+	<prefix>
+		<id>p_red</id>
+		<name esES="Rojo">Red</name>
+		<attack>1d600+100</attack>
+		<damage>1d300</damage>
+	</prefix>
+	<prefix>
+		<id>p_white</id>
+		<name esES="Blanco">White</name>
+		<healthPoints>1d300+80</healthPoints>
+	</prefix>
+	<prefix>
+		<id>p_black</id>
+		<name esES="Negro">Black</name>
+		<attack>1d200</attack>
+		<defense>1d200</defense>
+		<healthPoints>100</healthPoints>
+		<damage>1d300-400</damage>
+	</prefix>
+
+
+	<suffix>
+		<id>s_dragon</id>
+		<name esES="del dragón">of the dragon</name>
+		<attack>1d400+100</attack>
+		<defense>1d400+100</defense>
+		<healthPoints>1d400+100</healthPoints>
+		<damage>1d400+100</damage>
+	</suffix>
+	<suffix>
+		<id>s_turtle</id>
+		<name esES="de la tortuga">of the turtle</name>
+		<defense>1d400+100</defense>
+		<healthPoints>1d400+100</healthPoints>
+		<movePCT>1d3-4</movePCT>
+		<attackTurns>100</attackTurns>
+	</suffix>
+	<suffix>
+		<id>s_hawk</id>
+		<name esES="del halcón">of the hawk</name>
+		<healthPoints>1d300</healthPoints>
+		<LOS>1d3+1</LOS>
+	</suffix>
+	<suffix>
+		<id>s_tiger</id>
+		<name esES="del tigre">of the tiger</name>
+		<movePCT>1d3+3</movePCT>
+		<healthPoints>1d300</healthPoints>
+		<LOS>1d3+1</LOS>
+	</suffix>
+</prefixsuffix>

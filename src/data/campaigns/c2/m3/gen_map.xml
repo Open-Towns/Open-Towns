@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<gen_map>
+	<init id="init">
+		<numLevelsOutside>1</numLevelsOutside>
+		<numLevelsUnderground>2</numLevelsUnderground>
+		<mainTerrain>grass,densestone</mainTerrain>
+		<numCitizens>11</numCitizens>
+		<startingLevel>0</startingLevel>
+		<allowBury>false</allowBury>
+		<startingEvents>dawn</startingEvents>
+		<startingEventsPCT>100</startingEventsPCT>
+	</init>
+
+	<!-- 35 grass no flower seeds -->
+	<seed id="seedgrassnoflower1">
+		<type>grassnoflower1</type>
+		<num>35</num>
+		<level>1</level>
+		<turns>15</turns>
+
+		<northPCT>15</northPCT>
+		<southPCT>15</southPCT>
+		<eastPCT>15</eastPCT>
+		<westPCT>15</westPCT>
+		<upPCT>0</upPCT>
+		<downPCT>0</downPCT>
+	</seed>
+
+	<!-- grass voodoo -->
+	<seed id="seedgrass1">
+		<type>grass1</type>
+		<num>4</num>
+		<level>1</level>
+		<turns>35</turns>
+
+		<northPCT>45</northPCT>
+		<southPCT>45</southPCT>
+		<eastPCT>45</eastPCT>
+		<westPCT>45</westPCT>
+		<upPCT>0</upPCT>
+		<downPCT>0</downPCT>
+	</seed>
+
+	<seed id="seedgrass2">
+		<type>grass2</type>
+		<num>16</num>
+		<level>1</level>
+		<turns>30</turns>
+
+		<northPCT>35</northPCT>
+		<southPCT>25</southPCT>
+		<eastPCT>45</eastPCT>
+		<westPCT>25</westPCT>
+		<upPCT>0</upPCT>
+		<downPCT>0</downPCT>
+	</seed>
+	<seed id="seedgrass3">
+		<type>grass3</type>
+		<num>16</num>
+		<level>1</level>
+		<turns>30</turns>
+
+		<northPCT>25</northPCT>
+		<southPCT>45</southPCT>
+		<eastPCT>25</eastPCT>
+		<westPCT>35</westPCT>
+		<upPCT>0</upPCT>
+		<downPCT>0</downPCT>
+	</seed>
+
+	<!-- 20 stone seeds -->
+	<seed id="seedstone">
+		<type>stone</type>
+		<num>30</num>
+		<level>1</level>
+		<turns>70</turns>
+
+		<northPCT>4</northPCT>
+		<southPCT>4</southPCT>
+		<eastPCT>4</eastPCT>
+		<westPCT>4</westPCT>
+		<upPCT>3</upPCT>
+		<downPCT>3</downPCT>
+	</seed>
+</gen_map>

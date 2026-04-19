@@ -1,0 +1,172 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<events>
+	<!--
+		<god>
+			<id> -> God ID
+			<namePool> -> Pool name
+			<surName> -> String added to the name picked from the pool
+
+			<itemsLike> -> List of items the god likes
+			<itemsLikePCT> -> List of PCTs. Each PCT is tied to the itemsLike. Bigger values means the god takes more importance to that items
+			<itemsDislike> -> List of items the god dislikes
+			<itemsDislikePCT> -> List of PCTs. Each PCT is tied to the itemsDislike. Bigger values means the god takes more importance to that items
+
+			<eventsWhenHappy> -> List of events that can be casted when the god is happy (80+)
+			<eventsWhenReallyHappy> -> List of events that can be casted when the god is super happy (99+)
+			<eventsWhenAngry> -> List of events that can be casted when the god is angry (20-)
+			<eventsWhenReallyAngry> -> List of events that can be casted when the god is super angry (2-)
+		</god>
+	-->
+<!-- 
+	<god>
+		<id>nature</id>
+		<namePool>god</namePool>
+		<surName esES=", el dios de la naturaleza">, the nature god</surName>
+		<itemsLike>wood items, trees, ...</itemsLike>
+		<itemsLikePCT>100,10,...</itemsLikePCT>
+		<itemsDislike>wood based items</itemsDislike>
+		<itemsDislikePCT>100,100</itemsDislikePCT>
+
+		<eventsWhenHappy>xxx</eventsWhenHappy>
+		<eventsWhenReallyHappy>xxx</eventsWhenReallyHappy>
+		<eventsWhenAngry>xxx</eventsWhenAngry>
+		<eventsWhenReallyAngry>xxx</eventsWhenReallyAngry>
+	</god>
+
+	<god>
+		<id>war</id>
+		<namePool>god</namePool>
+		<surName esES=", el dios de la guerra">, the war god</surName>
+		<itemsLike>weapons,armors, ...</itemsLike>
+		<itemsLikePCT>100,10,...</itemsLikePCT>
+		<itemsDislike>vanity items, flowers</itemsDislike>
+		<itemsDislikePCT>100,100</itemsDislikePCT>
+
+		<eventsWhenHappy>xxx</eventsWhenHappy>
+		<eventsWhenReallyHappy>xxx</eventsWhenReallyHappy>
+		<eventsWhenAngry>xxx</eventsWhenAngry>
+		<eventsWhenReallyAngry>xxx</eventsWhenReallyAngry>
+	</god>
+
+	<god>
+		<id>death</id>
+		<namePool>god</namePool>
+		<surName esES=", el dios de la muerte">, the death god</surName>
+		<itemsLike>tombs, graves, bone items, ...</itemsLike>
+		<itemsLikePCT>100,10,...</itemsLikePCT>
+		<itemsDislike>trees,...</itemsDislike>
+		<itemsDislikePCT>100,100</itemsDislikePCT>
+
+		<eventsWhenHappy>xxx</eventsWhenHappy>
+		<eventsWhenReallyHappy>xxx</eventsWhenReallyHappy>
+		<eventsWhenAngry>xxx</eventsWhenAngry>
+		<eventsWhenReallyAngry>xxx</eventsWhenReallyAngry>
+	</god>
+
+	<god>
+		<id></id>
+		<namePool>god</namePool>
+		<surName esES=", el dios de ">, the  god</surName>
+		<itemsLike>, ...</itemsLike>
+		<itemsLikePCT>100,10,...</itemsLikePCT>
+		<itemsDislike></itemsDislike>
+		<itemsDislikePCT>100,100</itemsDislikePCT>
+
+		<eventsWhenHappy>xxx</eventsWhenHappy>
+		<eventsWhenReallyHappy>xxx</eventsWhenReallyHappy>
+		<eventsWhenAngry>xxx</eventsWhenAngry>
+		<eventsWhenReallyAngry>xxx</eventsWhenReallyAngry>
+	</god>
+
+	<god>
+		<id></id>
+		<namePool>god</namePool>
+		<surName esES=", el dios de ">, the  god</surName>
+		<itemsLike>, ...</itemsLike>
+		<itemsLikePCT>100,10,...</itemsLikePCT>
+		<itemsDislike></itemsDislike>
+		<itemsDislikePCT>100,100</itemsDislikePCT>
+
+		<eventsWhenHappy>xxx</eventsWhenHappy>
+		<eventsWhenReallyHappy>xxx</eventsWhenReallyHappy>
+		<eventsWhenAngry>xxx</eventsWhenAngry>
+		<eventsWhenReallyAngry>xxx</eventsWhenReallyAngry>
+	</god>
+
+	<god>
+		<id></id>
+		<namePool>god</namePool>
+		<surName esES=", el dios de ">, the  god</surName>
+		<itemsLike>, ...</itemsLike>
+		<itemsLikePCT>100,10,...</itemsLikePCT>
+		<itemsDislike></itemsDislike>
+		<itemsDislikePCT>100,100</itemsDislikePCT>
+
+		<eventsWhenHappy>xxx</eventsWhenHappy>
+		<eventsWhenReallyHappy>xxx</eventsWhenReallyHappy>
+		<eventsWhenAngry>xxx</eventsWhenAngry>
+		<eventsWhenReallyAngry>xxx</eventsWhenReallyAngry>
+	</god>
+ -->
+ 
+	<god>
+		<id>stupid</id>
+		<namePool>god</namePool>
+		<surName esES=", el dios estúpido">, the stupid god</surName>
+		<itemsLike>tree</itemsLike>
+		<itemsLikePCT>10</itemsLikePCT>
+		<itemsDislike>logwall,milk</itemsDislike>
+		<itemsDislikePCT>100,100</itemsDislikePCT>
+
+		<eventsWhenHappy>fertileground</eventsWhenHappy>
+		<eventsWhenReallyHappy>naturebless</eventsWhenReallyHappy>
+		<eventsWhenAngry>hot</eventsWhenAngry>
+		<eventsWhenReallyAngry>naturecurse</eventsWhenReallyAngry>
+	</god>
+
+	<god>
+		<id>smart</id>
+		<namePool>god</namePool>
+		<surName esES=", el dios listo">, the smart god</surName>
+		<itemsLike>logwall,milk</itemsLike>
+		<itemsLikePCT>100,100</itemsLikePCT>
+		<itemsDislike>tree</itemsDislike>
+		<itemsDislikePCT>10</itemsDislikePCT>
+
+		<eventsWhenHappy>fertileground</eventsWhenHappy>
+		<eventsWhenReallyHappy>naturebless</eventsWhenReallyHappy>
+		<eventsWhenAngry>hot</eventsWhenAngry>
+		<eventsWhenReallyAngry>naturecurse</eventsWhenReallyAngry>
+	</god>
+
+	<god>
+		<id>war</id>
+		<namePool>god</namePool>
+		<surName esES=", el dios de la guerra">, the war god</surName>
+		<itemsLike>logwall,milk</itemsLike>
+		<itemsLikePCT>100,100</itemsLikePCT>
+		<itemsDislike>tree</itemsDislike>
+		<itemsDislikePCT>10</itemsDislikePCT>
+
+		<eventsWhenHappy>fertileground</eventsWhenHappy>
+		<eventsWhenReallyHappy>naturebless</eventsWhenReallyHappy>
+		<eventsWhenAngry>hot</eventsWhenAngry>
+		<eventsWhenReallyAngry>naturecurse</eventsWhenReallyAngry>
+	</god>
+
+	<god>
+		<id>death</id>
+		<namePool>god</namePool>
+		<surName esES=", el dios de la muerte">, the death god</surName>
+		<itemsLike>logwall,milk</itemsLike>
+		<itemsLikePCT>100,100</itemsLikePCT>
+		<itemsDislike>tree</itemsDislike>
+		<itemsDislikePCT>10</itemsDislikePCT>
+
+		<eventsWhenHappy>fertileground</eventsWhenHappy>
+		<eventsWhenReallyHappy>naturebless</eventsWhenReallyHappy>
+		<eventsWhenAngry>hot</eventsWhenAngry>
+		<eventsWhenReallyAngry>naturecurse</eventsWhenReallyAngry>
+	</god>
+
+</events>

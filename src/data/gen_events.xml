@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gen_map>
+	<seed id="seedtest">
+		<type>gold</type>
+		<num>1</num>
+		<level>12</level>
+		<turns>15</turns>
+
+		<northPCT>15</northPCT>
+		<southPCT>15</southPCT>
+		<eastPCT>15</eastPCT>
+		<westPCT>15</westPCT>
+		<upPCT>0</upPCT>
+		<downPCT>0</downPCT>
+	</seed>
+
+	<seed id="seedtest2">
+		<type>silver</type>
+		<startingPointID>seedtest</startingPointID>
+		<num>2</num>
+		<level>12</level>
+		<turns>5</turns>
+
+		<northPCT>15</northPCT>
+		<southPCT>15</southPCT>
+		<eastPCT>15</eastPCT>
+		<westPCT>15</westPCT>
+		<upPCT>0</upPCT>
+		<downPCT>0</downPCT>
+	</seed>
+
+	<seed id="volcanostart">
+		<type>lavarock</type>
+		<num>1</num>
+		<level>12</level>
+		<turns>1</turns>
+
+		<pointx>1d100+50</pointx>
+		<pointy>1d100+50</pointy>
+
+		<northPCT>100</northPCT>
+		<southPCT>100</southPCT>
+		<eastPCT>100</eastPCT>
+		<westPCT>100</westPCT>
+		<upPCT>0</upPCT>
+		<downPCT>0</downPCT>
+	</seed>
+
+	<seed id="volcanoclear">
+		<type>_AIR</type>
+		<startingPointID>volcanostart</startingPointID>
+		<num>1</num>
+		<level>11</level>
+		<turns>20</turns>
+
+		<northPCT>1d40+10</northPCT>
+		<southPCT>1d40+10</southPCT>
+		<eastPCT>1d40+10</eastPCT>
+		<westPCT>1d40+10</westPCT>
+		<upPCT>100</upPCT>
+		<downPCT>0</downPCT>
+	</seed>
+
+	<seed id="volcanoformstone">
+		<type>stone</type>
+		<startingPointID>volcanostart</startingPointID>
+		<num>1</num>
+		<level>11</level>
+		<turns>20</turns>
+
+		<northPCT>1d42+11</northPCT>
+		<southPCT>1d42+11</southPCT>
+		<eastPCT>1d42+11</eastPCT>
+		<westPCT>1d42+11</westPCT>
+		<upPCT>0</upPCT>
+		<downPCT>0</downPCT>
+	</seed>
+
+	<seed id="volcanoform">
+		<type>lavarock</type>
+		<startingPointID>volcanostart</startingPointID>
+		<num>1</num>
+		<level>12</level>
+		<turns>15</turns>
+
+		<northPCT>40</northPCT>
+		<southPCT>40</southPCT>
+		<eastPCT>40</eastPCT>
+		<westPCT>40</westPCT>
+		<upPCT>0</upPCT>
+		<downPCT>0</downPCT>
+	</seed>
+
+	<heightSeed id="volcanorise">
+		
+		<num>1</num>
+		<turns>10</turns>
+		<level>12</level>
+		<flatsBetweenLevels>1</flatsBetweenLevels>
+
+		<startingPointID>volcanostart</startingPointID>
+
+		<northPCT>85</northPCT>
+		<southPCT>85</southPCT>
+		<eastPCT>85</eastPCT>
+		<westPCT>85</westPCT>
+	</heightSeed>
+
+	<heightSeed id="volcanorise1">
+		
+		<num>1</num>
+		<turns>25</turns>
+		<level>12</level>
+		<flatsBetweenLevels>2</flatsBetweenLevels>
+
+		<startingPointID>volcanostart</startingPointID>
+
+		<northPCT>75</northPCT>
+		<southPCT>75</southPCT>
+		<eastPCT>75</eastPCT>
+		<westPCT>75</westPCT>
+	</heightSeed>
+
+	<heightSeed id="volcanorise2">
+		
+		<num>1</num>
+		<turns>18</turns>
+		<level>12</level>
+		<flatsBetweenLevels>2</flatsBetweenLevels>
+
+		<startingPointID>volcanostart</startingPointID>
+
+		<northPCT>65</northPCT>
+		<southPCT>65</southPCT>
+		<eastPCT>65</eastPCT>
+		<westPCT>65</westPCT>
+	</heightSeed>
+
+	<heightSeed id="volcanorise3">
+		
+		<num>1</num>
+		<turns>2</turns>
+		<level>12</level>
+		<flatsBetweenLevels>1</flatsBetweenLevels>
+
+		<startingPointID>volcanostart</startingPointID>
+
+		<northPCT>45</northPCT>
+		<southPCT>45</southPCT>
+		<eastPCT>45</eastPCT>
+		<westPCT>45</westPCT>
+	</heightSeed>
+
+	<heightSeed id="volcanorise4">
+		
+		<num>1</num>
+		<turns>1</turns>
+		<level>12</level>
+		<flatsBetweenLevels>1</flatsBetweenLevels>
+
+		<startingPointID>volcanostart</startingPointID>
+
+		<northPCT>25</northPCT>
+		<southPCT>25</southPCT>
+		<eastPCT>25</eastPCT>
+		<westPCT>25</westPCT>
+	</heightSeed>
+
+	<seed id="volcanosink">
+		<type>_AIR</type>
+
+		<startingPointID>volcanostart</startingPointID>
+		
+		<num>1</num>
+		<level>10</level>
+		<turns>16</turns>
+
+		<northPCT>17</northPCT>
+		<southPCT>17</southPCT>
+		<eastPCT>17</eastPCT>
+		<westPCT>17</westPCT>
+		<upPCT>100</upPCT>
+		<downPCT>0</downPCT>
+	</seed>
+
+	<seed id="lavapour">
+		<type>_LAVA_INF_</type>
+		<num>1</num>
+		<level>12</level>
+		<turns>15</turns>
+		<startingPointID>volcanostart</startingPointID>
+
+		<northPCT>1</northPCT>
+		<southPCT>1</southPCT>
+		<eastPCT>1</eastPCT>
+		<westPCT>1</westPCT>
+		<upPCT>100</upPCT>
+		<downPCT>0</downPCT>
+	</seed>
+
+	<seed id="lavavanish">
+		<type>_LAVA_</type>
+		<num>5</num>
+		<level>11</level>
+		<turns>30</turns>
+		<startingPointID>volcanostart</startingPointID>
+
+		<northPCT>2</northPCT>
+		<southPCT>2</southPCT>
+		<eastPCT>2</eastPCT>
+		<westPCT>2</westPCT>
+		<upPCT>100</upPCT>
+		<downPCT>0</downPCT>
+	</seed>
+
+
+
+	<!-- lake -->
+	<seed id="seedwater">
+		<!-- At the moment _WATER_ and _LAVA_ are special types, hardcoded in-game, NOT in terrain -->
+		<type>_WATER_</type>
+		<num>1d2</num>
+		<level>12</level>
+		<turns>1d50+75</turns>
+
+		<northPCT>2d7+2</northPCT>
+		<southPCT>1d20</southPCT>
+		<eastPCT>1d40+1</eastPCT>
+		<westPCT>2d20</westPCT>
+		<downPCT>5</downPCT>
+	</seed>
+
+
+	<!-- river -->
+	<bezier id="earthquake">
+		<type>_AIR</type>
+		<level>12</level>
+		<depth>2</depth>
+		<wide>1d5+4</wide>
+
+		<!-- First Bezier point -->
+		<point1_x_min>0</point1_x_min>
+		<point1_x_max>200</point1_x_max>
+		<point1_y_min>-200</point1_y_min>
+		<point1_y_max>-100</point1_y_max>
+
+		<!-- Second Bezier point -->
+		<point2_x_min>0</point2_x_min>
+		<point2_x_max>200</point2_x_max>
+		<point2_y_min>300</point2_y_min>
+		<point2_y_max>400</point2_y_max>
+
+		<!-- First Bezier control point -->
+		<controlpoint1_x_min>-200</controlpoint1_x_min>
+		<controlpoint1_x_max>0</controlpoint1_x_max>
+		<controlpoint1_y_min>200</controlpoint1_y_min>
+		<controlpoint1_y_max>200</controlpoint1_y_max>
+
+		<!-- Second Bezier control point -->
+		<controlpoint2_x_min>200</controlpoint2_x_min>
+		<controlpoint2_x_max>400</controlpoint2_x_max>
+		<controlpoint2_y_min>0</controlpoint2_y_min>
+		<controlpoint2_y_max>0</controlpoint2_y_max>
+	</bezier>
+
+
+	<bezier id="earthquake2">
+		<type>_WATER_</type>
+		<level>12</level>
+		<depth>2</depth>
+		<wide>1d5+4</wide>
+
+		<!-- First Bezier point -->
+		<point1_x_min>0</point1_x_min>
+		<point1_x_max>200</point1_x_max>
+		<point1_y_min>-200</point1_y_min>
+		<point1_y_max>-100</point1_y_max>
+
+		<!-- Second Bezier point -->
+		<point2_x_min>0</point2_x_min>
+		<point2_x_max>200</point2_x_max>
+		<point2_y_min>300</point2_y_min>
+		<point2_y_max>400</point2_y_max>
+
+		<!-- First Bezier control point -->
+		<controlpoint1_x_min>-200</controlpoint1_x_min>
+		<controlpoint1_x_max>0</controlpoint1_x_max>
+		<controlpoint1_y_min>200</controlpoint1_y_min>
+		<controlpoint1_y_max>200</controlpoint1_y_max>
+
+		<!-- Second Bezier control point -->
+		<controlpoint2_x_min>200</controlpoint2_x_min>
+		<controlpoint2_x_max>400</controlpoint2_x_max>
+		<controlpoint2_y_min>0</controlpoint2_y_min>
+		<controlpoint2_y_max>0</controlpoint2_y_max>
+	</bezier>
+</gen_map>
