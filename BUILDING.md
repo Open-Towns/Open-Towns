@@ -40,6 +40,14 @@ To inspect Java modernization warnings, enable compiler lint:
 gradle "-Ptowns.enableLint=true" clean classes
 ```
 
+To preflight the Maven dependencies needed to compile and run:
+
+```powershell
+gradle resolveBuildDependencies
+```
+
+If this fails with `No such host is known (repo.maven.apache.org)`, the runtime assets are fine, but Gradle cannot reach Maven Central yet. Check internet, DNS, VPN, firewall, or proxy settings, then rerun the command.
+
 ## Run
 
 ```powershell
@@ -63,10 +71,16 @@ This prints which expected runtime files/folders are present.
 To do the usual first-time local setup in one command:
 
 ```powershell
-gradle setupRuntimeAssets
+gradle setupDeveloperEnvironment
 ```
 
-This searches common install locations, copies the ignored runtime asset folders, and prints the final asset check.
+This searches common install locations, copies the ignored runtime asset folders, and downloads the Gradle build dependencies.
+
+For only the local runtime asset folders:
+
+```powershell
+gradle setupRuntimeAssets
+```
 
 To search common Steam library locations for an installed Towns release:
 

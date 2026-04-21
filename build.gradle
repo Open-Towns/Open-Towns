@@ -136,6 +136,28 @@ def resolvedRuntimeAssetSource = {
     runtimeAssetCandidates().find { validRuntimeAssetSource(it) }
 }
 
+def dependencyResolutionFailure = { String name, Exception cause ->
+    new GradleException("""Could not resolve ${name}.
+
+Gradle must download legacy Towns dependencies from Maven Central the first time this project is built.
+Check internet, DNS, VPN, firewall, or proxy access to:
+  https://repo.maven.apache.org/maven2/
+
+You can preflight dependency downloads with:
+  gradle resolveBuildDependencies
+
+Original error: ${cause.message}""", cause)
+}
+
+def resolveDependencyConfiguration = { String name, Configuration configuration ->
+    try {
+        def files = configuration.resolve()
+        println "OK      ${name} (${files.size()} files)"
+    } catch (Exception ex) {
+        throw dependencyResolutionFailure(name, ex)
+    }
+}
+
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
     options.release = townsJavaVersion
@@ -144,14 +166,35 @@ tasks.withType(JavaCompile).configureEach {
     }
 }
 
-tasks.register('copyLwjglNatives', Copy) {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    include '**/*.dll', '**/*.so', '**/*.dylib', '**/*.jnilib'
+tasks.register('resolveBuildDependencies') {
+    group = 'setup'
+    description = 'Downloads and verifies the Gradle dependencies needed to compile and run Towns.'
 
-    from {
-        configurations.lwjglNatives.collect { zipTree(it) }
+    doLast {
+        resolveDependencyConfiguration('Java compile classpath', configurations.compileClasspath)
+        resolveDependencyConfiguration('Java runtime classpath', configurations.runtimeClasspath)
+        resolveDependencyConfiguration('LWJGL native libraries', configurations.lwjglNatives)
     }
-    into lwjglNativesDir
+}
+
+tasks.register('copyLwjglNatives') {
+    group = 'setup'
+    description = 'Extracts LWJGL native libraries needed by the run task.'
+    dependsOn tasks.named('resolveBuildDependencies')
+    outputs.dir lwjglNativesDir
+
+    doLast {
+        try {
+            copy {
+                duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+                include '**/*.dll', '**/*.so', '**/*.dylib', '**/*.jnilib'
+                from configurations.lwjglNatives.resolve().collect { zipTree(it) }
+                into lwjglNativesDir
+            }
+        } catch (Exception ex) {
+            throw dependencyResolutionFailure('LWJGL native libraries', ex)
+        }
+    }
 }
 
 tasks.named('run', JavaExec) {
@@ -264,4 +307,11 @@ tasks.register('setupRuntimeAssets') {
             println "${path.exists() ? 'OK     ' : 'MISSING'} ${path}"
         }
     }
+}
+
+tasks.register('setupDeveloperEnvironment') {
+    group = 'setup'
+    description = 'Sets up local runtime assets and downloads Gradle build dependencies.'
+    dependsOn tasks.named('setupRuntimeAssets')
+    dependsOn tasks.named('resolveBuildDependencies')
 }
