@@ -31,10 +31,10 @@ public class MatsPanelData {
         }
 
         numGroups = 0;
-        iconGroups = new ArrayList<String>();
-        idGroups = new ArrayList<String>();
-        nameGroups = new ArrayList<String>();
-        indexTileGroups = new ArrayList<Integer>();
+        iconGroups = new ArrayList<>();
+        idGroups = new ArrayList<>();
+        nameGroups = new ArrayList<>();
+        indexTileGroups = new ArrayList<>();
         tileGroups = new ArrayList<ArrayList<Tile>>();
 
         loadXMLGroups(Towns.getPropertiesString("DATA_FOLDER") + "matspanel.xml", true); //$NON-NLS-1$ //$NON-NLS-2$
@@ -151,8 +151,8 @@ public class MatsPanelData {
                         }
                     }
 
-                    ArrayList<String> alItems = new ArrayList<String>();
-                    ArrayList<String> alItemNames = new ArrayList<String>();
+                    ArrayList<String> alItems = new ArrayList<>();
+                    ArrayList<String> alItemNames = new ArrayList<>();
                     if (alTypes != null && alTypes.size() > 0) {
                         // Para cada type, buscamos los iconos y creamos un tile
                         for (int t = 0; t < alTypes.size(); t++) {
@@ -182,7 +182,7 @@ public class MatsPanelData {
                     }
 
                     // Creamos los Tiles
-                    ArrayList<Tile> alTiles = new ArrayList<Tile>(alItems.size());
+                    ArrayList<Tile> alTiles = new ArrayList<>(alItems.size());
                     for (int t = 0; t < alItems.size(); t++) {
                         alTiles.add(new Tile(alItems.get(t)));
                     }

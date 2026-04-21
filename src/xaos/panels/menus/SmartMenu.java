@@ -161,7 +161,7 @@ public class SmartMenu implements Externalizable {
 
     public ArrayList<SmartMenu> getItems() {
         if (items == null) {
-            items = new ArrayList<SmartMenu>();
+            items = new ArrayList<>();
         }
         return items;
     }
@@ -172,7 +172,7 @@ public class SmartMenu implements Externalizable {
 
     public void addItem(SmartMenu item) {
         if (items == null) {
-            items = new ArrayList<SmartMenu>();
+            items = new ArrayList<>();
         }
 
         items.add(item);
@@ -645,11 +645,11 @@ public class SmartMenu implements Externalizable {
             // Miramos si es un código de crear objeto, en ese caso el icono se pilla según el mismo
             ItemManagerItem imi = null;
             LivingEntityManagerItem lemi = null;
-            ArrayList<String> alMessages = new ArrayList<String>();
-            ArrayList<ColorGL> alColor = new ArrayList<ColorGL>();
+            ArrayList<String> alMessages = new ArrayList<>();
+            ArrayList<ColorGL> alColor = new ArrayList<>();
             if (sCode.equals(CommandPanel.COMMAND_QUEUE) || sCode.equals(CommandPanel.COMMAND_QUEUE_AND_PLACE) || sCode.equals(CommandPanel.COMMAND_QUEUE_AND_PLACE_ROW) || sCode.equals(CommandPanel.COMMAND_QUEUE_AND_PLACE_AREA)) {
-                ArrayList<String> alMessagesBuilding = new ArrayList<String>();
-                ArrayList<String> alMessagesPrerequisites = new ArrayList<String>();
+                ArrayList<String> alMessagesBuilding = new ArrayList<>();
+                ArrayList<String> alMessagesPrerequisites = new ArrayList<>();
                 ActionManagerItem ami = ActionManager.getItem(sParameter);
                 if (ami != null && ami.getQueue() != null) {
                     ArrayList<QueueItem> alQueue = ami.getQueue();
@@ -657,7 +657,7 @@ public class SmartMenu implements Externalizable {
                     for (int i = 0; i < alQueue.size(); i++) {
                         if (alQueue.get(i).getType() == QueueItem.TYPE_MOVE || alQueue.get(i).getType() == QueueItem.TYPE_PICK) {
                             ArrayList<String> alList = Utils.getArray(alQueue.get(i).getValue());
-                            ArrayList<String> alListNames = new ArrayList<String>();
+                            ArrayList<String> alListNames = new ArrayList<>();
                             sName = null;
                             if (alList != null) {
                                 for (int ite = 0; ite < alList.size(); ite++) {
@@ -692,7 +692,7 @@ public class SmartMenu implements Externalizable {
                             }
                         } else if (alQueue.get(i).getType() == QueueItem.TYPE_PICK_FRIENDLY) {
                             ArrayList<String> alList = Utils.getArray(alQueue.get(i).getValue());
-                            ArrayList<String> alListNames = new ArrayList<String>();
+                            ArrayList<String> alListNames = new ArrayList<>();
                             sName = null;
                             if (alList != null) {
                                 for (int ite = 0; ite < alList.size(); ite++) {
@@ -973,7 +973,7 @@ public class SmartMenu implements Externalizable {
         }
 
         int iPartSize = (menu.getItems().size() / parts) + 1;
-        ArrayList<SmartMenu> alParts = new ArrayList<SmartMenu>();
+        ArrayList<SmartMenu> alParts = new ArrayList<>();
 
         // Creamos los menus
         for (int i = 0; i < parts; i++) {

@@ -169,8 +169,8 @@ public class TradePanel {
             // Items del mundo
             Integer[] aItems = World.getItems().keySet().toArray(new Integer[0]);
             Item oItem;
-            ArrayList<String> alIniHeaders = new ArrayList<String>();
-            ArrayList<Integer> alQtty = new ArrayList<Integer>();
+            ArrayList<String> alIniHeaders = new ArrayList<>();
+            ArrayList<Integer> alQtty = new ArrayList<>();
             for (int i = (aItems.length - 1); i >= 0; i--) {
                 oItem = World.getItems().get(aItems[i]);
                 if (oItem != null && !oItem.isLocked()) {
@@ -740,7 +740,7 @@ public class TradePanel {
             iMaxButtons = caravanData.getAlItems().size();
         }
 
-        ArrayList<Point> alButtonPoints = new ArrayList<Point>(iMaxButtons);
+        ArrayList<Point> alButtonPoints = new ArrayList<>(iMaxButtons);
         for (int i = 0; i < iMaxButtons; i++) {
             alButtonPoints.add(new Point(COLUMN1X, iYMin));
             iYMin += (tileTradeButton.getTileHeight() + 16);
@@ -763,7 +763,7 @@ public class TradePanel {
         if (iMaxButtons > caravanData.getMenuCaravanToBuy().getItems().size()) {
             iMaxButtons = caravanData.getMenuCaravanToBuy().getItems().size();
         }
-        ArrayList<Point> alButtonPointsToBuy = new ArrayList<Point>(iMaxButtons);
+        ArrayList<Point> alButtonPointsToBuy = new ArrayList<>(iMaxButtons);
         for (int i = 0; i < iMaxButtons; i++) {
             alButtonPointsToBuy.add(new Point(COLUMN2X + (tileTradeButton.getTileWidth() * 2), iYMin));
             iYMin += (tileTradeButton.getTileHeight() + 16);
@@ -792,7 +792,7 @@ public class TradePanel {
             iMaxButtons = getMenuTown().getItems().size();
         }
 
-        ArrayList<Point> alButtonPointsTown = new ArrayList<Point>(iMaxButtons);
+        ArrayList<Point> alButtonPointsTown = new ArrayList<>(iMaxButtons);
         for (int i = 0; i < iMaxButtons; i++) {
             alButtonPointsTown.add(new Point(COLUMN4X, iYMin));
             iYMin += (tileTradeButton.getTileHeight() + 16);
@@ -815,7 +815,7 @@ public class TradePanel {
         if (iMaxButtons > caravanData.getMenuTownToSell().getItems().size()) {
             iMaxButtons = caravanData.getMenuTownToSell().getItems().size();
         }
-        ArrayList<Point> alButtonPointsToSell = new ArrayList<Point>(iMaxButtons);
+        ArrayList<Point> alButtonPointsToSell = new ArrayList<>(iMaxButtons);
         for (int i = 0; i < iMaxButtons; i++) {
             alButtonPointsToSell.add(new Point(COLUMN3X, iYMin));
             iYMin += (tileTradeButton.getTileHeight() + 16);

@@ -67,9 +67,9 @@ public final class MissionPanel extends InfoPanel {
      *
     private void addMissionText(String text, boolean center, Color color) {
         if (alText == null) {
-            alText = new ArrayList<String>();
-            alCenter = new ArrayList<Boolean>();
-            alColor = new ArrayList<ColorGL>();
+            alText = new ArrayList<>();
+            alCenter = new ArrayList<>();
+            alColor = new ArrayList<>();
         }
 
         int iMaxChars = UtilFont.getMaxCharsByWidth(text, getWidth() - UtilFont.MAX_WIDTH);
