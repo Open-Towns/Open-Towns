@@ -280,6 +280,7 @@ public class HeroData implements Externalizable {
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         heroTask = (HeroTask) in.readObject();
         heroBehaviour = (HeroBehaviour) in.readObject();

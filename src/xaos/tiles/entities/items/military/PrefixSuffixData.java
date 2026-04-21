@@ -97,6 +97,7 @@ public class PrefixSuffixData implements Externalizable {
         return walkSpeed;
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         name = (String) in.readObject();
         attack = in.readInt();

@@ -741,6 +741,7 @@ public class Zone implements Externalizable {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         iniHeader = (String) in.readObject();
         ID = in.readInt();

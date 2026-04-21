@@ -107,6 +107,7 @@ public class HeroBehaviour implements Externalizable {
         return (iMaxTurns * PCT) / 100;
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         idlePCT = in.readInt();
         explorePCT = in.readInt();

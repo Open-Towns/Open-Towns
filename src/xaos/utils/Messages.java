@@ -17,7 +17,7 @@ public final class Messages {
     private static ResourceBundle RESOURCE_BUNDLE = Utils.getResourceBundle(BUNDLE_NAME);
 
     public static void changeLanguage(String sLanguage, String sCountry, String sModName) {
-        Locale.setDefault(new Locale(sLanguage, sCountry));
+        Locale.setDefault(Locale.of(sLanguage, sCountry));
 
         if (sModName == null) {
             RESOURCE_BUNDLE = Utils.getResourceBundle(BUNDLE_NAME);

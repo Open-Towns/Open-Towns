@@ -58,6 +58,7 @@ public final class TaskManagerItem implements Externalizable {
         return buffer.toString();
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         task = (Task) in.readObject();
         listCitizens = (ArrayList<Integer>) in.readObject();

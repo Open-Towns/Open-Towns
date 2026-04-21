@@ -153,6 +153,7 @@ public final class ColorGL implements Externalizable {
      }
      }
      */
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         r = in.readFloat();
         g = in.readFloat();

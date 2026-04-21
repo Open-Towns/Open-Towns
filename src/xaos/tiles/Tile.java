@@ -457,6 +457,7 @@ public class Tile implements Externalizable {
         setCurrentFrameDelay(Utils.getRandomBetween(0, getAnimationFrameDelay() - 1));
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         iID = in.readInt();
         iniHeader = (String) in.readObject();

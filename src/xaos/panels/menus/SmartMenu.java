@@ -1008,6 +1008,7 @@ public class SmartMenu implements Externalizable {
         return alParts.get(0);
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         type = in.readInt();
         name = (String) in.readObject();

@@ -1268,6 +1268,7 @@ public class Hero extends LivingEntity implements Externalizable {
         delete(true);
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         super.readExternal(in);
         citizenData = (CitizenData) in.readObject();

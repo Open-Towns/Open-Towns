@@ -260,6 +260,7 @@ public class SoldierData implements Externalizable {
         return getState() != STATE_NOT_A_SOLDIER;
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         state = in.readInt();
         counter = in.readInt();

@@ -86,6 +86,7 @@ public final class MessagesPanelData implements Externalizable {
         return width;
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         message = (String) in.readObject();
         color = (ColorGL) in.readObject();

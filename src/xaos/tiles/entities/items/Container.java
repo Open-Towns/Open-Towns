@@ -828,6 +828,7 @@ public class Container implements Externalizable {
 	}
 
 
+	@SuppressWarnings("unchecked")
 	public void readExternal (ObjectInput in) throws IOException, ClassNotFoundException {
 		itemID = in.readInt ();
 		itemsInside = (ArrayList<Item>) in.readObject ();

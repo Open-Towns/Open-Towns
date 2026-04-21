@@ -1742,6 +1742,7 @@ public final class Task implements Externalizable {
         this.hotPoints = hotPoints;
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         id = in.readInt();
         task = in.readInt();

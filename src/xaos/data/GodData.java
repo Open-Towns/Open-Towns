@@ -71,6 +71,7 @@ public class GodData implements Externalizable {
         return hoursLastEvent;
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         godID = (String) in.readObject();
         hidden = in.readBoolean();

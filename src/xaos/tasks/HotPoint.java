@@ -109,6 +109,7 @@ public final class HotPoint implements Externalizable {
         return parameter;
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         hotPoint = (Point3DShort) in.readObject();
         places = (ArrayList<Point3DShort>) in.readObject();

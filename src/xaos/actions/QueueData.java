@@ -65,6 +65,7 @@ public class QueueData implements Externalizable {
         return lastQueueItem;
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         itemIDCurrentPlace = in.readInt();
         itemIDPick = in.readInt();

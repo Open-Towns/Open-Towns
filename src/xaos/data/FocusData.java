@@ -36,6 +36,7 @@ public class FocusData implements Externalizable {
         this.entityType = entityType;
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         entityID = in.readInt();
         entityType = in.readInt();

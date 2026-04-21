@@ -3317,6 +3317,7 @@ public final class TaskManager implements Externalizable {
         return buffer.toString();
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         taskItems = (ArrayList<TaskManagerItem>) in.readObject();
         taskItemsTemp = (ArrayList<TaskManagerItem>) in.readObject();

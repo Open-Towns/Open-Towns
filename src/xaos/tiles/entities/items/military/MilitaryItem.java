@@ -293,6 +293,7 @@ public class MilitaryItem extends Item implements Externalizable {
         return true;
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         super.readExternal(in);
         attackModifier = in.readInt();

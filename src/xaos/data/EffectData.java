@@ -243,6 +243,7 @@ public class EffectData implements Externalizable {
         return happy;
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         effectID = (String) in.readObject();
         damagePCT = in.readInt();

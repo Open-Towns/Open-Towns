@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -166,7 +167,7 @@ public class UtilsServer {
             url = "http://" + url; //$NON-NLS-1$
         }
 
-        URL urlObject = new URL(url);
+        URL urlObject = new URI(url).toURL();
         URLConnection uc = urlObject.openConnection();
 
         try {
@@ -198,7 +199,7 @@ public class UtilsServer {
         /*
          * Get a connection to the URL and start up a buffered reader.
          */
-        URL url = new URL(dlURL);
+        URL url = new URI(dlURL).toURL();
         url.openConnection();
         InputStream reader = url.openStream();
 

@@ -72,6 +72,7 @@ public class Point3D implements Externalizable {
         return Point3DShort.getPoolInstance((short) x, (short) y, (short) z);
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         x = in.readInt();
         y = in.readInt();

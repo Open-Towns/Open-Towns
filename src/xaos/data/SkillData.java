@@ -40,6 +40,7 @@ public class SkillData implements Externalizable {
         return use;
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         skillID = (String) in.readObject();
         coolDown = in.readInt();

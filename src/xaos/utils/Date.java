@@ -80,6 +80,7 @@ public final class Date implements Externalizable {
         return sDate;
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         day = in.readInt();
         month = in.readInt();

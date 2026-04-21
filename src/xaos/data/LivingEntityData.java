@@ -398,6 +398,7 @@ public class LivingEntityData implements Externalizable {
         return Messages.getString("LivingEntityData.10") + getHealthPoints() + "/" + getHealthPointsMAXCurrent() + Messages.getString("LivingEntityData.13") + getAttackCurrent() + Messages.getString("LivingEntityData.14") + getDefenseCurrent() + Messages.getString("LivingEntityData.15") + getDamageCurrent(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         healthPoints = in.readInt();
         attackBase = in.readInt();

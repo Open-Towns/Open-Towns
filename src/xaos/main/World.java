@@ -4570,6 +4570,7 @@ public final class World implements Externalizable {
 	}
 
 
+	@SuppressWarnings("unchecked")
 	public void readExternal (ObjectInput in) throws IOException, ClassNotFoundException {
 		if (Game.SAVEGAME_LOADING_VERSION >= Game.SAVEGAME_V11) {
 			citizenGroups = (CitizenGroups) in.readObject ();

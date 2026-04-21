@@ -111,6 +111,7 @@ public abstract class Entity extends Tile implements Externalizable {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         super.readExternal(in);
         coordinates = (Point3DShort) in.readObject();

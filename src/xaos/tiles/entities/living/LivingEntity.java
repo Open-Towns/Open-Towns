@@ -4562,6 +4562,7 @@ public abstract class LivingEntity extends Entity implements Externalizable {
 	}
 
 
+	@SuppressWarnings("unchecked")
 	public void readExternal (ObjectInput in) throws IOException, ClassNotFoundException {
 		super.readExternal (in);
 		path = (ArrayList<Point3DShort>) in.readObject ();

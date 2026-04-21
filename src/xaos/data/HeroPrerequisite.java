@@ -170,6 +170,7 @@ public class HeroPrerequisite implements Externalizable {
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         id = in.readInt();
         valueInt = in.readInt();

@@ -598,6 +598,7 @@ public class CaravanData implements Externalizable {
         return menuTownToSell;
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         livingId = in.readInt();
         alItems = (ArrayList<CaravanItemDataInstance>) in.readObject();

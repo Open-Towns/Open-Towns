@@ -564,6 +564,7 @@ public class Building extends Entity implements Externalizable {
         return BuildingManager.getItem(getIniHeader()).getName();
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         super.readExternal(in);
         operative = in.readBoolean();

@@ -1434,6 +1434,7 @@ public class EventData implements Externalizable {
         return fxRunningTurns;
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         eventID = (String) in.readObject();
         order = in.readInt();

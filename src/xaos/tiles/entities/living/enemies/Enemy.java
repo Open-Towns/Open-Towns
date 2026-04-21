@@ -313,6 +313,7 @@ public class Enemy extends LivingEntity implements Externalizable {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         super.readExternal(in);
         siegeData = (SiegeData) in.readObject();

@@ -68,6 +68,7 @@ public class SoldierGroups implements Externalizable {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         soldiersWithoutGroup = (ArrayList<Integer>) in.readObject();
         groups = (ArrayList<SoldierGroupData>) in.readObject();

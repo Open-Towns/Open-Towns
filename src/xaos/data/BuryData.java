@@ -174,6 +174,7 @@ public class BuryData implements Externalizable {
         return bd;
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         if (Game.SAVEGAME_LOADING_VERSION >= Game.SAVEGAME_V12) {
             version = in.readInt();

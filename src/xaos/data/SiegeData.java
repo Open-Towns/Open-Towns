@@ -76,6 +76,7 @@ public class SiegeData implements Externalizable {
         return maxDestroy;
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         type = in.readByte();
         count = in.readInt();

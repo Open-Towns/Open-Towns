@@ -120,6 +120,7 @@ public class Action implements Externalizable {
         return buffer.toString();
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         id = (String) in.readObject();
         turns = in.readInt();

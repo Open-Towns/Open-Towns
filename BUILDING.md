@@ -34,6 +34,12 @@ gradle "-Ptowns.javaVersion=21" clean classes
 
 Gradle can auto-provision a matching JDK toolchain when one is not already installed locally.
 
+To inspect Java modernization warnings, enable compiler lint:
+
+```powershell
+gradle "-Ptowns.enableLint=true" clean classes
+```
+
 ## Run
 
 ```powershell

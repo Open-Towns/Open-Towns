@@ -304,11 +304,11 @@ public final class Game {
 	public static void loadAllIniTextures () {
 		Properties properties = Towns.getPropertiesGraphics ();
 		if (properties != null) {
-			Enumeration<String> enumNames = (Enumeration<String>) properties.propertyNames ();
+			Enumeration<?> enumNames = properties.propertyNames ();
 			String sName;
 			ArrayList<String> alNames = new ArrayList<String> ();
 			while (enumNames.hasMoreElements ()) {
-				sName = enumNames.nextElement ();
+				sName = (String) enumNames.nextElement ();
 				if (sName.indexOf ("TEXTURE_FILE") != -1) { //$NON-NLS-1$
 					sName = properties.getProperty (sName);
 					if (!alNames.contains (sName)) {

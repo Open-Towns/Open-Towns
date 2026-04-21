@@ -19,6 +19,7 @@ public class Ally extends LivingEntity implements Serializable {
         super(sIniHeader);
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         super.readExternal(in);
     }

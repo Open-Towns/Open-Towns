@@ -915,6 +915,7 @@ public class Terrain implements Externalizable {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         mineTurns = in.readShort();
         fluidType = (byte) in.readShort();

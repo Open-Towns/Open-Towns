@@ -116,6 +116,7 @@ public class MissionData implements Externalizable {
 	}
 
 
+	@SuppressWarnings("unchecked")
 	public void readExternal (ObjectInput in) throws IOException, ClassNotFoundException {
 		id = (String) in.readObject ();
 		name = (String) in.readObject ();

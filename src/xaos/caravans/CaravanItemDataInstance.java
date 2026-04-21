@@ -42,6 +42,7 @@ public class CaravanItemDataInstance implements Externalizable {
         this.quantity = quantity;
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         item = (Item) in.readObject();
         price = in.readInt();

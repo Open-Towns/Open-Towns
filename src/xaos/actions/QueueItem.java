@@ -253,6 +253,7 @@ public class QueueItem implements Externalizable {
         return qi;
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         type = in.readInt();
         value = (String) in.readObject();

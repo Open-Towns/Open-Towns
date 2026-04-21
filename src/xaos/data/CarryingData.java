@@ -34,6 +34,7 @@ public class CarryingData implements Externalizable {
         this.carryingLiving = carryingLiving;
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         carrying = (Item) in.readObject();
         carryingLiving = (LivingEntity) in.readObject();

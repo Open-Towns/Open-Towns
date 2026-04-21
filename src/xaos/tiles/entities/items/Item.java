@@ -2283,6 +2283,7 @@ public class Item extends Entity implements Externalizable {
 	}
 
 
+	@SuppressWarnings("unchecked")
 	public void readExternal (ObjectInput in) throws IOException, ClassNotFoundException {
 		super.readExternal (in);
 		flags = in.readByte ();

@@ -121,6 +121,7 @@ public class GlobalEventData implements Externalizable {
         icon = TILE_EVENT;
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         shadows = in.readBoolean();
         halfShadows = in.readBoolean();

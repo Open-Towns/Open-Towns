@@ -42,6 +42,7 @@ public class HeroTask implements Externalizable {
         return taskID;
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         taskID = in.readInt();
     }

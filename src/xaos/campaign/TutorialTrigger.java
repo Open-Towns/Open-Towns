@@ -220,6 +220,7 @@ public class TutorialTrigger implements Externalizable {
 		return paramXYZ;
 	}
 
+	@SuppressWarnings("unchecked")
 	public void readExternal (ObjectInput in) throws IOException, ClassNotFoundException {
 		type = in.readInt ();
 		param1 = (String) in.readObject ();

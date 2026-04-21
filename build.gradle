@@ -9,6 +9,9 @@ def townsJavaVersion = providers.gradleProperty('towns.javaVersion')
     .map { it as Integer }
     .orElse(25)
 def townsJavaLanguageVersion = townsJavaVersion.map { JavaLanguageVersion.of(it) }
+def townsEnableLint = providers.gradleProperty('towns.enableLint')
+    .map { it.toBoolean() }
+    .orElse(false)
 
 java {
     toolchain {
@@ -52,6 +55,9 @@ def lwjglNativesDir = layout.buildDirectory.dir('natives/lwjgl')
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
     options.release = townsJavaVersion
+    if (townsEnableLint.get()) {
+        options.compilerArgs.addAll(['-Xlint:deprecation', '-Xlint:unchecked'])
+    }
 }
 
 tasks.register('copyLwjglNatives', Copy) {

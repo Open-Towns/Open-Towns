@@ -743,6 +743,7 @@ public class Stockpile implements Externalizable {
 	}
 
 
+	@SuppressWarnings("unchecked")
 	public void readExternal (ObjectInput in) throws IOException, ClassNotFoundException {
 		ID = in.readInt ();
 		type = (Type) in.readObject ();

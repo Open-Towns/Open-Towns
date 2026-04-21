@@ -410,6 +410,7 @@ public class CitizenData implements Externalizable {
         return iReturn;
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         fullName = (String) in.readObject();
         zoneID = in.readInt();

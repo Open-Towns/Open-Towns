@@ -91,6 +91,7 @@ public class ZonePersonal extends Zone implements Externalizable {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         super.readExternal(in);
         ownerID = in.readInt();

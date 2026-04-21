@@ -22,6 +22,7 @@ public class TrapEffectData implements Externalizable {
         return damage;
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         damage = in.readInt();
     }

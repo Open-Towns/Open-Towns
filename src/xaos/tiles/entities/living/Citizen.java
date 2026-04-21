@@ -4049,6 +4049,7 @@ public class Citizen extends LivingEntity implements Externalizable {
         Game.getWorld().getCitizenGroups().removeCitizenFromGroup(getID(), getCitizenData().getGroupID());
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         super.readExternal(in);
         citizenData = (CitizenData) in.readObject();

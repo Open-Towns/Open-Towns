@@ -139,6 +139,7 @@ public class Point3DShort implements Externalizable {
 	}
 
 
+	@SuppressWarnings("unchecked")
 	public void readExternal (ObjectInput in) throws IOException, ClassNotFoundException {
 		x = in.readShort ();
 		y = in.readShort ();

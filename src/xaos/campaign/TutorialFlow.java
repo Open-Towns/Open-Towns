@@ -681,6 +681,7 @@ public class TutorialFlow implements Externalizable{
 	}
 
 
+	@SuppressWarnings("unchecked")
 	public void readExternal (ObjectInput in) throws IOException, ClassNotFoundException {
 		blinkItems = (int[]) in.readObject ();
 		blinkPiles = (ArrayList<String>) in.readObject ();

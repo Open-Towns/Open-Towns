@@ -120,6 +120,7 @@ public class SoldierGroupData implements Externalizable {
         World.checkFlagPatrolPoint(p3d);
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         id = in.readInt();
         name = (String) in.readObject();

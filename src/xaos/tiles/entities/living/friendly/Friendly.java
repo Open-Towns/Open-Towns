@@ -19,6 +19,7 @@ public class Friendly extends LivingEntity implements Externalizable {
         super(sIniHeader);
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         super.readExternal(in);
     }

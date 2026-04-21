@@ -248,6 +248,7 @@ public class Type implements Externalizable {
         typeIcons = null;
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         id = (String) in.readObject();
         name = (String) in.readObject();
