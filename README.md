@@ -34,7 +34,13 @@ You are welcome to fork the project, experiment, or create your own versions.
 
 I don’t guarantee reviewing pull requests or maintaining the project, but I’d genuinely enjoy seeing what comes out of it.
 
-If you build something interesting, feel free to share it :)
+# Community
+If you build something interesting, feel free to share it on the Discord server.
+
+It's also the place to discuss ideas, mods, and the future of Towns with other contributors.
+
+[[Discord invite link](https://discord.gg/wAW28PkrwF)]
+
 
 
 Thanks to everyone who has been part of this project.
