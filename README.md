@@ -1,5 +1,16 @@
 # Towns Forever Baby!!
 
+Quick start Instructions:
+
+```
+git clone https://github.com/JustinHammitt/TownsEX.git
+cd TownsEX
+.\gradlew.bat setupRuntimeAssets
+# if this fails you'll have to extract the assets from your game manually
+# TODO: Asset extraction steps
+.\gradlew.bat run
+```
+
 Short term goals:
 - Keep JDK 25 builds clean.
 - Rebuild the developer setup around Gradle.
@@ -45,7 +56,13 @@ You are welcome to fork the project, experiment, or create your own versions.
 
 I don’t guarantee reviewing pull requests or maintaining the project, but I’d genuinely enjoy seeing what comes out of it.
 
-If you build something interesting, feel free to share it :)
+# Community
+If you build something interesting, feel free to share it on the Discord server.
+
+It's also the place to discuss ideas, mods, and the future of Towns with other contributors.
+
+[[Discord invite link](https://discord.gg/wAW28PkrwF)]
+
 
 
 
