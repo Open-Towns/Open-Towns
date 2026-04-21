@@ -132,7 +132,7 @@ public class ActionManagerItem {
         }
 
         // Devolvemos una copia
-        ArrayList<QueueItem> alReturn = new ArrayList<QueueItem>();
+        ArrayList<QueueItem> alReturn = new ArrayList<>();
         for (int i = 0; i < queue.size(); i++) {
             alReturn.add(queue.get(i).copy());
         }

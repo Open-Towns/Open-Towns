@@ -20,7 +20,7 @@ public class ActionManager {
     private static HashMap<String, ActionManagerItem> itemList;
 
     public static void loadItems() {
-        itemList = new HashMap<String, ActionManagerItem>();
+        itemList = new HashMap<>();
 
         // Cargar de fichero
         loadXMLActions(Towns.getPropertiesString("DATA_FOLDER") + "actions.xml", true);
@@ -219,7 +219,7 @@ public class ActionManager {
                 node = list.item(i);
                 if (node.getNodeType() == Node.ELEMENT_NODE && node.getNodeName().equals("queue") && node.getChildNodes().item(0) != null) { //$NON-NLS-1$
                     // Tenemos el tag "queue", lo recorremos entero y vamos creando la queue
-                    returnQueue = new ArrayList<QueueItem>();
+                    returnQueue = new ArrayList<>();
                     NodeList nl = node.getChildNodes();
                     for (int j = 0; j < nl.getLength(); j++) {
                         node = nl.item(j);

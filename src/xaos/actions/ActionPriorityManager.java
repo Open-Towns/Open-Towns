@@ -42,9 +42,9 @@ public class ActionPriorityManager {
 
     public static void loadItems() {
         // Cargar de fichero
-        prioritiesList = new ArrayList<String>();
-        prioritiesValues = new HashMap<String, Integer>();
-        itemList = new HashMap<String, ActionPriorityManagerItem>();
+        prioritiesList = new ArrayList<>();
+        prioritiesValues = new HashMap<>();
+        itemList = new HashMap<>();
 
         // Cargar de fichero
         loadXMLPriorityActions(Towns.getPropertiesString("DATA_FOLDER") + "priorities.xml");
