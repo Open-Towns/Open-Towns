@@ -4,10 +4,10 @@ This repository keeps the original released Towns layout: Java source, XML data,
 
 ## Requirements
 
-- JDK 21 is the current project baseline.
-- Gradle 8.x.
+- JDK 25 is the current default project baseline.
+- Gradle 9.x.
 
-Java 25 is the current LTS line as of 2026, but this machine currently has Temurin 17 and 21 installed. Java 26 is a non-LTS feature release, so it is not the best long-lived baseline for this project.
+Java 25 is the current LTS line as of 2026. Java 26 is a non-LTS feature release, so it is not the best long-lived baseline for this project. The Gradle wrapper is on a Java-25-capable version, and the build target is controlled by `towns.javaVersion` in `gradle.properties`.
 
 The build pulls the legacy game libraries from public Maven repositories:
 
@@ -25,6 +25,14 @@ gradle classes
 ```
 
 The Java source files have been normalized to UTF-8, and the Gradle build compiles them with UTF-8 explicitly.
+
+To test a different Java target, override the project Java version:
+
+```powershell
+gradle "-Ptowns.javaVersion=21" clean classes
+```
+
+Gradle can auto-provision a matching JDK toolchain when one is not already installed locally.
 
 ## Run
 

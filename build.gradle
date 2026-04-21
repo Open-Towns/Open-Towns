@@ -5,9 +5,14 @@ plugins {
 group = 'townsex'
 version = '0.1.0-SNAPSHOT'
 
+def townsJavaVersion = providers.gradleProperty('towns.javaVersion')
+    .map { it as Integer }
+    .orElse(25)
+def townsJavaLanguageVersion = townsJavaVersion.map { JavaLanguageVersion.of(it) }
+
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = townsJavaLanguageVersion
     }
 }
 
@@ -46,7 +51,7 @@ def lwjglNativesDir = layout.buildDirectory.dir('natives/lwjgl')
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
-    options.release = 21
+    options.release = townsJavaVersion
 }
 
 tasks.register('copyLwjglNatives', Copy) {
@@ -63,11 +68,12 @@ tasks.named('run', JavaExec) {
     dependsOn tasks.named('copyLwjglNatives')
     workingDir = file('src')
     javaLauncher = javaToolchains.launcherFor {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = townsJavaLanguageVersion
     }
 
     doFirst {
         def nativePath = lwjglNativesDir.get().asFile.absolutePath
+        println "TownsEX Java target: ${townsJavaVersion.get()}"
         jvmArgs "-Dorg.lwjgl.librarypath=${nativePath}"
         jvmArgs "-Dnet.java.games.input.librarypath=${nativePath}"
         jvmArgs "-Djava.library.path=${nativePath}"
@@ -80,6 +86,7 @@ tasks.register('printRuntimeInfo') {
 
     doLast {
         println "Main class: ${application.mainClass.get()}"
+        println "Java target: ${townsJavaVersion.get()}"
         println "Run working directory: ${file('src').absolutePath}"
         println "LWJGL native directory: ${lwjglNativesDir.get().asFile.absolutePath}"
     }
