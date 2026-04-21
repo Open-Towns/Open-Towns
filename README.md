@@ -1,11 +1,10 @@
 # Towns Forever Baby!!
 
 Short term goals:
--JDK25 Modernization
-
-\-IDK tbh i might just update to a good LTS and call it a day!!!
-
-
+- Keep JDK 25 builds clean.
+- Rebuild the developer setup around Gradle.
+- Make runtime asset setup one command: `gradle setupRuntimeAssets`.
+- Map mod loading and add small authoring tools.
 
 # Towns
 

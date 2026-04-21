@@ -60,6 +60,14 @@ gradle checkRuntimeAssets
 
 This prints which expected runtime files/folders are present.
 
+To do the usual first-time local setup in one command:
+
+```powershell
+gradle setupRuntimeAssets
+```
+
+This searches common install locations, copies the ignored runtime asset folders, and prints the final asset check.
+
 To search common Steam library locations for an installed Towns release:
 
 ```powershell

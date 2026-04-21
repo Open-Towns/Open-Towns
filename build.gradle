@@ -236,3 +236,32 @@ tasks.register('copyRuntimeAssets') {
         println "Copied Towns runtime assets from ${source}"
     }
 }
+
+tasks.register('setupRuntimeAssets') {
+    group = 'setup'
+    description = 'Finds, copies, and verifies original Towns runtime assets for local development.'
+
+    doLast {
+        def candidates = runtimeAssetCandidates()
+        candidates.each { candidate ->
+            println "${validRuntimeAssetSource(candidate) ? 'FOUND  ' : 'SKIP   '} ${candidate}"
+        }
+
+        def source = candidates.find { validRuntimeAssetSource(it) }
+        if (source == null) {
+            throw new GradleException('Could not find Towns runtime assets. Pass -Ptowns.assetSource=<installed Towns folder or data folder>.')
+        }
+
+        runtimeAssetDirs.each { assetDir ->
+            copy {
+                from new File(source, assetDir)
+                into file("src/data/${assetDir}")
+            }
+        }
+
+        println "Copied Towns runtime assets from ${source}"
+        requiredRuntimeAssetPaths().each { path ->
+            println "${path.exists() ? 'OK     ' : 'MISSING'} ${path}"
+        }
+    }
+}
