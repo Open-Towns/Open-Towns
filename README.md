@@ -2,24 +2,40 @@
 
 Quick start Instructions:
 
+Windows
+
 ```
 git clone https://github.com/JustinHammitt/TownsEX.git
 cd TownsEX
-.\gradlew.bat setupRuntimeAssets
+.\\\\gradlew.bat setupRuntimeAssets
 # if this fails you'll have to extract the assets from your game manually
 # TODO: Asset extraction steps
-.\gradlew.bat run
+.\\\\gradlew.bat run
+```
+
+Linux, Thanks wu!
+Tuesday, April 21, 2026 5:48 PM wu: its running on linux as well - but no sound at the moment
+
+```
+
+git clone https://github.com/JustinHammitt/TownsEX.git
+cd TownsEX
+chmod +x gradlew
+./gradlew setupRuntimeAssets -Ptowns.assetSource="/home/$USER/.local/share/Steam/steamapps/common/towns/"
+./gradlew run
+
 ```
 
 Short term goals:
-- Keep JDK 25 builds clean.
-- Rebuild the developer setup around Gradle.
-- Make runtime asset setup one command: `gradle setupRuntimeAssets`.
-- TBD
+
+\* Keep JDK 25 builds clean.
+\* Rebuild the developer setup around Gradle.
+\* Make runtime asset setup one command: `gradle setupRuntimeAssets`.
+\* TBD
 
 # Towns
 
-Repository for the [Towns game](https://store.steampowered.com/app/221020/Towns/)
+Repository for the \[Towns game](https://store.steampowered.com/app/221020/Towns/)
 
 This game was originally developed over a decade ago. For a while, it built a small but active community. Today, that community is much smaller, but the project still lives on in different ways.
 
@@ -33,38 +49,41 @@ This repository is the result of that decision.
 
 # Repository Contents
 
-* Full source code of the game
-* Basic game data (.ini files, .xml files)
+\* Full source code of the game
+\* Basic game data (.ini files, .xml files)
 
 # Code License
 
-The source code is released under the [GNU GPL v3 license](./LICENSE).
+The source code is released under the \[GNU GPL v3 license](./LICENSE).
 
 In simple terms:
 
-* You can use, study, and modify the code
-* You can redistribute it
-* If you distribute a modified version, you must also release it under GPL and make the source code available
+\* You can use, study, and modify the code
+\* You can redistribute it
+\* If you distribute a modified version, you must also release it under GPL and make the source code available
 
-See the [LICENSE](./LICENSE) file for the full text.
+See the \[LICENSE](./LICENSE) file for the full text.
 
 
 
-# Contributions \& Forks
+# Contributions \\\& Forks
 
 You are welcome to fork the project, experiment, or create your own versions.
 
 I don’t guarantee reviewing pull requests or maintaining the project, but I’d genuinely enjoy seeing what comes out of it.
 
 # Community
+
 If you build something interesting, feel free to share it on the Discord server.
 
 It's also the place to discuss ideas, mods, and the future of Towns with other contributors.
 
-[[Discord invite link](https://discord.gg/wAW28PkrwF)]
+\\\[\[Discord invite link](https://discord.gg/wAW28PkrwF)]
+
 
 
 
 
 Thanks to everyone who has been part of this project.
+
 
