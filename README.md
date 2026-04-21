@@ -4,7 +4,7 @@ Short term goals:
 - Keep JDK 25 builds clean.
 - Rebuild the developer setup around Gradle.
 - Make runtime asset setup one command: `gradle setupRuntimeAssets`.
-- Map mod loading and add small authoring tools.
+- TBD
 
 # Towns
 
