@@ -82,6 +82,7 @@ It's also the place to discuss ideas, mods, and the future of Towns with other c
 
 [Discord invite link](https://discord.gg/wAW28PkrwF)
 
+Thanks to everyone who has been part of this project.
 
 # Troubleshooting
 
@@ -108,5 +109,4 @@ Could not determine the dependencies of task ':copyLwjglNatives'.
                > No such host is known (repo.maven.apache.org)
 ```
 
-Thanks to everyone who has been part of this project.
 
