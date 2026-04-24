@@ -36,6 +36,7 @@ The original game assets (including graphics, audio, and other media) used by th
 These assets remain the property of their respective authors and may be subject to separate usage and distribution restrictions. Therefore:
 
 - They must NOT be included in public forks of this repository
+- They must NOT be redistributed under the GPL or any other license without permission from their original authors
 
 This repository only contains code and/or assets that are safe and legal to redistribute under its license.
 
