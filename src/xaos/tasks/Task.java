@@ -7,7 +7,7 @@ import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import org.lwjgl.input.Keyboard;
+import xaos.platform.lwjgl3.input.Keyboard;
 
 import xaos.actions.Action;
 import xaos.actions.ActionManager;

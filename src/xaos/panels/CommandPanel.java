@@ -5,7 +5,7 @@ import java.awt.Desktop;
 import java.io.File;
 import java.util.ArrayList;
 
-import org.lwjgl.opengl.Display;
+import xaos.platform.lwjgl3.opengl.Display;
 import org.lwjgl.opengl.GL11;
 
 import xaos.Towns;

@@ -1,4 +1,4 @@
-package org.lwjgl.input;
+package xaos.platform.lwjgl3.input;
 
 import java.nio.IntBuffer;
 

@@ -4,9 +4,7 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.awt.image.PixelGrabber;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -19,13 +17,14 @@ import java.util.HashMap;
 import javax.imageio.ImageIO;
 
 import org.lwjgl.BufferUtils;
-import org.lwjgl.LWJGLException;
-import org.lwjgl.input.Cursor;
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.DisplayMode;
+import xaos.platform.lwjgl3.LWJGLException;
+import xaos.platform.lwjgl3.input.Cursor;
+import xaos.platform.lwjgl3.input.Mouse;
+import xaos.platform.lwjgl3.opengl.Display;
+import xaos.platform.lwjgl3.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
+import org.lwjgl.stb.STBImage;
 
 import xaos.Towns;
 import xaos.data.GlobalEventData;
@@ -36,8 +35,6 @@ import xaos.panels.UIPanel;
 import xaos.property.PropertyFile;
 import xaos.tiles.Cell;
 import xaos.tiles.Tile;
-import de.matthiasmann.twl.utils.PNGDecoder;
-import de.matthiasmann.twl.utils.PNGDecoder.Format;
 
 
 public final class UtilsGL {
@@ -633,31 +630,29 @@ public final class UtilsGL {
 
 
 	/**
-	 * loads the image data using the faster pngdecoder
+	 * Loads the image data using LWJGL3's stb bindings.
 	 * 
 	 * @param imageFile
 	 * @return
 	 */
 	private static ImageData loadImageData (String imageFile, String imageName) throws IOException {
-		InputStream in = null;
+		IntBuffer widthBuffer = BufferUtils.createIntBuffer (1);
+		IntBuffer heightBuffer = BufferUtils.createIntBuffer (1);
+		IntBuffer channelsBuffer = BufferUtils.createIntBuffer (1);
+		ByteBuffer decoded = STBImage.stbi_load (imageFile, widthBuffer, heightBuffer, channelsBuffer, 4);
+		if (decoded == null) {
+			throw new IOException (STBImage.stbi_failure_reason ());
+		}
+
 		try {
-			in = new FileInputStream (imageFile);
-			PNGDecoder decoder = new PNGDecoder (in);
-
-			int width = decoder.getWidth ();
-			int height = decoder.getHeight ();
-
-			ByteBuffer buffer = ByteBuffer.allocateDirect (4 * decoder.getWidth () * decoder.getHeight ());
-			decoder.decode (buffer, decoder.getWidth () * 4, Format.RGBA);
+			ByteBuffer buffer = ByteBuffer.allocateDirect (decoded.remaining ());
+			buffer.put (decoded);
 			buffer.flip ();
 
-			ImageData image = new ImageData (imageName, width, height, buffer, GL11.GL_RGBA);
-			return image;
+			return new ImageData (imageName, widthBuffer.get (0), heightBuffer.get (0), buffer, GL11.GL_RGBA);
 		}
 		finally {
-			if (in != null) {
-				in.close ();
-			}
+			STBImage.stbi_image_free (decoded);
 		}
 	}
 

@@ -27,7 +27,7 @@ public final class Towns {
 
     public static boolean loadSteamAPI(String sLibName) {
         try {
-            JNASteamAPI steamAPI = (JNASteamAPI) Native.loadLibrary(sLibName, JNASteamAPI.class);
+            JNASteamAPI steamAPI = Native.load(sLibName, JNASteamAPI.class);
             steamAPI.SteamAPI_Init();
             return true;
         } catch (Throwable t) {

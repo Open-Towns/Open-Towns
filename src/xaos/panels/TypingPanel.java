@@ -2,7 +2,7 @@ package xaos.panels;
 
 import java.awt.Point;
 
-import org.lwjgl.input.Keyboard;
+import xaos.platform.lwjgl3.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import xaos.main.Game;

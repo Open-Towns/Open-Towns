@@ -1,4 +1,4 @@
-package org.lwjgl.opengl;
+package xaos.platform.lwjgl3.opengl;
 
 public final class DisplayMode {
     private final int width;

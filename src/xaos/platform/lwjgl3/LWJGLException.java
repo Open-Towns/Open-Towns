@@ -1,4 +1,4 @@
-package org.lwjgl;
+package xaos.platform.lwjgl3;
 
 public class LWJGLException extends Exception {
     public LWJGLException(String message) {

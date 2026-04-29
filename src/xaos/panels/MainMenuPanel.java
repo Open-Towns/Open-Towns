@@ -5,9 +5,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.Display;
+import xaos.platform.lwjgl3.input.Keyboard;
+import xaos.platform.lwjgl3.input.Mouse;
+import xaos.platform.lwjgl3.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import xaos.property.PropertyFile;
 

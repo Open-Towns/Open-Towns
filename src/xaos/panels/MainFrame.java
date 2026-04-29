@@ -12,7 +12,7 @@ import java.awt.event.WindowListener;
 
 import javax.swing.ImageIcon;
 
-import org.lwjgl.opengl.Display;
+import xaos.platform.lwjgl3.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import xaos.property.PropertyFile;
 
