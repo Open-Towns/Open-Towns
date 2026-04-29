@@ -29,11 +29,10 @@ chmod +x gradlew
 [Issues? Troubleshooting](#Troubleshooting)
 
 Short term goals:
-
-- Keep JDK 25 builds clean.
-- Rebuild the developer setup around Gradle.
-- Make runtime asset setup one command: `gradle setupRuntimeAssets`.
-- TBD
+ - [x] JDK Version 25
+ - [x] lwjglVersion 3.4.1
+ - [x] jnaVersion 5.18.1
+ - [ ] TBD
 
 # Towns
 
