@@ -13,12 +13,12 @@ import java.util.StringTokenizer;
 import javax.imageio.ImageIO;
 
 import org.lwjgl.BufferUtils;
-import org.lwjgl.LWJGLException;
-import org.lwjgl.Sys;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.DisplayMode;
+import xaos.platform.lwjgl3.LWJGLException;
+import xaos.platform.lwjgl3.Sys;
+import xaos.platform.lwjgl3.input.Keyboard;
+import xaos.platform.lwjgl3.input.Mouse;
+import xaos.platform.lwjgl3.opengl.Display;
+import xaos.platform.lwjgl3.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 
 import xaos.Towns;

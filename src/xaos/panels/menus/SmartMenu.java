@@ -12,7 +12,7 @@ import java.util.Locale;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.lwjgl.input.Mouse;
+import xaos.platform.lwjgl3.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;

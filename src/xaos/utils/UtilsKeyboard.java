@@ -2,7 +2,7 @@ package xaos.utils;
 
 import java.util.StringTokenizer;
 
-import org.lwjgl.input.Keyboard;
+import xaos.platform.lwjgl3.input.Keyboard;
 
 import xaos.Towns;
 

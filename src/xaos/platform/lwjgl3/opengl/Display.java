@@ -1,15 +1,16 @@
-package org.lwjgl.opengl;
+package xaos.platform.lwjgl3.opengl;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lwjgl.LWJGLException;
 import org.lwjgl.glfw.GLFWVidMode;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
+import xaos.platform.lwjgl3.LWJGLException;
+import xaos.platform.lwjgl3.input.Keyboard;
+import xaos.platform.lwjgl3.input.Mouse;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.system.MemoryUtil.NULL;

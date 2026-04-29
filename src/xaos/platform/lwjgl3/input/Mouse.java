@@ -1,12 +1,12 @@
-package org.lwjgl.input;
+package xaos.platform.lwjgl3.input;
 
 import java.nio.IntBuffer;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-import org.lwjgl.LWJGLException;
+import xaos.platform.lwjgl3.LWJGLException;
 import org.lwjgl.glfw.GLFWImage;
-import org.lwjgl.opengl.Display;
+import xaos.platform.lwjgl3.opengl.Display;
 import org.lwjgl.system.MemoryStack;
 
 import static org.lwjgl.glfw.GLFW.*;

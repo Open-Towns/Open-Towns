@@ -3,7 +3,7 @@ package xaos.panels;
 import java.awt.Point;
 import java.util.ArrayList;
 
-import org.lwjgl.input.Keyboard;
+import xaos.platform.lwjgl3.input.Keyboard;
 
 import xaos.caravans.CaravanManager;
 import xaos.caravans.CaravanManagerItem;
