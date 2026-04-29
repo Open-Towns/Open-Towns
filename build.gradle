@@ -189,9 +189,13 @@ tasks.named('run', JavaExec) {
     javaLauncher = javaToolchains.launcherFor {
         languageVersion = townsJavaLanguageVersion
     }
+    jvmArgs '--enable-native-access=ALL-UNNAMED'
+    systemProperty 'towns.disableSteam', 'true'
+    systemProperty 'towns.startupTrace', 'true'
 
     doFirst {
         println "TownsEX Java target: ${townsJavaVersion.get()}"
+        println "Steam API loading disabled for Gradle run: ${systemProperties['towns.disableSteam']}"
     }
 }
 

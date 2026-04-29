@@ -21,6 +21,8 @@ import xaos.property.Property;
 
 public final class Towns {
 
+    private static final String DISABLE_STEAM_PROPERTY = "towns.disableSteam";
+
     // Properties in ini files
     public static Properties propertiesMain;
     public static Properties propertiesGraphics;
@@ -39,7 +41,7 @@ public final class Towns {
     public static void main(String[] args) {
 //		if (true) System.exit (0);
         // Steam
-        if (!loadSteamAPI("steam_api")) {
+        if (!Boolean.getBoolean(DISABLE_STEAM_PROPERTY) && !loadSteamAPI("steam_api")) {
             loadSteamAPI("steam_api64");
         }
 

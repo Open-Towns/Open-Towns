@@ -9,6 +9,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.nio.file.Files;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -25,6 +26,7 @@ import xaos.platform.lwjgl3.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.stb.STBImage;
+import org.lwjgl.system.MemoryUtil;
 
 import xaos.Towns;
 import xaos.data.GlobalEventData;
@@ -38,6 +40,7 @@ import xaos.tiles.Tile;
 
 
 public final class UtilsGL {
+
 
 	public static boolean ATI_begin = false;
 	public static boolean ATI_drawed = false;
@@ -636,23 +639,33 @@ public final class UtilsGL {
 	 * @return
 	 */
 	private static ImageData loadImageData (String imageFile, String imageName) throws IOException {
+		byte[] imageBytes = Files.readAllBytes (new File (imageFile).toPath ());
+		ByteBuffer encoded = MemoryUtil.memAlloc (imageBytes.length);
 		IntBuffer widthBuffer = BufferUtils.createIntBuffer (1);
 		IntBuffer heightBuffer = BufferUtils.createIntBuffer (1);
 		IntBuffer channelsBuffer = BufferUtils.createIntBuffer (1);
-		ByteBuffer decoded = STBImage.stbi_load (imageFile, widthBuffer, heightBuffer, channelsBuffer, 4);
-		if (decoded == null) {
-			throw new IOException (STBImage.stbi_failure_reason ());
-		}
+		ByteBuffer decoded = null;
 
 		try {
+			encoded.put (imageBytes);
+			encoded.flip ();
+
+			decoded = STBImage.stbi_load_from_memory (encoded, widthBuffer, heightBuffer, channelsBuffer, 4);
+			if (decoded == null) {
+				throw new IOException (STBImage.stbi_failure_reason ());
+			}
+
 			ByteBuffer buffer = ByteBuffer.allocateDirect (decoded.remaining ());
-			buffer.put (decoded);
+			buffer.put (decoded.asReadOnlyBuffer ());
 			buffer.flip ();
 
 			return new ImageData (imageName, widthBuffer.get (0), heightBuffer.get (0), buffer, GL11.GL_RGBA);
 		}
 		finally {
-			STBImage.stbi_image_free (decoded);
+			if (decoded != null) {
+				STBImage.stbi_image_free (decoded);
+			}
+			MemoryUtil.memFree (encoded);
 		}
 	}
 
