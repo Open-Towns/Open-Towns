@@ -1,38 +1,58 @@
-# Towns Forever Baby!!
+# Towns Forever Baby!!!!
 
-Quick start Instructions:
+Modernized community source release for Towns.
 
-Windows
+## Quick Start
+
+### Windows
 
 ```
-git clone https://github.com/JustinHammitt/TownsEX.git
-cd TownsEX
+git clone https://github.com/JustinHammitt/TownsForever.git
+cd TownsForever
 .\gradlew.bat setupRuntimeAssets
-# if this fails you'll have to extract the assets from your game manually
-# TODO: Asset extraction steps
 .\gradlew.bat run
 ```
 
-Linux, Thanks wu!
-Tuesday, April 21, 2026 5:48 PM wu: its running on linux as well - but no sound at the moment
+If asset setup cannot find your installed game automatically, pass the install or data folder manually:
 
 ```
+.\gradlew.bat setupRuntimeAssets -Ptowns.assetSource="C:\Path\To\Towns\data"
+```
 
-git clone https://github.com/JustinHammitt/TownsEX.git
-cd TownsEX
+### Linux
+
+Thanks wu! It runs on Linux too, though sound may still need work.
+
+```
+git clone https://github.com/JustinHammitt/TownsForever.git
+cd TownsForever
 chmod +x gradlew
 ./gradlew setupRuntimeAssets -Ptowns.assetSource="/home/$USER/.local/share/Steam/steamapps/common/towns/"
 ./gradlew run
-
 ```
 
-[Issues? Troubleshooting](#Troubleshooting)
+## Useful Gradle Tasks
 
-Short term goals:
+```
+.\gradlew.bat printRuntimeInfo
+.\gradlew.bat checkRuntimeAssets
+.\gradlew.bat resolveBuildDependencies
+.\gradlew.bat run
+```
+
+`run` uses the local `src` folder as the working directory so the original `.ini` files and copied runtime assets are found.
+
+## Current Runtime
+
  - [x] JDK Version 25
- - [x] lwjglVersion 3.4.1
- - [x] jnaVersion 5.18.1
- - [ ] TBD
+ - [x] LWJGL 3.4.1
+ - [x] JNA 5.18.1
+ - [x] Gradle-managed LWJGL natives
+ - [x] Steam native access enabled for Java 25
+ - [ ] GH Workflow Steam Release and build
+ - [ ] Linux audio follow-up
+
+[Issues? Troubleshooting](#troubleshooting)
 
 # Towns
 
@@ -96,27 +116,38 @@ Thanks to everyone who has been part of this project.
 
 # Troubleshooting
 
-rebuild your dependencies.
+Refresh and verify dependencies:
+
 ```
 .\gradlew.bat resolveBuildDependencies --refresh-dependencies
 .\gradlew.bat run
 ```
 
-This mean's gradle was unable to conneect to the repo and fetch a dependancy(lwjgl:2.9.3).
-Check your VPN, firewall, whaterver. 
-If you can reach your dependency in your browser you should be able to build.
-https://repo.maven.apache.org/maven2/org/lwjgl/lwjgl/lwjgl-platform/2.9.3/
+If Gradle cannot download dependencies, check DNS, VPN, firewall, or proxy access to Maven Central:
+
+https://repo.maven.apache.org/maven2/
+
+The current dependency set uses LWJGL 3.4.1, JNA 5.18.1, and `pngdecoder` for legacy image loading compatibility. Older LWJGL 2 native-copy troubleshooting no longer applies.
+
+Check runtime asset setup:
+
+```
+.\gradlew.bat checkRuntimeAssets
+.\gradlew.bat findRuntimeAssets
+```
+
+If the game starts but assets are missing, run `setupRuntimeAssets` with `-Ptowns.assetSource=<installed Towns data folder>`.
+
+Example dependency failure:
+
 ```
 * What went wrong:
-Could not determine the dependencies of task ':copyLwjglNatives'.
-> Could not resolve all files for configuration ':lwjglNatives'.
-   > Could not resolve org.lwjgl.lwjgl:lwjgl-platform:2.9.3.
+Could not resolve all files for configuration ':runtimeClasspath'.
+   > Could not resolve org.lwjgl:lwjgl:3.4.1.
      Required by:
-         root project 'TownsEX'
-      > Could not resolve org.lwjgl.lwjgl:lwjgl-platform:2.9.3.
-         > Could not get resource 'https://repo.maven.apache.org/maven2/org/lwjgl/lwjgl/lwjgl-platform/2.9.3/lwjgl-platform-2.9.3.pom'.
-            > Could not GET 'https://repo.maven.apache.org/maven2/org/lwjgl/lwjgl/lwjgl-platform/2.9.3/lwjgl-platform-2.9.3.pom'.
-               > No such host is known (repo.maven.apache.org)
+         root project 'TownsForever'
+      > Could not get resource 'https://repo.maven.apache.org/maven2/org/lwjgl/lwjgl/3.4.1/lwjgl-3.4.1.pom'.
+         > No such host is known (repo.maven.apache.org)
 ```
 
 

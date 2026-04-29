@@ -15,6 +15,9 @@ def townsEnableLint = providers.gradleProperty('towns.enableLint')
 def runtimeAssetDirs = ['graphics', 'audio', 'fonts']
 def lwjglVersion = '3.4.1'
 def jnaVersion = '5.18.1'
+def packageInputDir = layout.buildDirectory.dir('package/input')
+def packageOutputDir = layout.buildDirectory.dir('package')
+def packageAppName = 'Towns'
 def currentOs = org.gradle.internal.os.OperatingSystem.current()
 def lwjglNativesClassifier = currentOs.isWindows()
     ? 'natives-windows'
@@ -191,11 +194,100 @@ tasks.named('run', JavaExec) {
     }
     jvmArgs '--enable-native-access=ALL-UNNAMED'
     systemProperty 'towns.disableSteam', 'false'
-    systemProperty 'towns.startupTrace', 'true'
 
     doFirst {
-        println "TownsEX Java target: ${townsJavaVersion.get()}"
+        println "TownsForever Java target: ${townsJavaVersion.get()}"
         println "Steam API loading disabled for Gradle run: ${systemProperties['towns.disableSteam']}"
+    }
+}
+
+tasks.register('prepareWindowsAppImageInput', Copy) {
+    group = 'distribution'
+    description = 'Prepares redistributable jars and config for the Windows app image.'
+    dependsOn tasks.named('jar')
+
+    doFirst {
+        delete packageInputDir
+    }
+
+    into packageInputDir
+    from(tasks.named('jar')) {
+        into 'lib'
+    }
+    from(configurations.runtimeClasspath) {
+        into 'lib'
+    }
+    from('src') {
+        include 'towns.ini'
+        include 'graphics.ini'
+        include 'audio.ini'
+    }
+}
+
+tasks.register('packageWindowsAppImage', Exec) {
+    group = 'distribution'
+    description = 'Builds a portable Windows app image with TownsForever.exe for Steam compatibility testing.'
+    dependsOn tasks.named('prepareWindowsAppImageInput')
+    onlyIf { currentOs.isWindows() }
+
+    def jpackageExecutable = townsJavaLanguageVersion.map { version ->
+        def launcher = javaToolchains.launcherFor {
+            languageVersion = version
+        }.get()
+        new File(launcher.metadata.installationPath.asFile, 'bin/jpackage.exe').absolutePath
+    }
+
+    doFirst {
+        delete new File(packageOutputDir.get().asFile, packageAppName)
+        commandLine(
+            jpackageExecutable.get(),
+            '--type', 'app-image',
+            '--name', packageAppName,
+            '--app-version', project.version.toString().replace('-SNAPSHOT', ''),
+            '--dest', packageOutputDir.get().asFile.absolutePath,
+            '--input', packageInputDir.get().asFile.absolutePath,
+            '--main-jar', "lib/${tasks.named('jar').get().archiveFileName.get()}",
+            '--main-class', application.mainClass.get(),
+            '--java-options', '--enable-native-access=ALL-UNNAMED',
+            '--java-options', '-Djava.library.path=lib/native',
+            '--java-options', '-Djna.library.path=lib/native',
+            '--java-options', '-Xms1024M',
+            '--java-options', '-Xmx1024M',
+            '--java-options', '-Xss2048k',
+            '--win-console'
+        )
+        println "Building Windows app image at ${new File(packageOutputDir.get().asFile, packageAppName)}"
+    }
+
+    doLast {
+        def imageDir = new File(packageOutputDir.get().asFile, packageAppName)
+        copy {
+            from('src') {
+                include 'towns.ini'
+                include 'graphics.ini'
+                include 'audio.ini'
+            }
+            into imageDir
+        }
+
+        if (!new File(imageDir, 'steam_appid.txt').isFile()) {
+            new File(imageDir, 'steam_appid.txt').text = '221020'
+        }
+
+        new File(imageDir, 'data').mkdirs()
+        new File(imageDir, 'lib/native').mkdirs()
+
+        copy {
+            from('LICENSE')
+            into imageDir
+            rename { 'license.txt' }
+        }
+        copy {
+            from('CHANGELOG.md')
+            into imageDir
+            rename { 'changelog.txt' }
+        }
+        new File(imageDir, 'towns.cmd').text = '@echo off\r\n"%~dp0Towns.exe" %*\r\n'
     }
 }
 

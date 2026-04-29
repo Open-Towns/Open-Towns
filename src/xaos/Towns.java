@@ -28,6 +28,23 @@ public final class Towns {
     public static Properties propertiesGraphics;
 
     public static boolean loadSteamAPI(String sLibName) {
+        String mappedLibraryName = System.mapLibraryName(sLibName);
+        File[] candidates = new File[]{
+            new File("lib/native", mappedLibraryName),
+            new File("steam-native", mappedLibraryName),
+            new File(mappedLibraryName)
+        };
+
+        for (File candidate : candidates) {
+            if (candidate.isFile() && loadSteamAPIPath(candidate.getAbsolutePath())) {
+                return true;
+            }
+        }
+
+        return loadSteamAPIPath(sLibName);
+    }
+
+    private static boolean loadSteamAPIPath(String sLibName) {
         try {
             JNASteamAPI steamAPI = Native.load(sLibName, JNASteamAPI.class);
             steamAPI.SteamAPI_Init();
