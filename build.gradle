@@ -190,7 +190,7 @@ tasks.named('run', JavaExec) {
         languageVersion = townsJavaLanguageVersion
     }
     jvmArgs '--enable-native-access=ALL-UNNAMED'
-    systemProperty 'towns.disableSteam', 'true'
+    systemProperty 'towns.disableSteam', 'false'
     systemProperty 'towns.startupTrace', 'true'
 
     doFirst {
