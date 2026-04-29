@@ -13,6 +13,13 @@ def townsEnableLint = providers.gradleProperty('towns.enableLint')
     .map { it.toBoolean() }
     .orElse(false)
 def runtimeAssetDirs = ['graphics', 'audio', 'fonts']
+def lwjglVersion = '3.4.1'
+def currentOs = org.gradle.internal.os.OperatingSystem.current()
+def lwjglNativesClassifier = currentOs.isWindows()
+    ? 'natives-windows'
+    : currentOs.isMacOsX()
+        ? 'natives-macos'
+        : 'natives-linux'
 
 java {
     toolchain {
@@ -20,19 +27,22 @@ java {
     }
 }
 
-configurations {
-    lwjglNatives
-}
-
 dependencies {
-    implementation 'org.lwjgl.lwjgl:lwjgl:2.9.3'
+    implementation platform("org.lwjgl:lwjgl-bom:${lwjglVersion}")
+
+    implementation 'org.lwjgl:lwjgl'
+    implementation 'org.lwjgl:lwjgl-glfw'
+    implementation 'org.lwjgl:lwjgl-opengl'
+    implementation 'org.lwjgl:lwjgl-openal'
+    implementation 'org.lwjgl:lwjgl-stb'
     implementation 'net.java.dev.jna:jna:4.1.0'
     implementation 'org.l33tlabs.twl:pngdecoder:1.0'
-    implementation 'slick-util:slick-util:1.0.0'
 
-    lwjglNatives 'org.lwjgl.lwjgl:lwjgl-platform:2.9.3:natives-windows'
-    lwjglNatives 'org.lwjgl.lwjgl:lwjgl-platform:2.9.3:natives-linux'
-    lwjglNatives 'org.lwjgl.lwjgl:lwjgl-platform:2.9.3:natives-osx'
+    runtimeOnly "org.lwjgl:lwjgl::${lwjglNativesClassifier}"
+    runtimeOnly "org.lwjgl:lwjgl-glfw::${lwjglNativesClassifier}"
+    runtimeOnly "org.lwjgl:lwjgl-opengl::${lwjglNativesClassifier}"
+    runtimeOnly "org.lwjgl:lwjgl-openal::${lwjglNativesClassifier}"
+    runtimeOnly "org.lwjgl:lwjgl-stb::${lwjglNativesClassifier}"
 }
 
 application {
@@ -50,8 +60,6 @@ sourceSets {
         }
     }
 }
-
-def lwjglNativesDir = layout.buildDirectory.dir('natives/lwjgl')
 
 def normalizeRuntimeAssetSource = { candidate ->
     if (candidate == null) {
@@ -173,43 +181,17 @@ tasks.register('resolveBuildDependencies') {
     doLast {
         resolveDependencyConfiguration('Java compile classpath', configurations.compileClasspath)
         resolveDependencyConfiguration('Java runtime classpath', configurations.runtimeClasspath)
-        resolveDependencyConfiguration('LWJGL native libraries', configurations.lwjglNatives)
-    }
-}
-
-tasks.register('copyLwjglNatives') {
-    group = 'setup'
-    description = 'Extracts LWJGL native libraries needed by the run task.'
-    dependsOn tasks.named('resolveBuildDependencies')
-    outputs.dir lwjglNativesDir
-
-    doLast {
-        try {
-            copy {
-                duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-                include '**/*.dll', '**/*.so', '**/*.dylib', '**/*.jnilib'
-                from configurations.lwjglNatives.resolve().collect { zipTree(it) }
-                into lwjglNativesDir
-            }
-        } catch (Exception ex) {
-            throw dependencyResolutionFailure('LWJGL native libraries', ex)
-        }
     }
 }
 
 tasks.named('run', JavaExec) {
-    dependsOn tasks.named('copyLwjglNatives')
     workingDir = file('src')
     javaLauncher = javaToolchains.launcherFor {
         languageVersion = townsJavaLanguageVersion
     }
 
     doFirst {
-        def nativePath = lwjglNativesDir.get().asFile.absolutePath
         println "TownsEX Java target: ${townsJavaVersion.get()}"
-        jvmArgs "-Dorg.lwjgl.librarypath=${nativePath}"
-        jvmArgs "-Dnet.java.games.input.librarypath=${nativePath}"
-        jvmArgs "-Djava.library.path=${nativePath}"
     }
 }
 
@@ -221,7 +203,8 @@ tasks.register('printRuntimeInfo') {
         println "Main class: ${application.mainClass.get()}"
         println "Java target: ${townsJavaVersion.get()}"
         println "Run working directory: ${file('src').absolutePath}"
-        println "LWJGL native directory: ${lwjglNativesDir.get().asFile.absolutePath}"
+        println "LWJGL version: ${lwjglVersion}"
+        println "LWJGL natives classifier: ${lwjglNativesClassifier}"
     }
 }
 
