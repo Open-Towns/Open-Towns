@@ -6,7 +6,7 @@ Modernized community source release for Towns.
 - 
 
 ## Gradle Quick Start
-(https://github.com/JustinHammitt/TownsForever/releases/tag/v0.0.1)[First Release! v0.0.1]
+[First Release! v0.0.1](https://github.com/JustinHammitt/TownsForever/releases/tag/v0.0.1)
 
 ### Windows
 
