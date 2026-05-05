@@ -2,7 +2,11 @@
 
 Modernized community source release for Towns.
 
-## Quick Start
+## Releases
+- 
+
+## Gradle Quick Start
+(https://github.com/JustinHammitt/TownsForever/releases/tag/v0.0.1)[First Release! v0.0.1]
 
 ### Windows
 
@@ -70,6 +74,7 @@ Release archives intentionally exclude original graphics, audio, fonts, and Stea
  - [x] Gradle-managed LWJGL natives
  - [x] Steam native access enabled for Java 25
  - [x] GH Workflow Steam Release and build
+ - [ ] GH Workflow Linux Release and build
  - [ ] Linux audio follow-up
 
 [Issues? Troubleshooting](#troubleshooting)
