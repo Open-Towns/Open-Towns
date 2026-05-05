@@ -18,6 +18,9 @@ def jnaVersion = '5.18.1'
 def packageInputDir = layout.buildDirectory.dir('package/input')
 def packageOutputDir = layout.buildDirectory.dir('package')
 def packageAppName = 'Towns'
+def windowsRuntimeImageDir = layout.buildDirectory.dir('runtime/towns-windows')
+def packageVersion = providers.gradleProperty('towns.packageVersion')
+    .orElse(project.version.toString().replace('-SNAPSHOT', ''))
 def currentOs = org.gradle.internal.os.OperatingSystem.current()
 def lwjglNativesClassifier = currentOs.isWindows()
     ? 'natives-windows'
@@ -224,10 +227,39 @@ tasks.register('prepareWindowsAppImageInput', Copy) {
     }
 }
 
+tasks.register('createWindowsRuntimeImage', Exec) {
+    group = 'distribution'
+    description = 'Builds a minimized Windows Java runtime image for the packaged launcher.'
+    onlyIf { currentOs.isWindows() }
+
+    def jlinkExecutable = townsJavaLanguageVersion.map { version ->
+        def launcher = javaToolchains.launcherFor {
+            languageVersion = version
+        }.get()
+        new File(launcher.metadata.installationPath.asFile, 'bin/jlink.exe').absolutePath
+    }
+
+    doFirst {
+        delete windowsRuntimeImageDir
+        commandLine(
+            jlinkExecutable.get(),
+            '--add-modules', 'java.base,java.desktop,java.logging',
+            '--strip-debug',
+            '--no-header-files',
+            '--no-man-pages',
+            '--strip-native-commands',
+            '--compress', 'zip-9',
+            '--output', windowsRuntimeImageDir.get().asFile.absolutePath
+        )
+        println "Building minimized Windows runtime at ${windowsRuntimeImageDir.get().asFile}"
+    }
+}
+
 tasks.register('packageWindowsAppImage', Exec) {
     group = 'distribution'
-    description = 'Builds a portable Windows app image with TownsForever.exe for Steam compatibility testing.'
+    description = 'Builds a portable Windows app image with Towns.exe for Steam compatibility testing.'
     dependsOn tasks.named('prepareWindowsAppImageInput')
+    dependsOn tasks.named('createWindowsRuntimeImage')
     onlyIf { currentOs.isWindows() }
 
     def jpackageExecutable = townsJavaLanguageVersion.map { version ->
@@ -243,9 +275,10 @@ tasks.register('packageWindowsAppImage', Exec) {
             jpackageExecutable.get(),
             '--type', 'app-image',
             '--name', packageAppName,
-            '--app-version', project.version.toString().replace('-SNAPSHOT', ''),
+            '--app-version', packageVersion.get(),
             '--dest', packageOutputDir.get().asFile.absolutePath,
             '--input', packageInputDir.get().asFile.absolutePath,
+            '--runtime-image', windowsRuntimeImageDir.get().asFile.absolutePath,
             '--main-jar', "lib/${tasks.named('jar').get().archiveFileName.get()}",
             '--main-class', application.mainClass.get(),
             '--java-options', '--enable-native-access=ALL-UNNAMED',
@@ -288,6 +321,18 @@ tasks.register('packageWindowsAppImage', Exec) {
             rename { 'changelog.txt' }
         }
         new File(imageDir, 'towns.cmd').text = '@echo off\r\n"%~dp0Towns.exe" %*\r\n'
+    }
+}
+
+tasks.register('zipWindowsAppImage', Zip) {
+    group = 'distribution'
+    description = 'Archives the Windows app image for GitHub Releases.'
+    dependsOn tasks.named('packageWindowsAppImage')
+    archiveFileName.set(packageVersion.map { version -> "Towns-${version}-windows-x64.zip" })
+    destinationDirectory.set(layout.buildDirectory.dir('release'))
+
+    from(new File(packageOutputDir.get().asFile, packageAppName)) {
+        into packageAppName
     }
 }
 

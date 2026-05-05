@@ -38,9 +38,27 @@ chmod +x gradlew
 .\gradlew.bat checkRuntimeAssets
 .\gradlew.bat resolveBuildDependencies
 .\gradlew.bat run
+.\gradlew.bat packageWindowsAppImage
+.\gradlew.bat zipWindowsAppImage
 ```
 
 `run` uses the local `src` folder as the working directory so the original `.ini` files and copied runtime assets are found.
+
+`packageWindowsAppImage` builds a Steam-shaped Windows app folder at `build/package/Towns`.
+`zipWindowsAppImage` archives that folder to `build/release/Towns-<version>-windows-x64.zip`.
+
+## Releases
+
+Pushing a version tag builds and publishes a GitHub Release:
+
+```
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+The release workflow also accepts plain numeric tags such as `0.1.0`.
+
+Release archives intentionally exclude original graphics, audio, fonts, and Steam DLLs. For local Steam compatibility testing, overlay the `data` and `lib` folders from a legally owned Towns install into the package root.
 
 ## Current Runtime
 
@@ -49,7 +67,7 @@ chmod +x gradlew
  - [x] JNA 5.18.1
  - [x] Gradle-managed LWJGL natives
  - [x] Steam native access enabled for Java 25
- - [ ] GH Workflow Steam Release and build
+ - [x] GH Workflow Steam Release and build
  - [ ] Linux audio follow-up
 
 [Issues? Troubleshooting](#troubleshooting)
@@ -149,5 +167,4 @@ Could not resolve all files for configuration ':runtimeClasspath'.
       > Could not get resource 'https://repo.maven.apache.org/maven2/org/lwjgl/lwjgl/3.4.1/lwjgl-3.4.1.pom'.
          > No such host is known (repo.maven.apache.org)
 ```
-
 
