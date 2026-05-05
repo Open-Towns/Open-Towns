@@ -3,10 +3,17 @@
 Modernized community source release for Towns.
 
 ## Releases
-- 
+- [First Release! Windows x64 v0.0.1](https://github.com/JustinHammitt/TownsForever/releases/tag/v0.0.1)
+
+### Install
+1. Download and open Towns-x.x.x-platform-x64.zip
+2. extract the contents of "Towns" from the archive over your steam Towns install.
+
+Probably here
+```C:\Program Files (x86)\Steam\steamapps\common\towns```
+
 
 ## Gradle Quick Start
-[First Release! Windows x64 v0.0.1](https://github.com/JustinHammitt/TownsForever/releases/tag/v0.0.1)
 
 ### Windows
 
