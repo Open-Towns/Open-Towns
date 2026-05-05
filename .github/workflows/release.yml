@@ -64,6 +64,9 @@ jobs:
       - build-windows-x64
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Download target artifacts
         uses: actions/download-artifact@v4
         with:
@@ -91,6 +94,7 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: |
           tag="${GITHUB_REF_NAME}"
           if gh release view "$tag" >/dev/null 2>&1; then
