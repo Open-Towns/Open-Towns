@@ -1,4 +1,4 @@
-name: Release
+name: Release Target Builds
 
 on:
   push:
@@ -9,9 +9,12 @@ on:
 permissions:
   contents: write
 
+env:
+  APP_NAME: Towns
+
 jobs:
-  windows-steam-build:
-    name: Windows Steam-compatible build
+  build-windows-x64:
+    name: Build Windows x64
     runs-on: windows-latest
 
     steps:
@@ -32,7 +35,7 @@ jobs:
         run: |
           $version = $env:GITHUB_REF_NAME -replace '^v', ''
           "RELEASE_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append
-          "RELEASE_ARCHIVE=Towns-$version-windows-x64.zip" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "RELEASE_ARCHIVE=$env:APP_NAME-$version-windows-x64.zip" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Build Windows release archive
         shell: pwsh
@@ -47,21 +50,52 @@ jobs:
           }
           Get-Item $archive | Format-List FullName, Length
 
-      - name: Create GitHub release
-        shell: pwsh
+      - name: Upload Windows target artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-x64-release
+          path: build/release/Towns-*-windows-x64.zip
+          if-no-files-found: error
+
+  publish-release:
+    name: Publish GitHub Release
+    runs-on: ubuntu-latest
+    needs:
+      - build-windows-x64
+
+    steps:
+      - name: Download target artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          merge-multiple: true
+
+      - name: List target artifacts
+        shell: bash
+        run: ls -lh release-assets
+
+      - name: Write release notes
+        shell: bash
+        run: |
+          cat > release-notes.md <<'NOTES'
+          Targeted builds for this release:
+
+          - Windows x64 Steam-compatible portable archive
+
+          The automatic GitHub source archives may still appear on the release, but the intended download is the platform build asset above.
+
+          Release archives intentionally do not include original Towns art/audio/font assets or Steam DLLs. For local Steam testing, overlay your legally owned original install data/lib folders into the package root.
+          NOTES
+
+      - name: Create or update GitHub release
+        shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $archive = "build/release/$env:RELEASE_ARCHIVE"
-          $notes = @"
-          Windows Steam-compatible build for $env:GITHUB_REF_NAME.
-
-          This archive intentionally does not include original Towns art/audio/font assets or Steam DLLs.
-          For local Steam testing, overlay your legally owned original install data/lib folders into the package root.
-          "@
-          gh release view "$env:GITHUB_REF_NAME" *> $null
-          if ($LASTEXITCODE -eq 0) {
-            gh release upload "$env:GITHUB_REF_NAME" $archive --clobber
-          } else {
-            gh release create "$env:GITHUB_REF_NAME" $archive --title "Towns $env:RELEASE_VERSION" --notes $notes
-          }
+          tag="${GITHUB_REF_NAME}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" release-assets/* --clobber
+            gh release edit "$tag" --notes-file release-notes.md --title "${APP_NAME} ${tag#v}"
+          else
+            gh release create "$tag" release-assets/* --verify-tag --title "${APP_NAME} ${tag#v}" --notes-file release-notes.md
+          fi

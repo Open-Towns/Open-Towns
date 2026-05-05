@@ -47,9 +47,9 @@ chmod +x gradlew
 `packageWindowsAppImage` builds a Steam-shaped Windows app folder at `build/package/Towns`.
 `zipWindowsAppImage` archives that folder to `build/release/Towns-<version>-windows-x64.zip`.
 
-## Releases
+## Targeted Releases
 
-Pushing a version tag builds and publishes a GitHub Release:
+Pushing a version tag builds targeted platform archives and publishes them to a GitHub Release. The first supported target is Windows x64:
 
 ```
 git tag v0.1.0
@@ -57,6 +57,8 @@ git push origin v0.1.0
 ```
 
 The release workflow also accepts plain numeric tags such as `0.1.0`.
+
+GitHub may still show its automatic source-code zip and tarball, but the intended player/developer download is the targeted build asset, currently `Towns-<version>-windows-x64.zip`.
 
 Release archives intentionally exclude original graphics, audio, fonts, and Steam DLLs. For local Steam compatibility testing, overlay the `data` and `lib` folders from a legally owned Towns install into the package root.
 
@@ -167,4 +169,3 @@ Could not resolve all files for configuration ':runtimeClasspath'.
       > Could not get resource 'https://repo.maven.apache.org/maven2/org/lwjgl/lwjgl/3.4.1/lwjgl-3.4.1.pom'.
          > No such host is known (repo.maven.apache.org)
 ```
-
