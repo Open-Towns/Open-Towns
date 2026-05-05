@@ -3,6 +3,8 @@
 Modernized community source release for Towns.
 
 ## Releases
+- [Linux Build Release! v0.0.2](https://github.com/JustinHammitt/TownsForever/releases/tag/v0.0.2)
+-- Disclaimer, I own many linux machines, not a single one is used for gaming lol. Linux releases are provided as-is no-guarantees
 - [First Release! Windows x64 v0.0.1](https://github.com/JustinHammitt/TownsForever/releases/tag/v0.0.1)
 
 ### Install
