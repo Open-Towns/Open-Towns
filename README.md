@@ -56,11 +56,20 @@ chmod +x gradlew
 `run` uses the local `src` folder as the working directory so the original `.ini` files and copied runtime assets are found.
 
 `packageWindowsAppImage` builds a Steam-shaped Windows app folder at `build/package/Towns`.
-`zipWindowsAppImage` archives that folder to `build/release/Towns-<version>-windows-x64.zip`.
+`zipWindowsAppImage` archives that folder to `build/release/TownsForever-<version>-windows-x64.zip`.
+
+On Linux, the equivalent package tasks are:
+
+```
+./gradlew packageLinuxAppImage
+./gradlew zipLinuxAppImage
+```
+
+`zipLinuxAppImage` archives the Linux app image to `build/release/TownsForever-<version>-linux-x64.tar.gz`.
 
 ## Targeted Releases
 
-Pushing a version tag builds targeted platform archives and publishes them to a GitHub Release. The first supported target is Windows x64:
+Pushing a version tag builds targeted platform archives and publishes them to a GitHub Release. The first supported targets are Windows x64 and Linux x64:
 
 ```
 git tag v0.1.0
@@ -69,7 +78,10 @@ git push origin v0.1.0
 
 The release workflow also accepts plain numeric tags such as `0.1.0`.
 
-GitHub may still show its automatic source-code zip and tarball, but the intended player/developer download is the targeted build asset, currently `Towns-<version>-windows-x64.zip`.
+GitHub may still show its automatic source-code zip and tarball, but the intended player/developer downloads are the targeted build assets:
+
+- `TownsForever-<version>-windows-x64.zip`
+- `TownsForever-<version>-linux-x64.tar.gz`
 
 Release archives intentionally exclude original graphics, audio, fonts, and Steam DLLs. For local Steam compatibility testing, overlay the `data` and `lib` folders from a legally owned Towns install into the package root.
 
@@ -80,8 +92,7 @@ Release archives intentionally exclude original graphics, audio, fonts, and Stea
  - [x] JNA 5.18.1
  - [x] Gradle-managed LWJGL natives
  - [x] Steam native access enabled for Java 25
- - [x] GH Workflow Steam Release and build
- - [ ] GH Workflow Linux Release and build
+ - [x] GH Workflow targeted Windows and Linux release builds
  - [ ] Linux audio follow-up
 
 [Issues? Troubleshooting](#troubleshooting)

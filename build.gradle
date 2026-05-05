@@ -18,7 +18,9 @@ def jnaVersion = '5.18.1'
 def packageInputDir = layout.buildDirectory.dir('package/input')
 def packageOutputDir = layout.buildDirectory.dir('package')
 def packageAppName = 'Towns'
+def releaseArtifactName = 'TownsForever'
 def windowsRuntimeImageDir = layout.buildDirectory.dir('runtime/towns-windows')
+def linuxRuntimeImageDir = layout.buildDirectory.dir('runtime/towns-linux')
 def packageVersion = providers.gradleProperty('towns.packageVersion')
     .orElse(project.version.toString().replace('-SNAPSHOT', ''))
 def currentOs = org.gradle.internal.os.OperatingSystem.current()
@@ -328,8 +330,145 @@ tasks.register('zipWindowsAppImage', Zip) {
     group = 'distribution'
     description = 'Archives the Windows app image for GitHub Releases.'
     dependsOn tasks.named('packageWindowsAppImage')
-    archiveFileName.set(packageVersion.map { version -> "Towns-${version}-windows-x64.zip" })
+    onlyIf { currentOs.isWindows() }
+    archiveFileName.set(packageVersion.map { version -> "${releaseArtifactName}-${version}-windows-x64.zip" })
     destinationDirectory.set(layout.buildDirectory.dir('release'))
+
+    from(new File(packageOutputDir.get().asFile, packageAppName)) {
+        into packageAppName
+    }
+}
+
+tasks.register('prepareLinuxAppImageInput', Copy) {
+    group = 'distribution'
+    description = 'Prepares redistributable jars and config for the Linux app image.'
+    dependsOn tasks.named('jar')
+
+    doFirst {
+        delete packageInputDir
+    }
+
+    into packageInputDir
+    from(tasks.named('jar')) {
+        into 'lib'
+    }
+    from(configurations.runtimeClasspath) {
+        into 'lib'
+    }
+    from('src') {
+        include 'towns.ini'
+        include 'graphics.ini'
+        include 'audio.ini'
+    }
+}
+
+tasks.register('createLinuxRuntimeImage', Exec) {
+    group = 'distribution'
+    description = 'Builds a minimized Linux Java runtime image for the packaged launcher.'
+    onlyIf { currentOs.isLinux() }
+
+    def jlinkExecutable = townsJavaLanguageVersion.map { version ->
+        def launcher = javaToolchains.launcherFor {
+            languageVersion = version
+        }.get()
+        new File(launcher.metadata.installationPath.asFile, 'bin/jlink').absolutePath
+    }
+
+    doFirst {
+        delete linuxRuntimeImageDir
+        commandLine(
+            jlinkExecutable.get(),
+            '--add-modules', 'java.base,java.desktop,java.logging',
+            '--strip-debug',
+            '--no-header-files',
+            '--no-man-pages',
+            '--strip-native-commands',
+            '--compress', 'zip-9',
+            '--output', linuxRuntimeImageDir.get().asFile.absolutePath
+        )
+        println "Building minimized Linux runtime at ${linuxRuntimeImageDir.get().asFile}"
+    }
+}
+
+tasks.register('packageLinuxAppImage', Exec) {
+    group = 'distribution'
+    description = 'Builds a portable Linux app image with a bundled Java runtime.'
+    dependsOn tasks.named('prepareLinuxAppImageInput')
+    dependsOn tasks.named('createLinuxRuntimeImage')
+    onlyIf { currentOs.isLinux() }
+
+    def jpackageExecutable = townsJavaLanguageVersion.map { version ->
+        def launcher = javaToolchains.launcherFor {
+            languageVersion = version
+        }.get()
+        new File(launcher.metadata.installationPath.asFile, 'bin/jpackage').absolutePath
+    }
+
+    doFirst {
+        delete new File(packageOutputDir.get().asFile, packageAppName)
+        commandLine(
+            jpackageExecutable.get(),
+            '--type', 'app-image',
+            '--name', packageAppName,
+            '--app-version', packageVersion.get(),
+            '--dest', packageOutputDir.get().asFile.absolutePath,
+            '--input', packageInputDir.get().asFile.absolutePath,
+            '--runtime-image', linuxRuntimeImageDir.get().asFile.absolutePath,
+            '--main-jar', "lib/${tasks.named('jar').get().archiveFileName.get()}",
+            '--main-class', application.mainClass.get(),
+            '--java-options', '--enable-native-access=ALL-UNNAMED',
+            '--java-options', '-Djava.library.path=lib/native',
+            '--java-options', '-Djna.library.path=lib/native',
+            '--java-options', '-Xms1024M',
+            '--java-options', '-Xmx1024M',
+            '--java-options', '-Xss2048k'
+        )
+        println "Building Linux app image at ${new File(packageOutputDir.get().asFile, packageAppName)}"
+    }
+
+    doLast {
+        def imageDir = new File(packageOutputDir.get().asFile, packageAppName)
+        copy {
+            from('src') {
+                include 'towns.ini'
+                include 'graphics.ini'
+                include 'audio.ini'
+            }
+            into imageDir
+        }
+
+        if (!new File(imageDir, 'steam_appid.txt').isFile()) {
+            new File(imageDir, 'steam_appid.txt').text = '221020'
+        }
+
+        new File(imageDir, 'data').mkdirs()
+        new File(imageDir, 'lib/native').mkdirs()
+
+        copy {
+            from('LICENSE')
+            into imageDir
+            rename { 'license.txt' }
+        }
+        copy {
+            from('CHANGELOG.md')
+            into imageDir
+            rename { 'changelog.txt' }
+        }
+
+        def launcher = new File(imageDir, 'towns.sh')
+        launcher.text = '#!/usr/bin/env bash\nset -e\ncd "$(dirname "$0")"\nexec ./bin/Towns "$@"\n'
+        launcher.setExecutable(true, false)
+    }
+}
+
+tasks.register('zipLinuxAppImage', Tar) {
+    group = 'distribution'
+    description = 'Archives the Linux app image for GitHub Releases.'
+    dependsOn tasks.named('packageLinuxAppImage')
+    onlyIf { currentOs.isLinux() }
+    archiveFileName.set(packageVersion.map { version -> "${releaseArtifactName}-${version}-linux-x64.tar.gz" })
+    destinationDirectory.set(layout.buildDirectory.dir('release'))
+    compression = Compression.GZIP
 
     from(new File(packageOutputDir.get().asFile, packageAppName)) {
         into packageAppName

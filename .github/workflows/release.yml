@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 env:
-  APP_NAME: Towns
+  APP_NAME: TownsForever
 
 jobs:
   build-windows-x64:
@@ -54,7 +54,52 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-x64-release
-          path: build/release/Towns-*-windows-x64.zip
+          path: build/release/TownsForever-*-windows-x64.zip
+          if-no-files-found: error
+
+  build-linux-x64:
+    name: Build Linux x64
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Resolve release version
+        shell: bash
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          echo "RELEASE_VERSION=$version" >> "$GITHUB_ENV"
+          echo "RELEASE_ARCHIVE=${APP_NAME}-${version}-linux-x64.tar.gz" >> "$GITHUB_ENV"
+
+      - name: Build Linux release archive
+        shell: bash
+        run: bash gradlew zipLinuxAppImage "-Ptowns.packageVersion=${RELEASE_VERSION}"
+
+      - name: Verify release archive
+        shell: bash
+        run: |
+          archive="build/release/${RELEASE_ARCHIVE}"
+          if [ ! -f "$archive" ]; then
+            echo "Release archive was not created: $archive" >&2
+            exit 1
+          fi
+          ls -lh "$archive"
+
+      - name: Upload Linux target artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-x64-release
+          path: build/release/TownsForever-*-linux-x64.tar.gz
           if-no-files-found: error
 
   publish-release:
@@ -62,6 +107,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - build-windows-x64
+      - build-linux-x64
 
     steps:
       - name: Checkout
@@ -84,8 +130,9 @@ jobs:
           Targeted builds for this release:
 
           - Windows x64 Steam-compatible portable archive
+          - Linux x64 portable archive
 
-          The automatic GitHub source archives may still appear on the release, but the intended download is the platform build asset above.
+          The automatic GitHub source archives may still appear on the release, but the intended downloads are the platform build assets above.
 
           Release archives intentionally do not include original Towns art/audio/font assets or Steam DLLs. For local Steam testing, overlay your legally owned original install data/lib folders into the package root.
           NOTES
