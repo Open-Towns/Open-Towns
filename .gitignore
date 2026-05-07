@@ -4,6 +4,7 @@ out/
 bin/
 *.class
 .vscode/
+.codex/
 
 # Python developer tooling.
 __pycache__/
