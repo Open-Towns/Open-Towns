@@ -550,6 +550,9 @@ public final class UtilsGL {
 	 * @param texture
 	 */
 	public static void deleteTexture (TextureData texture) {
+		if (texture == null) {
+			return;
+		}
 		GL11.glDeleteTextures (texture.getTextureID ());
 		freeTextureIds.add (texture.getTextureID ());
 		if (texture.getFileName () != null) {

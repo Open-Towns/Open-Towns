@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'townsex'
-version = '0.1.0-SNAPSHOT'
+version = '0.0.3-SNAPSHOT'
 
 def townsJavaVersion = providers.gradleProperty('towns.javaVersion')
     .map { it as Integer }
@@ -336,6 +336,11 @@ tasks.register('packageWindowsAppImage', Exec) {
             into imageDir
             rename { 'changelog.txt' }
         }
+        copy {
+            from('TOWNS_PLUS_PLUS.md')
+            into imageDir
+            rename { 'towns-plus-plus.txt' }
+        }
         new File(imageDir, 'towns.cmd').text = '@echo off\r\n"%~dp0Towns.exe" %*\r\n'
     }
 }
@@ -468,6 +473,11 @@ tasks.register('packageLinuxAppImage', Exec) {
             into imageDir
             rename { 'changelog.txt' }
         }
+        copy {
+            from('TOWNS_PLUS_PLUS.md')
+            into imageDir
+            rename { 'towns-plus-plus.txt' }
+        }
 
         def launcher = new File(imageDir, 'towns.sh')
         launcher.text = '#!/usr/bin/env bash\nset -e\ncd "$(dirname "$0")"\nexec ./bin/Towns "$@"\n'
@@ -555,6 +565,84 @@ tasks.register('copyRuntimeAssets') {
         }
 
         println "Copied Towns runtime assets from ${source}"
+    }
+}
+
+def configuredTownsPlusPlusSource = {
+    providers.gradleProperty('townsPlusPlusSource')
+        .orElse(providers.gradleProperty('towns.plusPlusSource'))
+        .orElse(providers.environmentVariable('TOWNS_PLUS_PLUS_SOURCE'))
+        .orNull
+}
+
+def normalizeTownsPlusPlusSource = { candidate ->
+    if (candidate == null || !candidate.toString().trim()) {
+        return null
+    }
+
+    def source = candidate instanceof File ? candidate : file(candidate.toString())
+    if (source.isDirectory() && source.name.equalsIgnoreCase('data')) {
+        def parent = source.parentFile
+        if (parent != null && new File(parent, 'graphics.ini').isFile()) {
+            return parent
+        }
+    }
+
+    return source
+}
+
+def validTownsPlusPlusSource = { source ->
+    source != null &&
+        source.isDirectory() &&
+        new File(source, 'data').isDirectory() &&
+        new File(source, 'graphics.ini').isFile() &&
+        new File(source, 'towns.ini').isFile()
+}
+
+def resolvedTownsPlusPlusSource = {
+    normalizeTownsPlusPlusSource(configuredTownsPlusPlusSource())
+}
+
+tasks.register('checkTownsPlusPlusSource') {
+    group = 'verification'
+    description = 'Checks a user-provided local Towns++ checkout or extracted mod folder.'
+
+    doLast {
+        def source = resolvedTownsPlusPlusSource()
+        if (validTownsPlusPlusSource(source)) {
+            println "FOUND  ${source.absolutePath}"
+        } else {
+            println 'MISSING Towns++ source.'
+            println 'Pass a local Towns++ checkout or extracted mod folder with:'
+            println '  gradle "-PtownsPlusPlusSource=<path-to-Towns-plus-plus>" checkTownsPlusPlusSource'
+            throw new GradleException('Could not find a valid local Towns++ source folder.')
+        }
+    }
+}
+
+tasks.register('applyTownsPlusPlus') {
+    group = 'setup'
+    description = 'Applies Towns++ from a local user-provided copy without redistributing the mod in this repository.'
+
+    doLast {
+        def source = resolvedTownsPlusPlusSource()
+        if (!validTownsPlusPlusSource(source)) {
+            throw new GradleException('Pass a local Towns++ checkout or extracted mod folder with -PtownsPlusPlusSource=<path> or TOWNS_PLUS_PLUS_SOURCE.')
+        }
+
+        copy {
+            from new File(source, 'data')
+            into file('src/data')
+        }
+        copy {
+            from source
+            include 'graphics.ini'
+            include 'towns.ini'
+            into file('src')
+        }
+
+        println "Applied local Towns++ data/config from ${source.absolutePath}"
+        println 'This task intentionally uses your local copy; Towns++ files are not redistributed by this repository.'
     }
 }
 

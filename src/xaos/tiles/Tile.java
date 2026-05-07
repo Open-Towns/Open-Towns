@@ -79,18 +79,19 @@ public class Tile implements Externalizable {
 
     public void refreshTransients() {
         setNumericIniHeader(UtilsIniHeaders.getIntIniHeader(iniHeader));
+        String fallbackIniHeader = getCompatibilityFallbackIniHeader(getIniHeader());
 
         // Texture
-        setTextureID(getIniHeader(), null);
+        setTextureID(getIniHeader(), fallbackIniHeader);
 
         // Ponemos el color de minimapa
         setColorMiniMap(Towns.getPropertiesString(PropertyFile.PROPERTY_FILE_GRAPHICS, "[" + getIniHeader() + "]COLOR_MINIMAP")); //$NON-NLS-1$ //$NON-NLS-2$
 
         // Guardamos las coordenadas del tileset
-        setTileSetCoordinates(getIniHeader(), null);
+        setTileSetCoordinates(getIniHeader(), fallbackIniHeader);
 
         // Guardamos el tamaño del tile
-        setTileSize(getIniHeader(), null);
+        setTileSize(getIniHeader(), fallbackIniHeader);
 
         // Guardamos las coordenadas de la textura del tileset
         setTileSetTexCoordinates();
@@ -103,6 +104,16 @@ public class Tile implements Externalizable {
         setCurrentFrameDelay(Utils.getRandomBetween(0, getAnimationFrameDelay() - 1));
     }
 
+    private static String getCompatibilityFallbackIniHeader(String iniHeader) {
+        if ("configlockall".equals(iniHeader)) { //$NON-NLS-1$
+            return "configlock"; //$NON-NLS-1$
+        }
+        if ("configunlockall".equals(iniHeader)) { //$NON-NLS-1$
+            return "configlocklocked"; //$NON-NLS-1$
+        }
+        return null;
+    }
+
     public void setID(int ID) {
         iID = ID;
     }
@@ -112,9 +123,16 @@ public class Tile implements Externalizable {
     }
 
     public void setTextureID(String sIniHeader, String sIniHeader2) {
-        TextureData texture = UtilsGL.loadTexture(Towns.getPropertiesString(PropertyFile.PROPERTY_FILE_GRAPHICS, "[" + sIniHeader + "]TEXTURE_FILE"), GL11.GL_REPLACE);
+        TextureData texture = null;
+        String textureFile = Towns.getPropertiesString(PropertyFile.PROPERTY_FILE_GRAPHICS, "[" + sIniHeader + "]TEXTURE_FILE"); //$NON-NLS-1$ //$NON-NLS-2$
+        if (textureFile != null) {
+            texture = UtilsGL.loadTexture(textureFile, GL11.GL_REPLACE);
+        }
         if (texture == null) {
-            texture = UtilsGL.loadTexture(Towns.getPropertiesString(PropertyFile.PROPERTY_FILE_GRAPHICS, "[" + sIniHeader2 + "]TEXTURE_FILE"), GL11.GL_REPLACE); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            textureFile = Towns.getPropertiesString(PropertyFile.PROPERTY_FILE_GRAPHICS, "[" + sIniHeader2 + "]TEXTURE_FILE"); //$NON-NLS-1$ //$NON-NLS-2$
+            if (textureFile != null) {
+                texture = UtilsGL.loadTexture(textureFile, GL11.GL_REPLACE);
+            }
             if (texture == null) {
                 Log.log(Log.LEVEL_ERROR, Messages.getString("Tile.6") + sIniHeader + Messages.getString("Tile.7") + sIniHeader2 + "]", getClass().toString()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 Game.exit();
