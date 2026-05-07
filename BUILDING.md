@@ -100,6 +100,27 @@ If the install is somewhere custom, pass either the Towns install folder or its 
 gradle "-Ptowns.assetSource=S:\SteamLibrary\steamapps\common\towns\data" copyRuntimeAssets
 ```
 
+## Towns++ Local Overlay
+
+Towns++ compatibility is provided through a local overlay task. The project does not commit or redistribute Towns++ content.
+
+Point Gradle at a local checkout or extracted copy of the mod:
+
+```powershell
+gradle "-PtownsPlusPlusSource=C:\Mods\Towns-plus-plus" checkTownsPlusPlusSource
+gradle "-PtownsPlusPlusSource=C:\Mods\Towns-plus-plus" applyTownsPlusPlus
+```
+
+The source folder should contain:
+
+```text
+data/
+graphics.ini
+towns.ini
+```
+
+`applyTownsPlusPlus` copies those files into the local `src/` runtime tree. That intentionally dirties the working tree for local playtesting; do not commit the copied mod data or assets unless the mod author grants redistribution permission.
+
 ## Runtime Assets
 
 The source tree includes code and XML/INI data, but the original release assets should remain local-only and ignored by git:

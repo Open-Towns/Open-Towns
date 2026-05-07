@@ -32,6 +32,22 @@ If asset setup cannot find your installed game automatically, pass the install o
 .\gradlew.bat setupRuntimeAssets -Ptowns.assetSource="C:\Path\To\Towns\data"
 ```
 
+### Towns++ Compatibility
+
+Towns++ is supported as a local overlay, but this repository does not redistribute Towns++ files or assets.
+Until the mod has explicit redistribution terms, use your own local checkout or extracted copy:
+
+```
+git clone https://github.com/BlueSteelAUS/Towns-plus-plus.git C:\Mods\Towns-plus-plus
+.\gradlew.bat applyTownsPlusPlus -PtownsPlusPlusSource="C:\Mods\Towns-plus-plus"
+.\gradlew.bat run
+```
+
+`applyTownsPlusPlus` copies the local mod into ignored/runtime paths and working data files for your machine only.
+Do not commit the copied Towns++ data/assets unless redistribution permission is granted.
+
+For packaged release installs over Steam Towns, see [TOWNS_PLUS_PLUS.md](./TOWNS_PLUS_PLUS.md).
+
 ### Linux
 
 Thanks wu! It runs on Linux too, though sound may still need work.
@@ -49,6 +65,8 @@ chmod +x gradlew
 ```
 .\gradlew.bat printRuntimeInfo
 .\gradlew.bat checkRuntimeAssets
+.\gradlew.bat checkTownsPlusPlusSource -PtownsPlusPlusSource="C:\Mods\Towns-plus-plus"
+.\gradlew.bat applyTownsPlusPlus -PtownsPlusPlusSource="C:\Mods\Towns-plus-plus"
 .\gradlew.bat resolveBuildDependencies
 .\gradlew.bat run
 .\gradlew.bat packageWindowsAppImage
@@ -74,8 +92,8 @@ On Linux, the equivalent package tasks are:
 Pushing a version tag builds targeted platform archives and publishes them to a GitHub Release. The first supported targets are Windows x64 and Linux x64:
 
 ```
-git tag v0.1.0
-git push origin v0.1.0
+git tag v0.0.3
+git push origin v0.0.3
 ```
 
 The release workflow also accepts plain numeric tags such as `0.1.0`.

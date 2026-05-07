@@ -2,6 +2,8 @@ package xaos.utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -75,6 +77,11 @@ public final class UtilsXML {
         File f = new File(fileName);
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
+        String xml = Files.readString(f.toPath(), StandardCharsets.UTF_8);
+        if (xml.startsWith("<<")) { //$NON-NLS-1$
+            xml = "<" + xml.substring(2); //$NON-NLS-1$
+            return db.parse(new InputSource(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8))));
+        }
         return db.parse(f);
     }
 

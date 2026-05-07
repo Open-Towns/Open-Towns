@@ -28,3 +28,7 @@ dist/
 /src/data/fonts/
 /src/data/graphics/
 /src/error.log
+
+.codex/
+
+.codex/

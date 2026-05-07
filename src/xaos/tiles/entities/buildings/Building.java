@@ -282,6 +282,9 @@ public class Building extends Entity implements Externalizable {
 
     public void setAllBuildingCoordinates() {
         BuildingManagerItem bmi = BuildingManager.getItem(getIniHeader());
+        if (bmi == null) {
+            throw new IllegalStateException("Saved game references unknown building [" + getIniHeader() + "]. This save may require a different Towns data/mod setup.");
+        }
         // Seteamos los flags de las celdas
         for (int i = getX(); i < (getX() + bmi.getWidth()); i++) {
             for (int j = getY(); j < (getY() + bmi.getHeight()); j++) {
