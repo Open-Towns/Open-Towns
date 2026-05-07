@@ -3,6 +3,7 @@ build/
 out/
 bin/
 *.class
+.vscode/
 
 # Python developer tooling.
 __pycache__/
