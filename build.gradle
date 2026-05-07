@@ -51,6 +51,9 @@ dependencies {
     runtimeOnly "org.lwjgl:lwjgl-opengl::${lwjglNativesClassifier}"
     runtimeOnly "org.lwjgl:lwjgl-openal::${lwjglNativesClassifier}"
     runtimeOnly "org.lwjgl:lwjgl-stb::${lwjglNativesClassifier}"
+    //testing
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 application {
@@ -61,10 +64,21 @@ sourceSets {
     main {
         java {
             srcDirs = ['src']
+            exclude 'test/**'
         }
         resources {
             srcDirs = ['src']
             exclude '**/*.java'
+            exclude 'test/**'
+        }
+    }
+
+    test {
+        java {
+            srcDirs = ['src/test/java']
+        }
+        resources {
+            srcDirs = ['src/test/resources']
         }
     }
 }
@@ -578,4 +592,8 @@ tasks.register('setupDeveloperEnvironment') {
     description = 'Sets up local runtime assets and downloads Gradle build dependencies.'
     dependsOn tasks.named('setupRuntimeAssets')
     dependsOn tasks.named('resolveBuildDependencies')
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
 }
