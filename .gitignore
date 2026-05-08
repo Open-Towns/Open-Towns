@@ -1,34 +1,229 @@
+# ------------------------------------------------------------
+# Open-Towns .gitignore
+# Public repo safe defaults for Java/Gradle + Python tooling
+# ------------------------------------------------------------
+
+
+# ------------------------------------------------------------
+# Gradle / Java / JVM
+# ------------------------------------------------------------
 .gradle/
 build/
 out/
 bin/
-*.class
-.vscode/
-.codex/
+target/
 
-# Python developer tooling.
+*.class
+*.jar
+*.war
+*.ear
+
+# Keep Gradle wrapper files tracked!
+!gradle/wrapper/gradle-wrapper.jar
+!gradlew
+!gradlew.bat
+
+# Gradle local/cache files
+.gradle-cache/
+gradle-app.setting
+
+# JVM crash logs
+hs_err_pid*
+replay_pid*
+
+
+# ------------------------------------------------------------
+# Python
+# ------------------------------------------------------------
 __pycache__/
 *.py[cod]
 *$py.class
+
 .python-version
+
 .venv/
 venv/
 env/
+ENV/
+
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.pyre/
+.tox/
+.nox/
+
 .coverage
+.coverage.*
 coverage.xml
 htmlcov/
-dist/
-*.egg-info/
 
-# Local runtime assets copied from an installed Towns release.
+dist/
+build/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Python packaging lock/cache artifacts
+pip-log.txt
+pip-delete-this-directory.txt
+
+
+# ------------------------------------------------------------
+# IDEs / Editors
+# ------------------------------------------------------------
+.vscode/
+.idea/
+*.iml
+
+# Cursor / Codex / AI-agent local folders
+.codex/
+.cursor/
+.claude/
+.copilot/
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# NetBeans
+nbproject/private/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# Vim / Nano / Emacs
+*.swp
+*.swo
+*~
+\#*\#
+.\#*
+
+
+# ------------------------------------------------------------
+# OS generated files
+# ------------------------------------------------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+
+$RECYCLE.BIN/
+.Trashes/
+.Spotlight-V100/
+
+
+# ------------------------------------------------------------
+# Logs / Runtime output
+# ------------------------------------------------------------
+*.log
+logs/
+log/
+
+# Existing project runtime log
+/src/error.log
+
+# JVM / app runtime dumps
+*.hprof
+*.dump
+
+
+# ------------------------------------------------------------
+# Local config / secrets
+# ------------------------------------------------------------
+.env
+.env.*
+!.env.example
+
+*.local
+*.local.*
+local.properties
+
+# Common secret/key files
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.cer
+*.jks
+*.keystore
+
+# Do not commit generated credentials/tokens
+credentials.json
+token.json
+secrets.json
+
+
+# ------------------------------------------------------------
+# Temporary / cache files
+# ------------------------------------------------------------
+tmp/
+temp/
+.cache/
+.cache-*/
+*.tmp
+*.temp
+*.bak
+*.backup
+*.orig
+
+
+# ------------------------------------------------------------
+# Test / report output
+# ------------------------------------------------------------
+reports/
+test-output/
+test-results/
+surefire-reports/
+failsafe-reports/
+
+junit*.xml
+
+
+# ------------------------------------------------------------
+# Packaging / release output
+# ------------------------------------------------------------
+release/
+releases/
+artifacts/
+artifacts-*/
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+*.rar
+
+
+# ------------------------------------------------------------
+# Game / Open-Towns local runtime assets
+# These are copied from an installed Towns release and should
+# not be committed to the public repo.
+# ------------------------------------------------------------
 /src/data/audio/
 /src/data/fonts/
 /src/data/graphics/
-/src/error.log
 
-.codex/
+# Optional local save/debug/runtime folders
+/saves/
+/save/
+/screenshots/
+/captures/
+/recordings/
 
-.codex/
+
+# ------------------------------------------------------------
+# Misc generated files
+# ------------------------------------------------------------
+*.pid
+*.seed
+*.pid.lock
+
+*.stackdump
