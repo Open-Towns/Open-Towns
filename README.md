@@ -3,6 +3,7 @@
 Modernized community source release for Towns.
 
 ## Releases
+
 - [Towns++ Compatability](https://github.com/JustinHammitt/TownsForever/releases/tag/v0.0.2)
 -- Disclaimer: Some in-game menu's related to quota are non-functional in pre-release v0.0.3 
 - [Linux Build Release! v0.0.2](https://github.com/JustinHammitt/TownsForever/releases/tag/v0.0.2)
