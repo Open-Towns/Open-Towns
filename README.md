@@ -1,9 +1,12 @@
-# Towns Forever Baby!!!!
+# Open-Towns.
 
-Modernized community source release for Towns.
+Modernized Open Source release for Towns.
 
 ## Releases
 
+Nothing Here yet. please check back later, Thank you!
+
+### Historic releases
 - [Towns++ Compatability v0.0.3](https://github.com/JustinHammitt/TownsForever/releases/tag/v0.0.2)
 -- Disclaimer: Some in-game menu's related to material quota are non-functional in pre-release v0.0.3 
 - [Linux Build Release! v0.0.2](https://github.com/JustinHammitt/TownsForever/releases/tag/v0.0.2)
@@ -117,6 +120,7 @@ Release archives intentionally exclude original graphics, audio, fonts, and Stea
  - [x] Steam native access enabled for Java 25
  - [x] GH Workflow targeted Windows and Linux release builds
  - [ ] Linux audio follow-up
+ - [ ] Todo: Add More Feature Goals
 
 [Issues? Troubleshooting](#troubleshooting)
 
