@@ -146,13 +146,13 @@ public class CaravanManager {
             if (node.getNodeType() == Node.ELEMENT_NODE) {
                 if (node.getNodeName().equals("item")) { //$NON-NLS-1$
                     CaravanItemData cid = new CaravanItemData();
-                    cid.setId(UtilsXML.getChildValue(node.getChildNodes(), "id")); //$NON-NLS-1$
-                    cid.setType(UtilsXML.getChildValue(node.getChildNodes(), "type")); //$NON-NLS-1$
-                    if (cid.getId() == null && cid.getType() == null) {
+                    cid.setItemId(UtilsXML.getChildValue(node.getChildNodes(), "id")); //$NON-NLS-1$
+                    cid.setItemType(UtilsXML.getChildValue(node.getChildNodes(), "type")); //$NON-NLS-1$
+                    if (cid.getItemId() == null && cid.getItemType() == null) {
                         throw new Exception(Messages.getString("CaravanManager.1")); //$NON-NLS-1$
                     }
 
-                    cid.setPCT(UtilsXML.getChildValue(node.getChildNodes(), "PCT")); //$NON-NLS-1$
+                    cid.setSpawnChancePercent(UtilsXML.getChildValue(node.getChildNodes(), "PCT")); //$NON-NLS-1$
                     cid.setQuantity(UtilsXML.getChildValue(node.getChildNodes(), "quantity")); //$NON-NLS-1$
                     alItemData.add(cid);
                 }

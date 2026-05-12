@@ -33,15 +33,15 @@ public class CaravanManagerItem {
         int iQtty;
         for (int i = 0; i < itemList.size(); i++) {
             cid = itemList.get(i);
-            if (Utils.getRandomBetween(1, 100) <= cid.getPCT()) {
+            if (Utils.getRandomBetween(1, 100) <= cid.getSpawnChancePercent()) {
                 // Hit, miramos la cantidad
                 iQtty = Utils.launchDice(cid.getQuantity());
                 for (int q = 0; q < iQtty; q++) {
                     String itemID;
-                    if (cid.getId() != null) {
-                        itemID = cid.getId();
+                    if (cid.getItemId() != null) {
+                        itemID = cid.getItemId();
                     } else {
-                        itemID = ItemManager.getRandomItemByType(cid.getType()).getIniHeader();
+                        itemID = ItemManager.getRandomItemByType(cid.getItemType()).getIniHeader();
                     }
 
                     // Que el item exista (debería)
