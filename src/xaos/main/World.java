@@ -4475,7 +4475,7 @@ public final class World implements Externalizable {
 
 			// Caso caravanas, creamos la data
 			if (lemi != null && lemi.getCaravan () != null) {
-				Game.getWorld ().setCurrentCaravanData (CaravanManager.getItem (lemi.getCaravan ()).getInstance (le.getID (), x, y, z));
+				Game.getWorld ().setCurrentCaravanData (CaravanManager.getItem (lemi.getCaravan ()).createCaravanInstance (le.getID (), x, y, z));
 			}
 		}
 		getCell (x, y, z).addLiving (le);

@@ -105,7 +105,7 @@ public class CaravanManager {
 
         caravanData.setId(id);
         caravanData.setZone(UtilsXML.getChildValue(caravanNode.getChildNodes(), "zone"));
-        caravanData.setPricePCT(UtilsXML.getChildValue(caravanNode.getChildNodes(), "pricePCT"));
+        caravanData.setPricePercentFormula(UtilsXML.getChildValue(caravanNode.getChildNodes(), "pricePCT"));
         caravanData.setCoins(UtilsXML.getChildValue(caravanNode.getChildNodes(), "coins"));
         caravanData.setBuysString(UtilsXML.getChildValue(caravanNode.getChildNodes(), "buys"));
         caravanData.setItemList(loadCaravanItems(caravanNode.getChildNodes()));
@@ -120,7 +120,7 @@ public class CaravanManager {
         NodeList caravanFields = caravanNode.getChildNodes();
 
         setIfPresent(caravanFields, "zone", caravanData::setZone);
-        setIfPresent(caravanFields, "pricePCT", caravanData::setPricePCT);
+        setIfPresent(caravanFields, "pricePCT", caravanData::setPricePercentFormula);
         setIfPresent(caravanFields, "coins", caravanData::setCoins);
         setIfPresent(caravanFields, "buys", caravanData::setBuysString);
         setIfPresent(caravanFields, "comePCT", caravanData::setComePCT);
