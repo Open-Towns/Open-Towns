@@ -80,18 +80,18 @@ public final class UIPanel {
 		setCurrentMenu(new SmartMenu());
 		SmartMenu.readXMLMenu(getCurrentMenu(), "menu.xml", sCampaignID, sMissionID); //$NON-NLS-1$
 
-		UIPanelState.menuPanelMenu = new SmartMenu();
-		SmartMenu.readXMLMenu(UIPanelState.menuPanelMenu, "menu_right.xml", sCampaignID, sMissionID); //$NON-NLS-1$
+		menuPanelMenu = new SmartMenu();
+		SmartMenu.readXMLMenu(menuPanelMenu, "menu_right.xml", sCampaignID, sMissionID); //$NON-NLS-1$
 
 		productionPanelMenu = new SmartMenu();
 		SmartMenu.readXMLMenu(productionPanelMenu, "menu_production.xml", sCampaignID, sMissionID); //$NON-NLS-1$
 
 		// Vamos a setear los tamaños de los iconos de los menús para que sea
 		// proporcional al botón de menú
-		resizeIcons(UIPanelState.currentMenu, UIPanelState.BOTTOM_ITEM_WIDTH, UIPanelState.BOTTOM_ITEM_HEIGHT);
-		resizeIcons(UIPanelState.menuPanelMenu, UIPanelState.MENU_ITEM_WIDTH, UIPanelState.MENU_ITEM_HEIGHT);
-		resizeIcons(productionPanelMenu, UIPanelState.PRODUCTION_PANEL_ITEM_WIDTH,
-				UIPanelState.PRODUCTION_PANEL_ITEM_HEIGHT);
+		resizeIcons(currentMenu, BOTTOM_ITEM_WIDTH, BOTTOM_ITEM_HEIGHT);
+		resizeIcons(menuPanelMenu, MENU_ITEM_WIDTH, MENU_ITEM_HEIGHT);
+		resizeIcons(productionPanelMenu, PRODUCTION_PANEL_ITEM_WIDTH,
+				PRODUCTION_PANEL_ITEM_HEIGHT);
 	}
 
 	public static void resizeIcons(SmartMenu menu, int width, int height) {
@@ -118,165 +118,165 @@ public final class UIPanel {
 	}
 
 	public void resize(int renderW, int renderH, String sCampaignID, String sMissionID, boolean bLoadMenus) {
-		UIPanelState.renderWidth = renderW;
-		UIPanelState.renderHeight = renderH;
+		renderWidth = renderW;
+		renderHeight = renderH;
 
 		initialize(sCampaignID, sMissionID, bLoadMenus);
 	}
 
 	public SmartMenu getCurrentMenu() {
-		return UIPanelState.currentMenu;
+		return currentMenu;
 	}
 
 	public void setCurrentMenu(SmartMenu menu) {
-		UIPanelState.currentMenu = menu;
+		currentMenu = menu;
 	}
 
 	public void initialize(String sCampaignID, String sMissionID, boolean bLoadMenus) {
-		if (UIPanelState.currentMenu == null && bLoadMenus) {
+		if (currentMenu == null && bLoadMenus) {
 			loadMenus(sCampaignID, sMissionID);
 		}
 
-		if (UIPanelState.tileBottomItem == null) {
+		if (tileBottomItem == null) {
 			// generateTiles();
 			GenerateTiles generateTiles = new GenerateTiles();
 			generateTiles.generateTiles();
 		}
 
-		UIPanelState.PIXELS_TO_BORDER = UIPanelState.renderWidth / 80;
+		PIXELS_TO_BORDER = renderWidth / 80;
 
 		// MINIMAP
-		UIPanelState.MINIMAP_PANEL_WIDTH = UIPanelState.tileMinimapPanel.getTileWidth();
-		UIPanelState.MINIMAP_PANEL_HEIGHT = UIPanelState.tileMinimapPanel.getTileHeight();
+		MINIMAP_PANEL_WIDTH = tileMinimapPanel.getTileWidth();
+		MINIMAP_PANEL_HEIGHT = tileMinimapPanel.getTileHeight();
 
-		UIPanelState.minimapPanelX = UIPanelState.renderWidth - UIPanelState.MINIMAP_PANEL_WIDTH
-				- UIPanelState.PIXELS_TO_BORDER;
-		UIPanelState.minimapPanelY = UIPanelState.PIXELS_TO_BORDER;
-		MiniMapPanel.initialize(UIPanelState.minimapPanelX, UIPanelState.minimapPanelY,
-				UIPanelState.MINIMAP_PANEL_WIDTH, UIPanelState.MINIMAP_PANEL_HEIGHT);
+		minimapPanelX = renderWidth - MINIMAP_PANEL_WIDTH
+				- PIXELS_TO_BORDER;
+		minimapPanelY = PIXELS_TO_BORDER;
+		MiniMapPanel.initialize(minimapPanelX, minimapPanelY,
+				MINIMAP_PANEL_WIDTH, MINIMAP_PANEL_HEIGHT);
 
 		/*
 		 * BOTTOM panel
 		 */
-		if (UIPanelState.bottomPanelItemsPosition == null) {
-			UIPanelState.bottomPanelItemsPosition = new ArrayList<Point>(UIPanelState.BOTTOM_PANEL_NUM_ITEMS);
+		if (bottomPanelItemsPosition == null) {
+			bottomPanelItemsPosition = new ArrayList<Point>(BOTTOM_PANEL_NUM_ITEMS);
 		}
 
 		// Centramos el panel
-		UIPanelState.bottomPanelX = UIPanelState.renderWidth / 2 - UIPanelState.BOTTOM_PANEL_WIDTH / 2;
-		UIPanelState.bottomPanelY = UIPanelState.renderHeight - UIPanelState.BOTTOM_PANEL_HEIGHT
-				- UIPanelState.tileOpenBottomMenu.getTileHeight();
+		bottomPanelX = renderWidth / 2 - BOTTOM_PANEL_WIDTH / 2;
+		bottomPanelY = renderHeight - BOTTOM_PANEL_HEIGHT
+				- tileOpenBottomMenu.getTileHeight();
 		// Calculamos la posición de los minipaneles de scroll
-		UIPanelState.bottomPanelLeftScrollX = UIPanelState.bottomPanelX - UIPanelState.BOTTOM_PANEL_SCROLL_WIDTH;
-		UIPanelState.bottomPanelRightScrollX = UIPanelState.bottomPanelX + UIPanelState.BOTTOM_PANEL_WIDTH;
+		bottomPanelLeftScrollX = bottomPanelX - BOTTOM_PANEL_SCROLL_WIDTH;
+		bottomPanelRightScrollX = bottomPanelX + BOTTOM_PANEL_WIDTH;
 
-		UIPanelState.bottomPanelItemIndex = 0;
+		bottomPanelItemIndex = 0;
 
 		// Subpanel
-		UIPanelState.bottomSubPanelMenu = null;
+		bottomSubPanelMenu = null;
 
 		// Cargamos las posiciones
-		UIPanelState.bottomPanelItemsPosition.clear();
-		int spaceBetweenItems = (UIPanelState.BOTTOM_PANEL_WIDTH
-				- (UIPanelState.BOTTOM_ITEM_WIDTH * UIPanelState.BOTTOM_PANEL_NUM_ITEMS))
-				/ (UIPanelState.BOTTOM_PANEL_NUM_ITEMS + 1);
-		for (int i = 0; i < UIPanelState.BOTTOM_PANEL_NUM_ITEMS; i++) {
-			UIPanelState.bottomPanelItemsPosition
+		bottomPanelItemsPosition.clear();
+		int spaceBetweenItems = (BOTTOM_PANEL_WIDTH
+				- (BOTTOM_ITEM_WIDTH * BOTTOM_PANEL_NUM_ITEMS))
+				/ (BOTTOM_PANEL_NUM_ITEMS + 1);
+		for (int i = 0; i < BOTTOM_PANEL_NUM_ITEMS; i++) {
+			bottomPanelItemsPosition
 					.add(new Point(
-							UIPanelState.bottomPanelX + spaceBetweenItems
-									+ (i * (UIPanelState.BOTTOM_ITEM_WIDTH + spaceBetweenItems)),
-							UIPanelState.bottomPanelY + (UIPanelState.BOTTOM_PANEL_HEIGHT / 2)
-									- (UIPanelState.BOTTOM_ITEM_HEIGHT / 2)));
+							bottomPanelX + spaceBetweenItems
+									+ (i * (BOTTOM_ITEM_WIDTH + spaceBetweenItems)),
+							bottomPanelY + (BOTTOM_PANEL_HEIGHT / 2)
+									- (BOTTOM_ITEM_HEIGHT / 2)));
 		}
 
 		// Minibotón para abrir/cerrar el panel de abajo
-		UIPanelState.tileOpenCloseBottomMenuPoint.setLocation(
-				UIPanelState.renderWidth / 2 - UIPanelState.tileOpenBottomMenu.getTileWidth() / 2,
-				UIPanelState.renderHeight - UIPanelState.tileOpenBottomMenu.getTileHeight());
+		tileOpenCloseBottomMenuPoint.setLocation(
+				renderWidth / 2 - tileOpenBottomMenu.getTileWidth() / 2,
+				renderHeight - tileOpenBottomMenu.getTileHeight());
 
 		/*
 		 * Date panel
 		 */
-		UIPanelState.datePanelPoint.setLocation(
-				UIPanelState.renderWidth / 2 - UIPanelState.tileDatePanel.getTileWidth() / 2,
-				UIPanelState.tileIconCoins.getTileHeight());
+		datePanelPoint.setLocation(
+				renderWidth / 2 - tileDatePanel.getTileWidth() / 2,
+				tileIconCoins.getTileHeight());
 
 		/*
 		 * Coins icon point
 		 */
-		UIPanelState.tileIconCoinsPoint.setLocation(UIPanelState.renderWidth / 2,
-				0 + UIPanelState.tileIconCoins.getTileHeightOffset());
+		tileIconCoinsPoint.setLocation(renderWidth / 2,
+				0 + tileIconCoins.getTileHeightOffset());
 
 		/*
 		 * Info panel
 		 */
-		UIPanelState.infoPanelPoint.setLocation(
-				UIPanelState.renderWidth / 2 - UIPanelState.tileInfoPanel.getTileWidth() / 2
-						+ UIPanelState.tileInfoPanel.getTileWidthOffset(),
+		infoPanelPoint.setLocation(
+				renderWidth / 2 - tileInfoPanel.getTileWidth() / 2
+						+ tileInfoPanel.getTileWidthOffset(),
 				0);
 
-		int iSeparation = UIPanelState.datePanelPoint.x - UIPanelState.infoPanelPoint.x;
-		iSeparation = iSeparation - 2 * UIPanelState.tileBottomItem.getTileWidth();
+		int iSeparation = datePanelPoint.x - infoPanelPoint.x;
+		iSeparation = iSeparation - 2 * tileBottomItem.getTileWidth();
 		iSeparation /= 3;
 		// Citizens
-		UIPanelState.iconNumCitizensBackgroundPoint.setLocation(UIPanelState.infoPanelPoint.x + iSeparation,
-				UIPanelState.infoPanelPoint.y + UIPanelState.tileIconNumCitizens.getTileHeightOffset());
-		UIPanelState.iconNumCitizensPoint.setLocation(
-				UIPanelState.iconNumCitizensBackgroundPoint.x + UIPanelState.tileIconNumCitizens.getTileWidthOffset(),
-				UIPanelState.iconNumCitizensBackgroundPoint.y + UIPanelState.tileIconNumCitizens.getTileHeightOffset());
-		UIPanelState.iconCitizenPreviousPoint.setLocation(
-				UIPanelState.iconNumCitizensBackgroundPoint.x
-						+ UIPanelState.tileIconCitizenPrevious.getTileWidthOffset(),
-				UIPanelState.iconNumCitizensBackgroundPoint.y
-						+ UIPanelState.tileIconCitizenPrevious.getTileHeightOffset());
-		UIPanelState.iconCitizenNextPoint.setLocation(
-				UIPanelState.iconNumCitizensBackgroundPoint.x + UIPanelState.tileIconCitizenNext.getTileWidthOffset(),
-				UIPanelState.iconNumCitizensBackgroundPoint.y + UIPanelState.tileIconCitizenNext.getTileHeightOffset());
+		iconNumCitizensBackgroundPoint.setLocation(infoPanelPoint.x + iSeparation,
+				infoPanelPoint.y + tileIconNumCitizens.getTileHeightOffset());
+		iconNumCitizensPoint.setLocation(
+				iconNumCitizensBackgroundPoint.x + tileIconNumCitizens.getTileWidthOffset(),
+				iconNumCitizensBackgroundPoint.y + tileIconNumCitizens.getTileHeightOffset());
+		iconCitizenPreviousPoint.setLocation(
+				iconNumCitizensBackgroundPoint.x
+						+ tileIconCitizenPrevious.getTileWidthOffset(),
+				iconNumCitizensBackgroundPoint.y
+						+ tileIconCitizenPrevious.getTileHeightOffset());
+		iconCitizenNextPoint.setLocation(
+				iconNumCitizensBackgroundPoint.x + tileIconCitizenNext.getTileWidthOffset(),
+				iconNumCitizensBackgroundPoint.y + tileIconCitizenNext.getTileHeightOffset());
 
 		// Soldiers
-		UIPanelState.iconNumSoldiersBackgroundPoint.setLocation(
-				UIPanelState.infoPanelPoint.x + 2 * iSeparation + UIPanelState.tileBottomItem.getTileWidth(),
-				UIPanelState.infoPanelPoint.y + UIPanelState.tileIconNumSoldiers.getTileHeightOffset());
-		UIPanelState.iconNumSoldiersPoint.setLocation(
-				UIPanelState.iconNumSoldiersBackgroundPoint.x + UIPanelState.tileIconNumSoldiers.getTileWidthOffset(),
-				UIPanelState.iconNumSoldiersBackgroundPoint.y + UIPanelState.tileIconNumSoldiers.getTileHeightOffset());
-		UIPanelState.iconSoldierPreviousPoint.setLocation(
-				UIPanelState.iconNumSoldiersBackgroundPoint.x
-						+ UIPanelState.tileIconSoldierPrevious.getTileWidthOffset(),
-				UIPanelState.iconNumSoldiersBackgroundPoint.y
-						+ UIPanelState.tileIconSoldierPrevious.getTileHeightOffset());
-		UIPanelState.iconSoldierNextPoint.setLocation(
-				UIPanelState.iconNumSoldiersBackgroundPoint.x + UIPanelState.tileIconSoldierNext.getTileWidthOffset(),
-				UIPanelState.iconNumSoldiersBackgroundPoint.y + UIPanelState.tileIconSoldierNext.getTileHeightOffset());
+		iconNumSoldiersBackgroundPoint.setLocation(
+				infoPanelPoint.x + 2 * iSeparation + tileBottomItem.getTileWidth(),
+				infoPanelPoint.y + tileIconNumSoldiers.getTileHeightOffset());
+		iconNumSoldiersPoint.setLocation(
+				iconNumSoldiersBackgroundPoint.x + tileIconNumSoldiers.getTileWidthOffset(),
+				iconNumSoldiersBackgroundPoint.y + tileIconNumSoldiers.getTileHeightOffset());
+		iconSoldierPreviousPoint.setLocation(
+				iconNumSoldiersBackgroundPoint.x
+						+ tileIconSoldierPrevious.getTileWidthOffset(),
+				iconNumSoldiersBackgroundPoint.y
+						+ tileIconSoldierPrevious.getTileHeightOffset());
+		iconSoldierNextPoint.setLocation(
+				iconNumSoldiersBackgroundPoint.x + tileIconSoldierNext.getTileWidthOffset(),
+				iconNumSoldiersBackgroundPoint.y + tileIconSoldierNext.getTileHeightOffset());
 
-		iSeparation = UIPanelState.infoPanelPoint.x + UIPanelState.tileInfoPanel.getTileWidth()
-				- (UIPanelState.datePanelPoint.x + UIPanelState.tileDatePanel.getTileWidth());
-		iSeparation = iSeparation - 2 * UIPanelState.tileBottomItem.getTileWidth();
+		iSeparation = infoPanelPoint.x + tileInfoPanel.getTileWidth()
+				- (datePanelPoint.x + tileDatePanel.getTileWidth());
+		iSeparation = iSeparation - 2 * tileBottomItem.getTileWidth();
 		iSeparation /= 3;
 
 		// Heroes
-		UIPanelState.iconNumHeroesBackgroundPoint.setLocation(
-				UIPanelState.datePanelPoint.x + UIPanelState.tileDatePanel.getTileWidth() + iSeparation,
-				UIPanelState.infoPanelPoint.y + UIPanelState.tileIconNumHeroes.getTileHeightOffset());
-		UIPanelState.iconNumHeroesPoint.setLocation(
-				UIPanelState.iconNumHeroesBackgroundPoint.x + UIPanelState.tileIconNumHeroes.getTileWidthOffset(),
-				UIPanelState.iconNumHeroesBackgroundPoint.y + UIPanelState.tileIconNumHeroes.getTileHeightOffset());
-		UIPanelState.iconHeroPreviousPoint.setLocation(
-				UIPanelState.iconNumHeroesBackgroundPoint.x + UIPanelState.tileIconHeroPrevious.getTileWidthOffset(),
-				UIPanelState.iconNumHeroesBackgroundPoint.y + UIPanelState.tileIconHeroPrevious.getTileHeightOffset());
-		UIPanelState.iconHeroNextPoint.setLocation(
-				UIPanelState.iconNumHeroesBackgroundPoint.x + UIPanelState.tileIconHeroNext.getTileWidthOffset(),
-				UIPanelState.iconNumHeroesBackgroundPoint.y + UIPanelState.tileIconHeroNext.getTileHeightOffset());
+		iconNumHeroesBackgroundPoint.setLocation(
+				datePanelPoint.x + tileDatePanel.getTileWidth() + iSeparation,
+				infoPanelPoint.y + tileIconNumHeroes.getTileHeightOffset());
+		iconNumHeroesPoint.setLocation(
+				iconNumHeroesBackgroundPoint.x + tileIconNumHeroes.getTileWidthOffset(),
+				iconNumHeroesBackgroundPoint.y + tileIconNumHeroes.getTileHeightOffset());
+		iconHeroPreviousPoint.setLocation(
+				iconNumHeroesBackgroundPoint.x + tileIconHeroPrevious.getTileWidthOffset(),
+				iconNumHeroesBackgroundPoint.y + tileIconHeroPrevious.getTileHeightOffset());
+		iconHeroNextPoint.setLocation(
+				iconNumHeroesBackgroundPoint.x + tileIconHeroNext.getTileWidthOffset(),
+				iconNumHeroesBackgroundPoint.y + tileIconHeroNext.getTileHeightOffset());
 
 		// Caravan
-		UIPanelState.iconCaravanBackgroundPoint.setLocation(
-				UIPanelState.datePanelPoint.x + UIPanelState.tileDatePanel.getTileWidth() + 2 * iSeparation
-						+ UIPanelState.tileBottomItem.getTileWidth(),
-				UIPanelState.infoPanelPoint.y + UIPanelState.tileIconCaravan.getTileHeightOffset());
-		UIPanelState.iconCaravanPoint.setLocation(
-				UIPanelState.iconCaravanBackgroundPoint.x + UIPanelState.tileIconCaravan.getTileWidthOffset(),
-				UIPanelState.iconCaravanBackgroundPoint.y + UIPanelState.tileBottomItem.getTileHeight() / 2
-						- UIPanelState.tileIconCaravan.getTileHeight() / 2);
+		iconCaravanBackgroundPoint.setLocation(
+				datePanelPoint.x + tileDatePanel.getTileWidth() + 2 * iSeparation
+						+ tileBottomItem.getTileWidth(),
+				infoPanelPoint.y + tileIconCaravan.getTileHeightOffset());
+		iconCaravanPoint.setLocation(
+				iconCaravanBackgroundPoint.x + tileIconCaravan.getTileWidthOffset(),
+				iconCaravanBackgroundPoint.y + tileBottomItem.getTileHeight() / 2
+						- tileIconCaravan.getTileHeight() / 2);
 
 		if (bLoadMenus) {
 			/*
@@ -312,7 +312,7 @@ public final class UIPanel {
 			/*
 			 * Livings panel
 			 */
-			createLivingsPanel(UIPanelState.LIVINGS_PANEL_TYPE_NONE, -1, -1);
+			createLivingsPanel(LIVINGS_PANEL_TYPE_NONE, -1, -1);
 
 			/*
 			 * Priorities panel
@@ -322,7 +322,7 @@ public final class UIPanel {
 			/*
 			 * Images panel
 			 */
-			ImagesPanel.resize(UIPanelState.renderWidth, UIPanelState.renderHeight);
+			ImagesPanel.resize(renderWidth, renderHeight);
 		}
 
 		/*
@@ -331,19 +331,19 @@ public final class UIPanel {
 		createMessagesPanel();
 
 		// Images button location
-		UIPanelState.iconTutorialPoint.setLocation(UIPanelState.messageIconPoints[0].x,
-				UIPanelState.messageIconPoints[0].y + UIPanelState.messageTiles[0].getTileHeight()
-						+ UIPanelState.PIXELS_TO_BORDER + UIPanelState.BOTTOM_ITEM_HEIGHT
-						+ UIPanelState.BOTTOM_ITEM_HEIGHT / 4);
+		iconTutorialPoint.setLocation(messageIconPoints[0].x,
+				messageIconPoints[0].y + messageTiles[0].getTileHeight()
+						+ PIXELS_TO_BORDER + BOTTOM_ITEM_HEIGHT
+						+ BOTTOM_ITEM_HEIGHT / 4);
 
 		// Events + gods icons
-		int iStartingX = UIPanelState.messageIconPoints[UIPanelState.messageIconPoints.length - 1].x
-				+ UIPanelState.messageTiles[UIPanelState.messageTiles.length - 1].getTileWidth();
-		int iAvailableWidth = UIPanelState.infoPanelPoint.x - iStartingX;
+		int iStartingX = messageIconPoints[messageIconPoints.length - 1].x
+				+ messageTiles[messageTiles.length - 1].getTileWidth();
+		int iAvailableWidth = infoPanelPoint.x - iStartingX;
 
-		UIPanelState.iconEventsPoint.setLocation(iStartingX + iAvailableWidth / 4 - UIPanelState.ICON_WIDTH / 2 + 3,
-				UIPanelState.messageIconPoints[UIPanelState.messageIconPoints.length - 1].y
-						+ UIPanelState.messageTiles[UIPanelState.messageTiles.length - 1].getTileHeight() / 2
+		iconEventsPoint.setLocation(iStartingX + iAvailableWidth / 4 - ICON_WIDTH / 2 + 3,
+				messageIconPoints[messageIconPoints.length - 1].y
+						+ messageTiles[messageTiles.length - 1].getTileHeight() / 2
 						- GlobalEventData.getIcon().getTileHeight() / 2);
 
 		// Gods icon
@@ -354,55 +354,55 @@ public final class UIPanel {
 		/*
 		 * Mini icons
 		 */
-		UIPanelState.iconLevelUpPoint.setLocation(
-				UIPanelState.minimapPanelX + UIPanelState.tileIconLevelUp.getTileWidthOffset(),
-				UIPanelState.minimapPanelY + UIPanelState.tileIconLevelUp.getTileHeightOffset());
-		UIPanelState.iconLevelPoint.setLocation(
-				UIPanelState.minimapPanelX + UIPanelState.tileIconLevel.getTileWidthOffset(),
-				UIPanelState.minimapPanelY + UIPanelState.tileIconLevel.getTileHeightOffset());
-		UIPanelState.iconLevelDownPoint.setLocation(
-				UIPanelState.minimapPanelX + UIPanelState.tileIconLevelDown.getTileWidthOffset(),
-				UIPanelState.minimapPanelY + UIPanelState.tileIconLevelDown.getTileHeightOffset());
+		iconLevelUpPoint.setLocation(
+				minimapPanelX + tileIconLevelUp.getTileWidthOffset(),
+				minimapPanelY + tileIconLevelUp.getTileHeightOffset());
+		iconLevelPoint.setLocation(
+				minimapPanelX + tileIconLevel.getTileWidthOffset(),
+				minimapPanelY + tileIconLevel.getTileHeightOffset());
+		iconLevelDownPoint.setLocation(
+				minimapPanelX + tileIconLevelDown.getTileWidthOffset(),
+				minimapPanelY + tileIconLevelDown.getTileHeightOffset());
 
 		// Debajo del date metemos 2 iconos de panel (de momento priorities y mats)
-		int iPanels = (UIPanelState.tileDatePanel.getTileWidth() - UIPanelState.tileIconPriorities.getTileWidth()
-				- UIPanelState.tileIconMats.getTileWidth())
+		int iPanels = (tileDatePanel.getTileWidth() - tileIconPriorities.getTileWidth()
+				- tileIconMats.getTileWidth())
 				/ 3;
-		UIPanelState.iconMatsPoint.setLocation(UIPanelState.datePanelPoint.x + iPanels,
-				UIPanelState.datePanelPoint.y + UIPanelState.tileDatePanel.getTileHeight()
-						+ UIPanelState.tileIconMats.getTileHeightOffset());
-		UIPanelState.iconPrioritiesPoint.setLocation(
-				UIPanelState.datePanelPoint.x + iPanels + UIPanelState.tileIconMats.getTileWidth() + iPanels,
-				UIPanelState.datePanelPoint.y + UIPanelState.tileDatePanel.getTileHeight()
-						+ UIPanelState.tileIconPriorities.getTileHeightOffset());
+		iconMatsPoint.setLocation(datePanelPoint.x + iPanels,
+				datePanelPoint.y + tileDatePanel.getTileHeight()
+						+ tileIconMats.getTileHeightOffset());
+		iconPrioritiesPoint.setLocation(
+				datePanelPoint.x + iPanels + tileIconMats.getTileWidth() + iPanels,
+				datePanelPoint.y + tileDatePanel.getTileHeight()
+						+ tileIconPriorities.getTileHeightOffset());
 
 		// Miniblocks, grid, settings, flat mouse, 3D mouse
-		UIPanelState.iconMiniblocksPoint.setLocation(
-				UIPanelState.minimapPanelX + UIPanelState.tileIconMiniblocks.getTileWidthOffset(),
-				UIPanelState.minimapPanelY + UIPanelState.tileIconMiniblocks.getTileHeightOffset());
-		UIPanelState.iconGridPoint.setLocation(
-				UIPanelState.minimapPanelX + UIPanelState.tileIconGrid.getTileWidthOffset(),
-				UIPanelState.minimapPanelY + UIPanelState.tileIconGrid.getTileHeightOffset());
-		UIPanelState.iconSettingsPoint.setLocation(
-				UIPanelState.minimapPanelX + UIPanelState.tileIconSettings.getTileWidthOffset(),
-				UIPanelState.minimapPanelY + UIPanelState.tileIconSettings.getTileHeightOffset());
-		UIPanelState.iconFlatMousePoint.setLocation(
-				UIPanelState.minimapPanelX + UIPanelState.tileIconFlatMouse.getTileWidthOffset(),
-				UIPanelState.minimapPanelY + UIPanelState.tileIconFlatMouse.getTileHeightOffset());
-		UIPanelState.icon3DMousePoint.setLocation(
-				UIPanelState.minimapPanelX + UIPanelState.tileIcon3DMouse.getTileWidthOffset(),
-				UIPanelState.minimapPanelY + UIPanelState.tileIcon3DMouse.getTileHeightOffset());
+		iconMiniblocksPoint.setLocation(
+				minimapPanelX + tileIconMiniblocks.getTileWidthOffset(),
+				minimapPanelY + tileIconMiniblocks.getTileHeightOffset());
+		iconGridPoint.setLocation(
+				minimapPanelX + tileIconGrid.getTileWidthOffset(),
+				minimapPanelY + tileIconGrid.getTileHeightOffset());
+		iconSettingsPoint.setLocation(
+				minimapPanelX + tileIconSettings.getTileWidthOffset(),
+				minimapPanelY + tileIconSettings.getTileHeightOffset());
+		iconFlatMousePoint.setLocation(
+				minimapPanelX + tileIconFlatMouse.getTileWidthOffset(),
+				minimapPanelY + tileIconFlatMouse.getTileHeightOffset());
+		icon3DMousePoint.setLocation(
+				minimapPanelX + tileIcon3DMouse.getTileWidthOffset(),
+				minimapPanelY + tileIcon3DMouse.getTileHeightOffset());
 
 		// Lower speed, pause/resume, increase speed
-		UIPanelState.iconLowerSpeedPoint.setLocation(
-				UIPanelState.minimapPanelX + UIPanelState.tileIconLowerSpeedON.getTileWidthOffset(),
-				UIPanelState.minimapPanelY + UIPanelState.tileIconLowerSpeedON.getTileHeightOffset());
-		UIPanelState.iconPauseResumePoint.setLocation(
-				UIPanelState.minimapPanelX + UIPanelState.tileIconPause.getTileWidthOffset(),
-				UIPanelState.minimapPanelY + UIPanelState.tileIconPause.getTileHeightOffset());
-		UIPanelState.iconIncreaseSpeedPoint.setLocation(
-				UIPanelState.minimapPanelX + UIPanelState.tileIconIncreaseSpeedON.getTileWidthOffset(),
-				UIPanelState.minimapPanelY + UIPanelState.tileIconIncreaseSpeedON.getTileHeightOffset());
+		iconLowerSpeedPoint.setLocation(
+				minimapPanelX + tileIconLowerSpeedON.getTileWidthOffset(),
+				minimapPanelY + tileIconLowerSpeedON.getTileHeightOffset());
+		iconPauseResumePoint.setLocation(
+				minimapPanelX + tileIconPause.getTileWidthOffset(),
+				minimapPanelY + tileIconPause.getTileHeightOffset());
+		iconIncreaseSpeedPoint.setLocation(
+				minimapPanelX + tileIconIncreaseSpeedON.getTileWidthOffset(),
+				minimapPanelY + tileIconIncreaseSpeedON.getTileHeightOffset());
 
 		// Edge menus
 		if (isProductionPanelLocked()) {
@@ -424,11 +424,11 @@ public final class UIPanel {
 		}
 
 		int mouseX = Mouse.getX();
-		int mouseY = UIPanelState.renderHeight - Mouse.getY() - 1;
-		UIPanelState.delayTime++;
-		UIPanelState.blinkTurns++;
-		if (UIPanelState.blinkTurns >= UIPanelState.MAX_BLINK_TURNS) {
-			UIPanelState.blinkTurns = 0;
+		int mouseY = renderHeight - Mouse.getY() - 1;
+		delayTime++;
+		blinkTurns++;
+		if (blinkTurns >= MAX_BLINK_TURNS) {
+			blinkTurns = 0;
 		}
 
 		int mousePanel = isMouseOnAPanel(mouseX, mouseY, true);
@@ -436,7 +436,7 @@ public final class UIPanel {
 		/*
 		 * BOTTOM menu panel
 		 */
-		int iCurrentTexture = UIPanelState.tileBottomScrollLeft.getTextureID(); // Esta textura es la primera quese usa
+		int iCurrentTexture = tileBottomScrollLeft.getTextureID(); // Esta textura es la primera quese usa
 																				// en el bottom
 		// menu
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, iCurrentTexture);
@@ -444,7 +444,7 @@ public final class UIPanel {
 		GL11.glColor4f(1, 1, 1, 1);
 		UtilsGL.glBegin(GL11.GL_QUADS);
 
-		UIPanelState.checkBlinkBottom = (UIPanelState.blinkTurns >= UIPanelState.MAX_BLINK_TURNS / 2)
+		checkBlinkBottom = (blinkTurns >= MAX_BLINK_TURNS / 2)
 				&& TutorialFlow.isBlinkBottom();
 		if (UIPanel.isBottomMenuPanelActive()) {
 			iCurrentTexture = BottomMenuPanel.renderPanel(mouseX, mouseY, mousePanel, iCurrentTexture);
@@ -457,12 +457,12 @@ public final class UIPanel {
 					tileOpenBottomMenuON.getTileHeight(), mousePanel == MOUSE_BOTTOM_OPENCLOSE);
 		} else {
 			iCurrentTexture = UtilsGL.setTexture(tileOpenBottomMenu, iCurrentTexture);
-			if (UIPanelState.checkBlinkBottom) {
+			if (checkBlinkBottom) {
 				UtilsGL.setColorRed();
 			}
 			drawTile(tileOpenBottomMenu, tileOpenCloseBottomMenuPoint, tileOpenBottomMenu.getTileWidth(),
 					tileOpenBottomMenu.getTileHeight(), mousePanel == MOUSE_BOTTOM_OPENCLOSE);
-			if (UIPanelState.checkBlinkBottom) {
+			if (checkBlinkBottom) {
 				UtilsGL.unsetColor();
 			}
 		}
@@ -490,7 +490,7 @@ public final class UIPanel {
 		// Possible mini icon blinks?
 		// Blink
 		TutorialFlow tutorialFlow = null;
-		if ((UIPanelState.blinkTurns >= UIPanelState.MAX_BLINK_TURNS / 2)) {
+		if ((blinkTurns >= MAX_BLINK_TURNS / 2)) {
 			if (Game.getCurrentMissionData() != null && ImagesPanel.getCurrentFlowIndex() >= 0
 					&& ImagesPanel.getCurrentFlowIndex() < Game.getCurrentMissionData().getTutorialFlows().size()) {
 				tutorialFlow = Game.getCurrentMissionData().getTutorialFlows().get(ImagesPanel.getCurrentFlowIndex());

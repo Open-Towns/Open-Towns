@@ -54,6 +54,7 @@ import xaos.utils.Log;
 import xaos.utils.Messages;
 import xaos.utils.Point3D;
 import xaos.utils.Point3DShort;
+import xaos.utils.UIScale;
 import xaos.utils.UtilFont;
 import xaos.utils.Utils;
 import xaos.utils.UtilsGL;
@@ -2212,46 +2213,95 @@ public final class MainPanel {
 	}
 
 
-	public static void renderMessages (int x, int y, int renderWidth, int renderHeight, int SEPARADOR, ArrayList<String> alMessages, ArrayList<ColorGL> alColor) {
-		if (alMessages.size () > 0) {
-			int iWidth = UtilFont.getWidth (alMessages.get (0));
-			int iMaxLength = iWidth;
-			for (int i = 1; i < alMessages.size (); i++) {
-				iMaxLength = UtilFont.getWidth (alMessages.get (i));
-				if (iWidth < iMaxLength) {
-					iWidth = iMaxLength;
-				}
-			}
-			int iX = x + SEPARADOR;
-			int iY = y;
-			int iHeight = alMessages.size () * (UtilFont.MAX_HEIGHT + 5) - 5;
+	
+	public static void renderMessages(
+		int x,
+		int y,
+		int renderWidth,
+		int renderHeight,
+		int SEPARADOR,
+		ArrayList<String> alMessages,
+		ArrayList<ColorGL> alColor
+) {
+	if (alMessages.size() <= 0) {
+		return;
+	}
 
-			// Miramos si cabe
-			if ((iX + iWidth) >= (renderWidth)) {
-				iX = iX - iWidth - SEPARADOR;
-				if (iX < 0) {
-					iX = 0;
-				}
-			}
-			if ((iY + iHeight) >= (renderHeight)) {
-				iY = iY - ((iY + iHeight) - (renderHeight));
-			}
+	int separator = UIScale.px(SEPARADOR);
+	int lineGap = UIScale.px(5);
+	int lineHeight = UIScale.fontHeight() + lineGap;
 
-			GL11.glColor4f (1, 1, 1, 1);
-			GL11.glBindTexture (GL11.GL_TEXTURE_2D, tileTooltipBackground.getTextureID ());
-			UtilsGL.glBegin (GL11.GL_QUADS);
-			UtilsGL.drawTexture (iX, iY, iX + iWidth, iY + iHeight, tileTooltipBackground.getTileSetTexX0 (),tileTooltipBackground.getTileSetTexY0 (), tileTooltipBackground.getTileSetTexX1 (), tileTooltipBackground.getTileSetTexY1 ());
-			UtilsGL.glEnd ();
-			GL11.glBindTexture (GL11.GL_TEXTURE_2D, Game.TEXTURE_FONT_ID);
-			UtilsGL.glBegin (GL11.GL_QUADS);
+	int iWidth = UIScale.textWidth(alMessages.get(0));
 
-			for (int i = 0; i < alMessages.size (); i++) {
-				UtilsGL.drawString (alMessages.get (i), iX, iY + (i * (UtilFont.MAX_HEIGHT + 5)), alColor.get (i));
-			}
+	for (int i = 1; i < alMessages.size(); i++) {
+		int messageWidth = UIScale.textWidth(alMessages.get(i));
 
-			UtilsGL.glEnd ();
+		if (iWidth < messageWidth) {
+			iWidth = messageWidth;
 		}
 	}
+
+	int iX = x + separator;
+	int iY = y;
+	int iHeight = alMessages.size() * lineHeight - lineGap;
+
+	// Miramos si cabe
+	if ((iX + iWidth) >= renderWidth) {
+		iX = iX - iWidth - separator;
+
+		if (iX < 0) {
+			iX = 0;
+		}
+	}
+
+	if ((iY + iHeight) >= renderHeight) {
+		iY = iY - ((iY + iHeight) - renderHeight);
+
+		if (iY < 0) {
+			iY = 0;
+		}
+	}
+
+	GL11.glColor4f(1, 1, 1, 1);
+	GL11.glBindTexture(GL11.GL_TEXTURE_2D, tileTooltipBackground.getTextureID());
+
+	UtilsGL.glBegin(GL11.GL_QUADS);
+
+	UtilsGL.drawTexture(
+			iX,
+			iY,
+			iX + iWidth,
+			iY + iHeight,
+			tileTooltipBackground.getTileSetTexX0(),
+			tileTooltipBackground.getTileSetTexY0(),
+			tileTooltipBackground.getTileSetTexX1(),
+			tileTooltipBackground.getTileSetTexY1()
+	);
+
+	UtilsGL.glEnd();
+
+	GL11.glBindTexture(GL11.GL_TEXTURE_2D, Game.TEXTURE_FONT_ID);
+
+	GL11.glPushMatrix();
+
+	GL11.glTranslatef(iX, iY, 0);
+	GL11.glScalef(UIScale.get(), UIScale.get(), 1.0f);
+
+	UtilsGL.glBegin(GL11.GL_QUADS);
+
+	for (int i = 0; i < alMessages.size(); i++) {
+		UtilsGL.drawString(
+				alMessages.get(i),
+				0,
+				i * (UtilFont.MAX_HEIGHT + 5),
+				alColor.get(i)
+		);
+	}
+
+	UtilsGL.glEnd();
+
+	GL11.glPopMatrix();
+}
 
 
 	/**

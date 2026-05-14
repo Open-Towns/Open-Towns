@@ -1,7 +1,7 @@
 package xaos.utils;
 
 public final class UIScale {
-    private static float scale = 1.5f;
+    private static float scale = 1.0f;
 
     private UIScale() {}
 
