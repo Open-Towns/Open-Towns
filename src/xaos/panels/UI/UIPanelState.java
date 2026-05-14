@@ -916,9 +916,9 @@ public class UIPanelState {
 	}
 
 	public static void setProductionPanelActive(boolean panelActive) {
-		System.out.println("UIPanelState.setProductionPanelActive()"+panelActive);
-		Exception e = new Exception();
-e.printStackTrace(System.out);
+		
+
+
 		productionPanelActive = panelActive;
 
 		ImagesPanel.resize(renderWidth, renderHeight);

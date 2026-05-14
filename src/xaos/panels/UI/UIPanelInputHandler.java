@@ -1148,7 +1148,7 @@ public class UIPanelInputHandler {
 		 */
 		if (iPanel == MOUSE_PRODUCTION_OPENCLOSE) {
 			setProductionPanelLocked(!isProductionPanelLocked());
-			 setProductionPanelActive (!isProductionPanelActive ());
+			//  setProductionPanelActive (!isProductionPanelActive ());
 			UtilsAL.play(UtilsAL.SOURCE_FX_CLICK);
 			return;
 		}
@@ -1788,7 +1788,6 @@ public static int isMouseOnAPanel(int x, int y) {
 	 * @return
 	 */
 	public static int isMouseOnAPanel(int x, int y, boolean doEdgeMenusStuff) {
-		
 		/*
 		 * TYPING PANEL (Si está activo ya no miraremos nada más)
 		 */

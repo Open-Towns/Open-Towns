@@ -893,7 +893,7 @@ public final class UIPanel {
 		checkBlinkRight = (blinkTurns >= MAX_BLINK_TURNS / 2) && TutorialFlow.isBlinkRight();
 
 		if (isMenuPanelActive()) {
-			System.out.println("renderMenuPanel: " + menuPanelMenu);
+			
 			// XAVI GL11.glColor4f (1, 1, 1, 1);
 			int iCurrentTexture = tileMenuPanel[0].getTextureID();
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, iCurrentTexture);
@@ -3634,15 +3634,15 @@ public final class UIPanel {
 		setBottomMenuPanelActive(bottomMenuPanelActive, false);
 	}
 
-	public static void setBottomMenuPanelActive(boolean bottomMenuPanelActive, boolean bInitializing) {
-		bottomMenuPanelActive = bottomMenuPanelActive;
+	public static void setBottomMenuPanelActive(boolean MenuPanelActive, boolean bInitializing) {
+		bottomMenuPanelActive = MenuPanelActive;
 		if (!bInitializing) {
 			createProductionPanel(productionPanelMenu);
 		}
 	}
 
-	public static void setBottomMenuPanelLocked(boolean bottomMenuPanelLocked) {
-		bottomMenuPanelLocked = bottomMenuPanelLocked;
+	public static void setBottomMenuPanelLocked(boolean MenuPanelLocked) {
+		bottomMenuPanelLocked = MenuPanelLocked;
 	}
 
 	public static boolean isBottomMenuPanelLocked() {
@@ -3657,8 +3657,8 @@ public final class UIPanel {
 		menuPanelActive = PanelActive;
 	}
 
-	public static void setMenuPanelLocked(boolean menuPanelLocked) {
-		menuPanelLocked = menuPanelLocked;
+	public static void setMenuPanelLocked(boolean PanelLocked) {
+		menuPanelLocked = PanelLocked;
 	}
 
 	public static boolean isMenuPanelLocked() {
