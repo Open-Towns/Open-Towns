@@ -21,6 +21,8 @@ import xaos.data.Type;
 import xaos.effects.EffectManager;
 import xaos.main.Game;
 import xaos.main.World;
+import xaos.panels.UI.UIPanel;
+import xaos.panels.UI.UIPanelInputHandler;
 import xaos.panels.menus.ContextMenu;
 import xaos.panels.menus.SmartMenu;
 import xaos.stockpiles.Stockpile;
@@ -61,7 +63,9 @@ import xaos.zones.ZoneHeroRoom;
 import xaos.zones.ZoneManager;
 import xaos.zones.ZoneManagerItem;
 import xaos.zones.ZonePersonal;
-
+import static xaos.panels.UI.UIPanelState.*;
+import static xaos.panels.UI.UIPanelInputHandler.*;
+import static xaos.panels.UI.UIPanel.*;
 
 public final class MainPanel {
 
@@ -204,12 +208,12 @@ public final class MainPanel {
 		int iBaseYGeneral = (-yView) * (Tile.TERRAIN_ICON_HEIGHT / 2) - ((-xView) * Tile.TERRAIN_ICON_HEIGHT / 2) + yCentro;
 		Point pointMouse = new Point (Mouse.getX (), renderHeight - Mouse.getY () - 1);
 		Point3D pointTileMouse = getTileMouse (pointMouse.x, pointMouse.y, xView, yView, zView);
-		boolean bMouseInMainArea = Game.getPanelUI ().isMouseOnAPanel (pointMouse.x, pointMouse.y) == UIPanel.MOUSE_NONE;
+		boolean bMouseInMainArea = UIPanelInputHandler.isMouseOnAPanel (pointMouse.x, pointMouse.y) == MOUSE_NONE;
 
 		GL11.glEnable (GL11.GL_DEPTH_TEST);
 		GL11.glDepthFunc (GL11.GL_LEQUAL);
 
-		if (UIPanel.blinkTurns >= UIPanel.MAX_BLINK_TURNS / 2) {
+		if (blinkTurns >= MAX_BLINK_TURNS / 2) {
 			bCheckBlinkPiles = TutorialFlow.isBlinkPiles ();
 			bCheckBlinkItems = TutorialFlow.isBlinkItems ();
 			bCheckBlinkCells = true;
@@ -237,7 +241,7 @@ public final class MainPanel {
 		Game.getPanelUI ().render ();
 
 		// Información tooltip sólo si no hay un menú contextual abierto
-		if (bMouseInMainArea && pointTileMouse != null && (UIPanel.typingPanel == null)) {
+		if (bMouseInMainArea && pointTileMouse != null && (typingPanel == null)) {
 			if (Game.getCurrentState () != Game.STATE_SHOWING_CONTEXT_MENU) {
 				if (!bHideUION) {
 					int iXGeneral = iBaseXGeneral + (pointTileMouse.x + pointTileMouse.y) * (Tile.TERRAIN_ICON_WIDTH / 2);
@@ -259,7 +263,7 @@ public final class MainPanel {
 
 	private static int renderMouse (int iBaseXGeneral, int iBaseYGeneral, int zView, Point3D pointTileMouse, int currentTextureID) {
 		// Mouse & 3D Mouse
-		if (pointTileMouse != null && UIPanel.typingPanel == null) {
+		if (pointTileMouse != null && typingPanel == null) {
 			if (!(Game.getCurrentState () == Game.STATE_CREATING_TASK && (Game.getCurrentTask ().getState () == Task.STATE_CREATING_ENDZONE || Game.getCurrentTask ().getState () == Task.STATE_CREATING_SINGLEPOINT))) {
 				int iYGeneral = iBaseYGeneral - (pointTileMouse.x - pointTileMouse.y) * (Tile.TERRAIN_ICON_HEIGHT / 2);
 				int iXGeneral = iBaseXGeneral + (pointTileMouse.x + pointTileMouse.y) * (Tile.TERRAIN_ICON_WIDTH / 2);
@@ -2234,9 +2238,9 @@ public final class MainPanel {
 			}
 
 			GL11.glColor4f (1, 1, 1, 1);
-			GL11.glBindTexture (GL11.GL_TEXTURE_2D, UIPanel.tileTooltipBackground.getTextureID ());
+			GL11.glBindTexture (GL11.GL_TEXTURE_2D, tileTooltipBackground.getTextureID ());
 			UtilsGL.glBegin (GL11.GL_QUADS);
-			UtilsGL.drawTexture (iX, iY, iX + iWidth, iY + iHeight, UIPanel.tileTooltipBackground.getTileSetTexX0 (), UIPanel.tileTooltipBackground.getTileSetTexY0 (), UIPanel.tileTooltipBackground.getTileSetTexX1 (), UIPanel.tileTooltipBackground.getTileSetTexY1 ());
+			UtilsGL.drawTexture (iX, iY, iX + iWidth, iY + iHeight, tileTooltipBackground.getTileSetTexX0 (),tileTooltipBackground.getTileSetTexY0 (), tileTooltipBackground.getTileSetTexX1 (), tileTooltipBackground.getTileSetTexY1 ());
 			UtilsGL.glEnd ();
 			GL11.glBindTexture (GL11.GL_TEXTURE_2D, Game.TEXTURE_FONT_ID);
 			UtilsGL.glBegin (GL11.GL_QUADS);
@@ -2258,7 +2262,7 @@ public final class MainPanel {
 	 * @param mouseButton
 	 */
 	public void mousePressed (int x, int y, int mouseButton) {
-		if (UIPanel.typingPanel != null) {
+		if (typingPanel != null) {
 			return;
 		}
 
@@ -2379,9 +2383,9 @@ public final class MainPanel {
 	 * @return
 	 */
 	public ContextMenu getContextMenu (int x, int y) {
-		int iMousePanel = Game.getPanelUI ().isMouseOnAPanel (x, y);
+		int iMousePanel = UIPanelInputHandler.isMouseOnAPanel(x, y);
 
-		if (iMousePanel != UIPanel.MOUSE_NONE) {
+		if (iMousePanel != MOUSE_NONE) {
 			return null;
 		}
 

@@ -12,6 +12,7 @@ import xaos.Towns;
 import xaos.TownsProperties;
 import xaos.main.Game;
 import xaos.main.World;
+import xaos.panels.UI.UIPanel;
 import xaos.tiles.entities.living.LivingEntity;
 import xaos.utils.ColorGL;
 import xaos.utils.Log;
@@ -20,6 +21,9 @@ import xaos.utils.Point3DShort;
 import xaos.utils.TextureData;
 import xaos.utils.UtilFont;
 import xaos.utils.UtilsGL;
+import static xaos.panels.UI.UIPanelState.*;
+import static xaos.panels.UI.UIPanelInputHandler.*;
+import static xaos.panels.UI.UIPanel.*;
 
 public final class MessagesPanel {
 
@@ -96,7 +100,7 @@ public final class MessagesPanel {
             clear();
         }
 
-        maxRenderLines = (UIPanel.MESSAGES_PANEL_SUBPANEL_HEIGHT - 2 * UIPanel.tileMessagesPanel[1].getTileHeight()) / (UtilFont.MAX_HEIGHT);
+        maxRenderLines = (MESSAGES_PANEL_SUBPANEL_HEIGHT - 2 * tileMessagesPanel[1].getTileHeight()) / (UtilFont.MAX_HEIGHT);
         if (maxRenderLines < 1) {
             maxRenderLines = 1;
         }
@@ -180,7 +184,7 @@ public final class MessagesPanel {
             color = new ColorGL(null);
         }
 
-        int iMaxChars = UtilFont.getMaxCharsByWidth(sMessage, UIPanel.MESSAGES_PANEL_SUBPANEL_WIDTH - 2 * UIPanel.tileMessagesPanel[3].getTileWidth());
+        int iMaxChars = UtilFont.getMaxCharsByWidth(sMessage, MESSAGES_PANEL_SUBPANEL_WIDTH - 2 * tileMessagesPanel[3].getTileWidth());
         if (sMessage.length() > iMaxChars) {
             // No cabe, lo partimos
             messagesDataRender[messagesDataRender.length - 1] = new MessagesPanelData(sMessage.substring(0, iMaxChars).trim(), color, view, iEntityID);

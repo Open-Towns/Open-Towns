@@ -14,11 +14,15 @@ import xaos.campaign.TutorialTrigger;
 import xaos.events.EventManager;
 import xaos.events.EventManagerItem;
 import xaos.main.Game;
+import xaos.panels.UI.UIPanel;
 import xaos.tiles.Tile;
 import xaos.utils.ColorGL;
 import xaos.utils.TextureData;
 import xaos.utils.UtilFont;
 import xaos.utils.UtilsGL;
+import static xaos.panels.UI.UIPanel.*;
+import static xaos.panels.UI.UIPanelState.*;
+import static xaos.panels.UI.UIPanelInputHandler.*;
 
 
 public class ImagesPanel {
@@ -145,17 +149,17 @@ public class ImagesPanel {
 			// Next mission button
 			if (tutorialFlow.getNextMission () != null) {
 				iCurrentTexture = UtilsGL.setTexture (tileNextMission, iCurrentTexture);
-				UIPanel.drawTile (tileNextMission, nextMissionPoint, mousePanel == UIPanel.MOUSE_IMAGES_PANEL_NEXT_MISSION);
+				UIPanel.drawTile (tileNextMission, nextMissionPoint, mousePanel == MOUSE_IMAGES_PANEL_NEXT_MISSION);
 			}
 		}
 
 		// Close button
-		if (mousePanel == UIPanel.MOUSE_IMAGES_PANEL_CLOSE) {
-			iCurrentTexture = UtilsGL.setTexture (UIPanel.tileButtonClose, iCurrentTexture);
-			UIPanel.drawTile (UIPanel.tileButtonClose, closeButtonPoint);
+		if (mousePanel == MOUSE_IMAGES_PANEL_CLOSE) {
+			iCurrentTexture = UtilsGL.setTexture (tileButtonClose, iCurrentTexture);
+			drawTile (tileButtonClose, closeButtonPoint);
 		} else {
-			iCurrentTexture = UtilsGL.setTexture (UIPanel.tileButtonCloseDisabled, iCurrentTexture);
-			UIPanel.drawTile (UIPanel.tileButtonCloseDisabled, closeButtonPoint);
+			iCurrentTexture = UtilsGL.setTexture (tileButtonCloseDisabled, iCurrentTexture);
+			drawTile (tileButtonCloseDisabled, closeButtonPoint);
 		}
 
 		// Previous button
@@ -164,16 +168,16 @@ public class ImagesPanel {
 			UIPanel.drawTile (tilePreviousDisabled, previousImagePoint);
 		} else {
 			iCurrentTexture = UtilsGL.setTexture (tilePrevious, iCurrentTexture);
-			UIPanel.drawTile (tilePrevious, previousImagePoint, mousePanel == UIPanel.MOUSE_IMAGES_PANEL_PREVIOUS);
+			UIPanel.drawTile (tilePrevious, previousImagePoint, mousePanel == MOUSE_IMAGES_PANEL_PREVIOUS);
 		}
 
 		// Next button
 		if (getCurrentFlowIndex () < getMaxFlowIndex ()) {
 			iCurrentTexture = UtilsGL.setTexture (tileNext, iCurrentTexture);
-			UIPanel.drawTile (tileNext, nextImagePoint, mousePanel == UIPanel.MOUSE_IMAGES_PANEL_NEXT);
+			drawTile (tileNext, nextImagePoint, mousePanel == MOUSE_IMAGES_PANEL_NEXT);
 		} else {
 			iCurrentTexture = UtilsGL.setTexture (tileNextDisabled, iCurrentTexture);
-			UIPanel.drawTile (tileNextDisabled, nextImagePoint);
+			drawTile (tileNextDisabled, nextImagePoint);
 		}
 
 		UtilsGL.glEnd ();
@@ -496,13 +500,13 @@ public class ImagesPanel {
 		// Panel x,y
 //		panelPoint.setLocation (renderWidth / 2 - WIDTH / 2, renderHeight / 2 - HEIGHT / 2);
 		int iIconSize = 64;
-		if (UIPanel.tileIconTutorial != null) {
-			iIconSize = UIPanel.tileIconTutorial.getTileWidth ();
+		if (tileIconTutorial != null) {
+			iIconSize = tileIconTutorial.getTileWidth ();
 		}
-		panelPoint.setLocation (UIPanel.PIXELS_TO_BORDER + iIconSize + MINI_IMAGE_WIDTH / 2 + UIPanel.getImagesPanelOffset (), renderHeight / 2 - (UtilsGL.getHeight () - 256 + 2 * tilePanel[1].getTileHeight ()) / 2);
+		panelPoint.setLocation (PIXELS_TO_BORDER + iIconSize + MINI_IMAGE_WIDTH / 2 + getImagesPanelOffset (), renderHeight / 2 - (UtilsGL.getHeight () - 256 + 2 * tilePanel[1].getTileHeight ()) / 2);
 
 		// Close button
-		closeButtonPoint.setLocation (panelPoint.x + WIDTH - UIPanel.tileButtonClose.getTileWidth (), panelPoint.y);
+		closeButtonPoint.setLocation (panelPoint.x + WIDTH - tileButtonClose.getTileWidth (), panelPoint.y);
 
 		// Previous button
 		previousImagePoint.setLocation (panelPoint.x + WIDTH / 2 - 2 * tilePrevious.getTileWidth (), panelPoint.y + HEIGHT - tilePrevious.getTileHeight () - tilePrevious.getTileHeight () / 4);

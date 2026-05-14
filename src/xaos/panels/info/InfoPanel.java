@@ -4,7 +4,7 @@ import org.lwjgl.opengl.GL11;
 
 import xaos.main.Game;
 import xaos.panels.MainPanel;
-import xaos.panels.UIPanel;
+import xaos.panels.UI.UIPanel;
 import xaos.utils.UtilFont;
 import xaos.utils.UtilsGL;
 

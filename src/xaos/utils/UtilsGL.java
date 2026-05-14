@@ -33,10 +33,13 @@ import xaos.data.GlobalEventData;
 import xaos.main.Game;
 import xaos.main.World;
 import xaos.panels.MainPanel;
-import xaos.panels.UIPanel;
+import xaos.panels.UI.UIPanel;
 import xaos.property.PropertyFile;
 import xaos.tiles.Cell;
 import xaos.tiles.Tile;
+import static xaos.panels.UI.UIPanelState.*;
+import static xaos.panels.UI.UIPanelInputHandler.*;
+import static xaos.panels.UI.UIPanel.*;
 
 
 public final class UtilsGL {
@@ -532,9 +535,9 @@ public final class UtilsGL {
 
 			// Textures
 			GL11.glColor4f (1, 1, 1, 1);
-			GL11.glBindTexture (GL11.GL_TEXTURE_2D, UIPanel.tileTooltipBackground.getTextureID ());
+			GL11.glBindTexture (GL11.GL_TEXTURE_2D, tileTooltipBackground.getTextureID ());
 			glBegin (GL11.GL_QUADS);
-			UtilsGL.drawTexture (tooltipX, tooltipY, tooltipX + tooltipWidth, tooltipY + tooltipHeight, UIPanel.tileTooltipBackground.getTileSetTexX0 (), UIPanel.tileTooltipBackground.getTileSetTexY0 (), UIPanel.tileTooltipBackground.getTileSetTexX1 (), UIPanel.tileTooltipBackground.getTileSetTexY1 ());
+			UtilsGL.drawTexture (tooltipX, tooltipY, tooltipX + tooltipWidth, tooltipY + tooltipHeight, tileTooltipBackground.getTileSetTexX0 (), tileTooltipBackground.getTileSetTexY0 (), tileTooltipBackground.getTileSetTexX1 (), tileTooltipBackground.getTileSetTexY1 ());
 			glEnd ();
 			GL11.glBindTexture (GL11.GL_TEXTURE_2D, Game.TEXTURE_FONT_ID);
 			glBegin (GL11.GL_QUADS);

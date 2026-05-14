@@ -13,7 +13,7 @@ import xaos.caravans.PricesManager;
 import xaos.main.Game;
 import xaos.main.World;
 import xaos.panels.MessagesPanel;
-import xaos.panels.UIPanel;
+import xaos.panels.UI.UIPanel;
 import xaos.panels.menus.SmartMenu;
 import xaos.tasks.HotPoint;
 import xaos.tasks.Task;
