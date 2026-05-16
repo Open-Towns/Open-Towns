@@ -35,7 +35,8 @@ jobs:
           shopt -s nullglob
 
           OUT="${RUNNER_TEMP}/REPOSITORY_DOCS_INDEX.md"
-          WIKI_URL="${GITHUB_SERVER_URL:-https://github.com}/${GITHUB_REPOSITORY}/wiki"
+          WIKI_REPOSITORY="Open-Towns/Open-Towns"
+          WIKI_URL="${GITHUB_SERVER_URL:-https://github.com}/${WIKI_REPOSITORY}/wiki"
 
           pretty_name() {
             local file="$1"
@@ -213,18 +214,25 @@ jobs:
       - name: Publish docs to wiki
         shell: bash
         env:
+          HAS_WIKI_TOKEN: ${{ secrets.WIKI_TOKEN != '' }}
           WIKI_TOKEN: ${{ secrets.WIKI_TOKEN || github.token }}
         run: |
           set -euo pipefail
           shopt -s nullglob
 
           WIKI_PAGE="Repository-Docs-Index.md"
+          WIKI_REPOSITORY="Open-Towns/Open-Towns"
           WIKI_SOURCE="${RUNNER_TEMP}/REPOSITORY_DOCS_INDEX.md"
           WIKI_WORKTREE="$(mktemp -d)"
 
           trap 'rm -rf "$WIKI_WORKTREE"' EXIT
 
-          git clone "https://x-access-token:${WIKI_TOKEN}@github.com/${GITHUB_REPOSITORY}.wiki.git" "$WIKI_WORKTREE"
+          if [ "$GITHUB_REPOSITORY" != "$WIKI_REPOSITORY" ] && [ "$HAS_WIKI_TOKEN" != "true" ]; then
+            echo "::notice::Skipping wiki publish from $GITHUB_REPOSITORY because WIKI_TOKEN is not set."
+            exit 0
+          fi
+
+          git clone "https://x-access-token:${WIKI_TOKEN}@github.com/${WIKI_REPOSITORY}.wiki.git" "$WIKI_WORKTREE"
 
           cp "$WIKI_SOURCE" "$WIKI_WORKTREE/$WIKI_PAGE"
 
