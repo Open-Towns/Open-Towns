@@ -13,28 +13,28 @@ Repository docs are used for technical documentation that should stay close to t
 ## Repository
 | Document | Purpose |
 |---|---|
-| [`README.md`](https://github.com/JustinHammitt/Open-Towns/blob/main/README.md) | Main project overview, install notes, and Gradle quick start. |
-| [`docs/CHANGELOG.md`](https://github.com/JustinHammitt/Open-Towns/blob/main/docs/CHANGELOG.md) | Historic Towns patch notes and release changes. |
-| [`docs/CaravanItemData.md`](https://github.com/JustinHammitt/Open-Towns/blob/main/docs/CaravanItemData.md) | Create: |
-| [`docs/CaravanManager.md`](https://github.com/JustinHammitt/Open-Towns/blob/main/docs/CaravanManager.md) | `CaravanManager` is responsible for loading caravan definitions from XML and storing them in memory for the game to use. |
-| [`docs/CaravanManagerItem.md`](https://github.com/JustinHammitt/Open-Towns/blob/main/docs/CaravanManagerItem.md) | `CaravanManagerItem` represents a caravan template loaded from XML. |
+| [`README.md`](https://github.com/Open-Towns/Open-Towns/blob/main/README.md) | Main project overview, install notes, and Gradle quick start. |
+| [`docs/CHANGELOG.md`](https://github.com/Open-Towns/Open-Towns/blob/main/docs/CHANGELOG.md) | Historic Towns patch notes and release changes. |
+| [`docs/CaravanItemData.md`](https://github.com/Open-Towns/Open-Towns/blob/main/docs/CaravanItemData.md) | Create: |
+| [`docs/CaravanManager.md`](https://github.com/Open-Towns/Open-Towns/blob/main/docs/CaravanManager.md) | `CaravanManager` is responsible for loading caravan definitions from XML and storing them in memory for the game to use. |
+| [`docs/CaravanManagerItem.md`](https://github.com/Open-Towns/Open-Towns/blob/main/docs/CaravanManagerItem.md) | `CaravanManagerItem` represents a caravan template loaded from XML. |
 
 ## Getting Started
 | Document | Purpose |
 |---|---|
-| [`docs/getting-started/BUILDING.md`](https://github.com/JustinHammitt/Open-Towns/blob/main/docs/getting-started/BUILDING.md) | This repository keeps the original released Towns layout: Java source, XML data, and INI files all live under `src/`. |
-| [`docs/getting-started/PRTemplate.md`](https://github.com/JustinHammitt/Open-Towns/blob/main/docs/getting-started/PRTemplate.md) | Reusable pull request template for contributors. |
+| [`docs/getting-started/BUILDING.md`](https://github.com/Open-Towns/Open-Towns/blob/main/docs/getting-started/BUILDING.md) | This repository keeps the original released Towns layout: Java source, XML data, and INI files all live under `src/`. |
+| [`docs/getting-started/PRTemplate.md`](https://github.com/Open-Towns/Open-Towns/blob/main/docs/getting-started/PRTemplate.md) | Reusable pull request template for contributors. |
 
 ## Modding
 | Document | Purpose |
 |---|---|
-| [`docs/modding/MODDING.md`](https://github.com/JustinHammitt/Open-Towns/blob/main/docs/modding/MODDING.md) | This is a working map of the existing mod system, based on the current source. It is not a full authoring guide yet, but it gives us the shape of the system and the best next places to build tooling. |
-| [`docs/modding/TOWNS_PLUS_PLUS.md`](https://github.com/JustinHammitt/Open-Towns/blob/main/docs/modding/TOWNS_PLUS_PLUS.md) | Towns++ support is designed as a compatibility path, not as a bundled mod. |
+| [`docs/modding/MODDING.md`](https://github.com/Open-Towns/Open-Towns/blob/main/docs/modding/MODDING.md) | This is a working map of the existing mod system, based on the current source. It is not a full authoring guide yet, but it gives us the shape of the system and the best next places to build tooling. |
+| [`docs/modding/TOWNS_PLUS_PLUS.md`](https://github.com/Open-Towns/Open-Towns/blob/main/docs/modding/TOWNS_PLUS_PLUS.md) | Towns++ support is designed as a compatibility path, not as a bundled mod. |
 
 ## Systems
 | Document | Purpose |
 |---|---|
-| [`docs/systems/PricesManager.md`](https://github.com/JustinHammitt/Open-Towns/blob/main/docs/systems/PricesManager.md) | `PricesManager` is responsible for calculating the base value of items, including extra value from military item stats. |
+| [`docs/systems/PricesManager.md`](https://github.com/Open-Towns/Open-Towns/blob/main/docs/systems/PricesManager.md) | `PricesManager` is responsible for calculating the base value of items, including extra value from military item stats. |
 
 ---
 
