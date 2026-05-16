@@ -1,12 +1,3 @@
-Create:
-
-```text
-docs/caravan-item-data.md
-```
-
-Use this:
-
-````md
 # CaravanItemData
 
 `CaravanItemData` represents one possible item entry in a caravan's stock generation rules.
@@ -18,7 +9,6 @@ It does **not** represent an actual item in a caravan inventory. Instead, it des
 ```text
 src/xaos/caravans/CaravanItemData.java
 ```
-````
 
 ## Purpose
 
@@ -182,7 +172,3 @@ Final prices are handled later through:
 - `PricesManager`
 - caravan item base price
 - caravan `pricePCT` markup
-
-```
-
-```

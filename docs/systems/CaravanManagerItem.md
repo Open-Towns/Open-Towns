@@ -11,7 +11,7 @@ It is not an active caravan in the world. Instead, it defines how a caravan type
 
 ```text
 src/xaos/caravans/CaravanManagerItem.java
-````
+```
 
 ---
 

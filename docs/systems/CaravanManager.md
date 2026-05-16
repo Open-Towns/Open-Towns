@@ -11,7 +11,7 @@ It manages the caravan definition list, not active caravan instances already pre
 
 ```text
 src/xaos/caravans/CaravanManager.java
-````
+```
 
 ---
 
@@ -35,15 +35,15 @@ The loading flow is:
 
 ```text
 CaravanManager.getItem(...)
-    ↓
+    ->
 if caravanList is null
-    ↓
+    ->
 loadItems()
-    ↓
+    ->
 load main caravans.xml
-    ↓
+    ->
 load mod caravans.xml files
-    ↓
+    ->
 store results in caravanList
 ```
 
@@ -382,9 +382,9 @@ The loading order is important:
 
 ```text
 main caravans.xml
-    ↓
+    ->
 mod caravans.xml files
-    ↓
+    ->
 final caravanList
 ```
 
