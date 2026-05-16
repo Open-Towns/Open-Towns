@@ -52,7 +52,7 @@ git clone https://github.com/BlueSteelAUS/Towns-plus-plus.git C:\Mods\Towns-plus
 `applyTownsPlusPlus` copies the local mod into ignored/runtime paths and working data files for your machine only.
 Do not commit the copied Towns++ data/assets unless redistribution permission is granted.
 
-For packaged release installs over Steam Towns, see [TOWNS_PLUS_PLUS.md](./TOWNS_PLUS_PLUS.md).
+For packaged release installs over Steam Towns, see [TOWNS_PLUS_PLUS.md](./docs/modding/TOWNS_PLUS_PLUS.md).
 
 ### Linux
 
