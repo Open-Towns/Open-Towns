@@ -14,6 +14,7 @@ name: Update Repository Docs Index
 
 permissions:
   contents: write
+  pull-requests: write
 
 concurrency:
   group: docs-index-${{ github.ref }}
@@ -187,8 +188,11 @@ jobs:
 
       - name: Commit updated docs index
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
+          BRANCH="docs/update-repository-docs-index"
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -201,4 +205,22 @@ jobs:
           fi
 
           git commit -m "Update repository docs index"
-          git push
+          git push --force origin "HEAD:refs/heads/$BRANCH"
+
+          pr_number="$(gh pr list \
+            --head "$BRANCH" \
+            --base main \
+            --state open \
+            --json number \
+            --jq '.[0].number // empty')"
+
+          if [ -n "$pr_number" ]; then
+            echo "Docs index PR #$pr_number already exists."
+            exit 0
+          fi
+
+          gh pr create \
+            --base main \
+            --head "$BRANCH" \
+            --title "Update repository docs index" \
+            --body "Automated update for \`docs/REPOSITORY_DOCS_INDEX.md\` after repository documentation changed."
