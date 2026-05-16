@@ -15,6 +15,9 @@ Repository docs are used for technical documentation that should stay close to t
 |---|---|
 | [`README.md`](https://github.com/JustinHammitt/Open-Towns/blob/main/README.md) | Main project overview, install notes, and Gradle quick start. |
 | [`docs/CHANGELOG.md`](https://github.com/JustinHammitt/Open-Towns/blob/main/docs/CHANGELOG.md) | Historic Towns patch notes and release changes. |
+| [`docs/CaravanItemData.md`](https://github.com/JustinHammitt/Open-Towns/blob/main/docs/CaravanItemData.md) | Create: |
+| [`docs/CaravanManager.md`](https://github.com/JustinHammitt/Open-Towns/blob/main/docs/CaravanManager.md) | `CaravanManager` is responsible for loading caravan definitions from XML and storing them in memory for the game to use. |
+| [`docs/CaravanManagerItem.md`](https://github.com/JustinHammitt/Open-Towns/blob/main/docs/CaravanManagerItem.md) | `CaravanManagerItem` represents a caravan template loaded from XML. |
 
 ## Getting Started
 | Document | Purpose |
