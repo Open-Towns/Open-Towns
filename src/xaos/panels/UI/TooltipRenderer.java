@@ -105,18 +105,16 @@ public final class TooltipRenderer {
 		int tooltipWidth = UIScale.textWidth(tooltip) + paddingX * 2 + safetyPadding;
 		int tooltipHeight = UIScale.fontHeight() + paddingY * 2;
 
-		if (tooltipX < 0) {
-			tooltipX = 0;
-		} else if (tooltipX + tooltipWidth + UIScale.px(1) > renderWidth) {
-			tooltipX -= (tooltipX + tooltipWidth + UIScale.px(1)) - renderWidth;
-		}
+		Point tooltipPosition = clampTooltipPosition(
+				tooltipX,
+				tooltipY,
+				tooltipWidth + paddingX * 2,
+				tooltipHeight + paddingY * 2,
+				renderWidth,
+				renderHeight);
 
-		if (tooltipY < 0) {
-			tooltipY = 0;
-		} else if (tooltipY + tooltipHeight + UIScale.px(1) > renderHeight) {
-			tooltipY -= (tooltipY + tooltipHeight + UIScale.px(1)) - renderHeight;
-		}
-
+		tooltipX = tooltipPosition.x;
+		tooltipY = tooltipPosition.y;
 		GL11.glColor4f(1, 1, 1, 1);
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, tileTooltipBackground.getTextureID());
 
@@ -141,7 +139,40 @@ public final class TooltipRenderer {
 		GL11.glColor3f(1, 1, 1);
 	}
 
-	private static void drawScaledString(String text, int x, int y) {
+	private static Point clampTooltipPosition(
+			int x,
+			int y,
+			int width,
+			int height,
+			int renderWidth,
+			int renderHeight) {
+		int clampedX = x;
+		int clampedY = y;
+
+		if (clampedX < 0) {
+			clampedX = 0;
+		} else if (clampedX + width > renderWidth) {
+			clampedX -= (clampedX + width) - renderWidth;
+		}
+
+		if (clampedY < 0) {
+			clampedY = 0;
+		} else if (clampedY + height > renderHeight) {
+			clampedY -= (clampedY + height) - renderHeight;
+		}
+
+		if (clampedX < 0) {
+			clampedX = 0;
+		}
+
+		if (clampedY < 0) {
+			clampedY = 0;
+		}
+
+		return new Point(clampedX, clampedY);
+	}
+
+	public static void drawScaledString(String text, int x, int y) {
 		if (text == null) {
 			return;
 		}
@@ -271,7 +302,7 @@ public final class TooltipRenderer {
 						bottomSubPanelPoint.y
 								- (item.getPrerequisites().size() * (UIScale.fontHeight() + UIScale.px(5))),
 						renderWidth, renderHeight,
-						UIScale.px(Tile.TERRAIN_ICON_WIDTH / 2),
+						Tile.TERRAIN_ICON_WIDTH / 2,
 						item.getPrerequisites(),
 						item.getPrerequisitesColor());
 			} else {
@@ -361,8 +392,9 @@ public final class TooltipRenderer {
 						.getName();
 			}
 			tooltipPoint = TooltipRenderer.centeredBelow(
-					prioritiesPanelPoint.x + UIScale.px(PRIORITIES_PANEL_WIDTH),
-					y, tooltip);
+					prioritiesPanelPoint.x + PRIORITIES_PANEL_WIDTH,
+					y,
+					tooltip);
 
 		}
 	}
@@ -596,58 +628,75 @@ public final class TooltipRenderer {
 		if (TOOLTIP_KEYS.containsKey(mousePanel)) {
 			tooltip = getTooltipText(mousePanel);
 			tooltipPoint = TooltipRenderer.rightOf(x, y);
+
 		} else if ((mousePanel == MOUSE_LIVINGS_PANEL_BUTTONS_RESTRICT_UP
 				|| mousePanel == MOUSE_LIVINGS_PANEL_BUTTONS_RESTRICT_DOWN)
 				&& livingsPanelCitizensGroupActive == -1
 				&& getLivingsPanelActive() == LIVINGS_PANEL_TYPE_CITIZENS) {
+
 			tooltip = Messages.getString("UIPanel.73"); //$NON-NLS-1$
-			tooltipPoint = TooltipRenderer.rightOf(x - (UtilFont.getWidth(tooltip) / 2),
-					livingsPanelIconRestrictUpPoint.y
-							+ tileIconLevelUp.getTileHeight());
+
+			tooltipPoint = new Point(
+					x - UIScale.textWidth(tooltip) / 2,
+					livingsPanelIconRestrictUpPoint.y + tileIconLevelUp.getTileHeight());
 
 		} else if ((mousePanel == MOUSE_LIVINGS_PANEL_BUTTONS_RESTRICT_UP
 				|| mousePanel == MOUSE_LIVINGS_PANEL_BUTTONS_RESTRICT_DOWN)
 				&& getLivingsPanelActive() == LIVINGS_PANEL_TYPE_HEROES) {
+
 			tooltip = Messages.getString("UIPanel.74"); //$NON-NLS-1$
-			tooltipPoint = TooltipRenderer.rightOf(x - (UtilFont.getWidth(tooltip) / 2),
-					livingsPanelIconRestrictUpPoint.y
-							+ tileIconLevelUp.getTileHeight());
+
+			tooltipPoint = new Point(
+					x - UIScale.textWidth(tooltip) / 2,
+					livingsPanelIconRestrictUpPoint.y + tileIconLevelUp.getTileHeight());
+
 		} else if (mousePanel == MOUSE_LIVINGS_PANEL_CGROUP_NOGROUP) {
+
 			tooltip = Messages.getString("UIPanel.66") + " (" //$NON-NLS-1$ //$NON-NLS-2$
 					+ Game.getWorld().getCitizenGroups().getCitizensWithoutGroup().size() + ")"; //$NON-NLS-1$
-			tooltipPoint = TooltipRenderer.rightOf(x - UtilFont.getWidth(tooltip) / 2, y - UtilFont.MAX_HEIGHT - 2);
+
+			tooltipPoint = new Point(
+					x - UIScale.textWidth(tooltip) / 2,
+					y - UIScale.fontHeight() - UIScale.px(2));
 
 		} else if (mousePanel == MOUSE_LIVINGS_PANEL_CGROUP_GROUP) {
+
 			Point p = UIPanelInputHandler.isMouseOnLivingsButtons(x, y);
+
 			if (p != null && p.y >= 0 && p.y < CitizenGroups.MAX_GROUPS) {
 				CitizenGroupData cgd = Game.getWorld().getCitizenGroups().getGroup(p.y);
+
 				if (cgd != null) {
 					tooltip = cgd.getName() + " (" + cgd.getLivingIDs().size() + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 					tooltipPoint = TooltipRenderer.rightOf(x, y);
-
 				}
 			}
-		}
 
-		else if (mousePanel == MOUSE_LIVINGS_PANEL_SGROUP_NOGROUP) {
+		} else if (mousePanel == MOUSE_LIVINGS_PANEL_SGROUP_NOGROUP) {
+
 			tooltip = Messages.getString("UIPanel.53") + " (" //$NON-NLS-1$ //$NON-NLS-2$
 					+ Game.getWorld().getSoldierGroups().getSoldiersWithoutGroup().size() + ")"; //$NON-NLS-1$
-			tooltipPoint = TooltipRenderer.rightOf(x - UtilFont.getWidth(tooltip) / 2, y - UtilFont.MAX_HEIGHT - 2);
+
+			tooltipPoint = new Point(
+					x - UIScale.textWidth(tooltip) / 2,
+					y - UIScale.fontHeight() - UIScale.px(2));
 
 		} else if (mousePanel == MOUSE_LIVINGS_PANEL_SGROUP_GROUP) {
+
 			Point p = UIPanelInputHandler.isMouseOnLivingsButtons(x, y);
+
 			if (p != null && p.y >= 0 && p.y < SoldierGroups.MAX_GROUPS) {
 				SoldierGroupData sgd = Game.getWorld().getSoldierGroups().getGroup(p.y);
+
 				if (sgd != null) {
 					tooltip = sgd.getName() + " (" + sgd.getLivingIDs().size() + ")"; //$NON-NLS-1$ //$NON-NLS-2$
-					tooltipPoint = TooltipRenderer.rightOf(x - UtilFont.getWidth(tooltip) / 2,
-							y - UtilFont.MAX_HEIGHT - 2);
+
+					tooltipPoint = new Point(
+							x - UIScale.textWidth(tooltip) / 2,
+							y - UIScale.fontHeight() - UIScale.px(2));
 				}
 			}
-
-		}
-
-		else if (mousePanel == MOUSE_LIVINGS_PANEL_BUTTONS_ROWS
+		} else if (mousePanel == MOUSE_LIVINGS_PANEL_BUTTONS_ROWS
 				|| mousePanel == MOUSE_LIVINGS_PANEL_BUTTONS_ROWS_HEAD
 				|| mousePanel == MOUSE_LIVINGS_PANEL_BUTTONS_ROWS_BODY
 				|| mousePanel == MOUSE_LIVINGS_PANEL_BUTTONS_ROWS_LEGS
@@ -662,134 +711,134 @@ public final class TooltipRenderer {
 	static {
 		TOOLTIP_POINTS.put(MOUSE_DATEPANEL, tooltip -> new Point(
 				datePanelPoint.x + tileDatePanel.getTileWidth() / 2
-						- UtilFont.getWidth(tooltip) / 2,
+						- UIScale.textWidth(tooltip) / 2,
 				datePanelPoint.y + tileDatePanel.getTileHeight()));
 
 		TOOLTIP_POINTS.put(MOUSE_ICON_LEVEL_UP, tooltip -> new Point(
 				iconLevelUpPoint.x + tileIconLevelUp.getTileWidth() / 2
-						- UtilFont.getWidth(tooltip) / 2,
-				iconLevelUpPoint.y - UtilFont.MAX_HEIGHT));
+						- UIScale.textWidth(tooltip) / 2,
+				iconLevelUpPoint.y - UIScale.fontHeight()));
 
 		TOOLTIP_POINTS.put(MOUSE_ICON_LEVEL_DOWN, tooltip -> new Point(
 				iconLevelDownPoint.x + tileIconLevelDown.getTileWidth() / 2
-						- UtilFont.getWidth(tooltip) / 2,
-				iconLevelDownPoint.y + UtilFont.MAX_HEIGHT * 2));
+						- UIScale.textWidth(tooltip) / 2,
+				iconLevelDownPoint.y + UIScale.fontHeight() * 2));
 
 		TOOLTIP_POINTS.put(MOUSE_ICON_LEVEL, tooltip -> new Point(
 				iconLevelPoint.x + tileIconLevel.getTileWidth() / 2
-						- UtilFont.getWidth(tooltip) / 2,
-				iconLevelPoint.y + UtilFont.MAX_HEIGHT * 2));
+						- UIScale.textWidth(tooltip) / 2,
+				iconLevelPoint.y + UIScale.fontHeight() * 2));
 
 		TOOLTIP_POINTS.put(MOUSE_ICON_CITIZEN_PREVIOUS, tooltip -> new Point(
 				iconCitizenPreviousPoint.x + tileIconCitizenPrevious.getTileWidth() / 2
-						- UtilFont.getWidth(tooltip) / 2,
+						- UIScale.textWidth(tooltip) / 2,
 				iconCitizenPreviousPoint.y + tileBottomItem.getTileHeight()));
 
 		TOOLTIP_POINTS.put(MOUSE_ICON_CITIZEN_NEXT, tooltip -> new Point(
 				iconCitizenNextPoint.x + tileIconCitizenNext.getTileWidth() / 2
-						- UtilFont.getWidth(tooltip) / 2,
+						- UIScale.textWidth(tooltip) / 2,
 				iconCitizenNextPoint.y + tileBottomItem.getTileHeight()));
 
 		TOOLTIP_POINTS.put(MOUSE_ICON_SOLDIER_PREVIOUS, tooltip -> new Point(
 				iconSoldierPreviousPoint.x + tileIconSoldierPrevious.getTileWidth() / 2
-						- UtilFont.getWidth(tooltip) / 2,
+						- UIScale.textWidth(tooltip) / 2,
 				iconSoldierPreviousPoint.y + tileBottomItem.getTileHeight()));
 
 		TOOLTIP_POINTS.put(MOUSE_ICON_SOLDIER_NEXT, tooltip -> new Point(
 				iconSoldierNextPoint.x + tileIconSoldierNext.getTileWidth() / 2
-						- UtilFont.getWidth(tooltip) / 2,
+						- UIScale.textWidth(tooltip) / 2,
 				iconSoldierNextPoint.y + tileBottomItem.getTileHeight()));
 
 		TOOLTIP_POINTS.put(MOUSE_ICON_HERO_PREVIOUS, tooltip -> new Point(
 				iconHeroPreviousPoint.x + tileIconHeroPrevious.getTileWidth() / 2
-						- UtilFont.getWidth(tooltip) / 2,
+						- UIScale.textWidth(tooltip) / 2,
 				iconHeroPreviousPoint.y + tileBottomItem.getTileHeight()));
 
 		TOOLTIP_POINTS.put(MOUSE_ICON_HERO_NEXT, tooltip -> new Point(
 				iconHeroNextPoint.x + tileIconHeroNext.getTileWidth() / 2
-						- UtilFont.getWidth(tooltip) / 2,
+						- UIScale.textWidth(tooltip) / 2,
 				iconHeroNextPoint.y + tileBottomItem.getTileHeight()));
 
 		TOOLTIP_POINTS.put(MOUSE_INFO_NUM_SOLDIERS, tooltip -> new Point(
 				iconNumSoldiersBackgroundPoint.x
 						+ tileBottomItem.getTileWidth() / 2
-						- UtilFont.getWidth(tooltip) / 2,
+						- UIScale.textWidth(tooltip) / 2,
 				iconNumSoldiersBackgroundPoint.y
 						+ tileBottomItem.getTileHeight()));
 
 		TOOLTIP_POINTS.put(MOUSE_INFO_NUM_HEROES, tooltip -> new Point(
 				iconNumHeroesBackgroundPoint.x
 						+ tileBottomItem.getTileWidth() / 2
-						- UtilFont.getWidth(tooltip) / 2,
+						- UIScale.textWidth(tooltip) / 2,
 				iconNumHeroesBackgroundPoint.y
 						+ tileBottomItem.getTileHeight()));
 
 		TOOLTIP_POINTS.put(MOUSE_INFO_CARAVAN, tooltip -> new Point(
 				iconCaravanBackgroundPoint.x
 						+ tileBottomItem.getTileWidth() / 2
-						- UtilFont.getWidth(tooltip) / 2,
+						- UIScale.textWidth(tooltip) / 2,
 				iconCaravanBackgroundPoint.y
 						+ tileBottomItem.getTileHeight()));
 
 		TOOLTIP_POINTS.put(MOUSE_ICON_PRIORITIES, tooltip -> new Point(
 				iconPrioritiesPoint.x
 						+ tileIconPriorities.getTileWidth() / 2
-						- UtilFont.getWidth(tooltip) / 2,
-				iconPrioritiesPoint.y + UtilFont.MAX_HEIGHT * 2));
+						- UIScale.textWidth(tooltip) / 2,
+				iconPrioritiesPoint.y + UIScale.fontHeight() * 2));
 
 		TOOLTIP_POINTS.put(MOUSE_ICON_MATS, tooltip -> new Point(
 				iconMatsPoint.x
 						+ tileIconMats.getTileWidth() / 2
-						- UtilFont.getWidth(tooltip) / 2,
-				iconMatsPoint.y + UtilFont.MAX_HEIGHT * 2));
+						- UIScale.textWidth(tooltip) / 2,
+				iconMatsPoint.y + UIScale.fontHeight() * 2));
 
 		TOOLTIP_POINTS.put(MOUSE_ICON_GRID, tooltip -> new Point(
 				iconGridPoint.x
 						+ tileIconGrid.getTileWidth() / 2
-						- UtilFont.getWidth(tooltip) / 2,
-				iconGridPoint.y + UtilFont.MAX_HEIGHT * 2));
+						- UIScale.textWidth(tooltip) / 2,
+				iconGridPoint.y + UIScale.fontHeight() * 2));
 
 		TOOLTIP_POINTS.put(MOUSE_ICON_MINIBLOCKS, tooltip -> new Point(
 				iconMiniblocksPoint.x
 						+ tileIconMiniblocks.getTileWidth() / 2
-						- UtilFont.getWidth(tooltip) / 2,
-				iconMiniblocksPoint.y + UtilFont.MAX_HEIGHT * 2));
+						- UIScale.textWidth(tooltip) / 2,
+				iconMiniblocksPoint.y + UIScale.fontHeight() * 2));
 
 		TOOLTIP_POINTS.put(MOUSE_ICON_FLATMOUSE, tooltip -> new Point(
 				iconFlatMousePoint.x
 						+ tileIconFlatMouse.getTileWidth() / 2
-						- UtilFont.getWidth(tooltip) / 2,
-				iconFlatMousePoint.y + UtilFont.MAX_HEIGHT * 2));
+						- UIScale.textWidth(tooltip) / 2,
+				iconFlatMousePoint.y + UIScale.fontHeight() * 2));
 
 		TOOLTIP_POINTS.put(MOUSE_ICON_3DMOUSE, tooltip -> new Point(
 				icon3DMousePoint.x
 						+ tileIcon3DMouse.getTileWidth() / 2
-						- UtilFont.getWidth(tooltip) / 2,
-				icon3DMousePoint.y + UtilFont.MAX_HEIGHT * 2));
+						- UIScale.textWidth(tooltip) / 2,
+				icon3DMousePoint.y + UIScale.fontHeight() * 2));
 
 		TOOLTIP_POINTS.put(MOUSE_ICON_PAUSE_RESUME, tooltip -> new Point(
 				iconPauseResumePoint.x
 						+ tileIconPause.getTileWidth() / 2
-						- UtilFont.getWidth(tooltip) / 2,
-				iconPauseResumePoint.y + UtilFont.MAX_HEIGHT * 2));
+						- UIScale.textWidth(tooltip) / 2,
+				iconPauseResumePoint.y + UIScale.fontHeight() * 2));
 
 		TOOLTIP_POINTS.put(MOUSE_ICON_SETTINGS, tooltip -> new Point(
 				iconSettingsPoint.x
 						+ tileIconSettings.getTileWidth() / 2
-						- UtilFont.getWidth(tooltip) / 2,
-				iconSettingsPoint.y + UtilFont.MAX_HEIGHT * 2));
+						- UIScale.textWidth(tooltip) / 2,
+				iconSettingsPoint.y + UIScale.fontHeight() * 2));
 
 		TOOLTIP_POINTS.put(MOUSE_ICON_LOWER_SPEED, tooltip -> new Point(
 				iconLowerSpeedPoint.x
 						+ tileIconLowerSpeed.getTileWidth() / 2
-						- UtilFont.getWidth(tooltip) / 2,
-				iconLowerSpeedPoint.y + UtilFont.MAX_HEIGHT * 2));
+						- UIScale.textWidth(tooltip) / 2,
+				iconLowerSpeedPoint.y + UIScale.fontHeight() * 2));
 
 		TOOLTIP_POINTS.put(MOUSE_ICON_INCREASE_SPEED, tooltip -> new Point(
 				iconIncreaseSpeedPoint.x
 						+ tileIconIncreaseSpeed.getTileWidth() / 2
-						- UtilFont.getWidth(tooltip) / 2,
-				iconIncreaseSpeedPoint.y + UtilFont.MAX_HEIGHT * 2));
+						- UIScale.textWidth(tooltip) / 2,
+				iconIncreaseSpeedPoint.y + UIScale.fontHeight() * 2));
 	}
 	private static final Map<Integer, Supplier<String>> TOOLTIP_MESSAGES = new HashMap<>();
 
@@ -886,6 +935,42 @@ public final class TooltipRenderer {
 						+ UtilsKeyboard.getTooltip(UtilsKeyboard.FN_SHOW_MISSION));
 	}
 
+	private static boolean renderMessageIconTooltipIfNeeded(int mousePanel) {
+		if (mousePanel == MOUSE_MESSAGES_ICON_ANNOUNCEMENT) {
+			renderMessageIconTooltip(
+					messageIconPoints[0],
+					Messages.getString("UIPanel.26"),
+					MessagesPanel.TYPE_ANNOUNCEMENT);
+			return true;
+		}
+
+		if (mousePanel == MOUSE_MESSAGES_ICON_COMBAT) {
+			renderMessageIconTooltip(
+					messageIconPoints[1],
+					Messages.getString("UIPanel.27"),
+					MessagesPanel.TYPE_COMBAT);
+			return true;
+		}
+
+		if (mousePanel == MOUSE_MESSAGES_ICON_HEROES) {
+			renderMessageIconTooltip(
+					messageIconPoints[2],
+					Messages.getString("UIPanel.28"),
+					MessagesPanel.TYPE_HEROES);
+			return true;
+		}
+
+		if (mousePanel == MOUSE_MESSAGES_ICON_SYSTEM) {
+			renderMessageIconTooltip(
+					messageIconPoints[3],
+					Messages.getString("UIPanel.31"),
+					MessagesPanel.TYPE_SYSTEM);
+			return true;
+		}
+
+		return false;
+	}
+
 	private static void renderMessageIconTooltip(
 			Point iconPoint,
 			String title,
@@ -947,11 +1032,12 @@ public final class TooltipRenderer {
 					+ ": "
 					+ happinessMin
 					+ ")";
-			tooltipPoint = TooltipRenderer.rightOf(iconNumCitizensBackgroundPoint.x
-					+ tileBottomItem.getTileWidth() / 2
-					- UtilFont.getWidth(tooltip) / 2,
-					iconNumCitizensBackgroundPoint.y
-							+ tileBottomItem.getTileHeight());
+			tooltipPoint = TooltipRenderer.centeredBelow(
+					iconNumCitizensBackgroundPoint.x + tileBottomItem.getTileWidth() / 2,
+					iconNumCitizensBackgroundPoint.y + tileBottomItem.getTileHeight(),
+					tooltip);
+
+			return;
 
 		}
 		if (mousePanel == MOUSE_TUTORIAL_ICON) {
@@ -963,38 +1049,9 @@ public final class TooltipRenderer {
 			return;
 		}
 
-		if (mousePanel == MOUSE_MESSAGES_ICON_ANNOUNCEMENT) {
-			renderMessageIconTooltip(
-					messageIconPoints[0],
-					Messages.getString("UIPanel.26"),
-					MessagesPanel.TYPE_ANNOUNCEMENT);
+		if (renderMessageIconTooltipIfNeeded(mousePanel)) {
 			return;
 		}
-
-		if (mousePanel == MOUSE_MESSAGES_ICON_COMBAT) {
-			renderMessageIconTooltip(
-					messageIconPoints[1],
-					Messages.getString("UIPanel.27"),
-					MessagesPanel.TYPE_COMBAT);
-			return;
-		}
-
-		if (mousePanel == MOUSE_MESSAGES_ICON_HEROES) {
-			renderMessageIconTooltip(
-					messageIconPoints[2],
-					Messages.getString("UIPanel.28"),
-					MessagesPanel.TYPE_HEROES);
-			return;
-		}
-
-		if (mousePanel == MOUSE_MESSAGES_ICON_SYSTEM) {
-			renderMessageIconTooltip(
-					messageIconPoints[3],
-					Messages.getString("UIPanel.31"),
-					MessagesPanel.TYPE_SYSTEM);
-			return;
-		}
-
 		Supplier<String> tooltipSupplier = TOOLTIP_MESSAGES.get(mousePanel);
 
 		if (tooltipSupplier == null) {
@@ -1011,7 +1068,8 @@ public final class TooltipRenderer {
 
 		if (tooltipPointFunction != null) {
 			tooltipPoint = tooltipPointFunction.apply(tooltip);
-
+		} else {
+			tooltipPoint = TooltipRenderer.rightOf(x, y);
 		}
 
 	}
@@ -1025,209 +1083,170 @@ public final class TooltipRenderer {
 		}
 
 		if (mousePanel == MOUSE_EVENTS_ICON) {
-			renderEventsTooltip(x, y, mousePanel);
+			renderEventsTooltip(x, y);
 		}
 	}
 
-	private static void renderEventsTooltip(int x, int y, int mousePanel) {
+	private static void renderEventsTooltip(int x, int y) {
 		ArrayList<EventData> alEvents = Game.getWorld().getEvents();
 
 		if (alEvents.size() == 0) {
-			tooltip = Messages.getString("UIPanel.83");
+			String noEventsTooltip = Messages.getString("UIPanel.83"); //$NON-NLS-1$
 
-			UtilsGL.drawTooltip(
-					tooltip,
-					iconEventsPoint.x + GlobalEventData.getIcon().getTileWidth() / 2
-							- UtilFont.getWidth(tooltip) / 2,
+			Point point = TooltipRenderer.centeredBelow(
+					iconEventsPoint.x + GlobalEventData.getIcon().getTileWidth() / 2,
 					iconEventsPoint.y + GlobalEventData.getIcon().getTileHeight(),
+					noEventsTooltip);
+
+			TooltipRenderer.draw(
+					noEventsTooltip,
+					point.x,
+					point.y,
 					renderWidth,
 					renderHeight);
 
 			return;
 		}
 
-		if (mousePanel == MOUSE_MESSAGES_ICON_ANNOUNCEMENT
-				|| mousePanel == MOUSE_MESSAGES_ICON_COMBAT
-				|| mousePanel == MOUSE_MESSAGES_ICON_HEROES
-				|| mousePanel == MOUSE_MESSAGES_ICON_SYSTEM) {
-			return;
-		}
+		String eventsTooltip = Messages.getString("UIPanel.84"); //$NON-NLS-1$
 
-		if (mousePanel == MOUSE_EVENTS_ICON) {
+		int paddingX = UIScale.px(4);
+		int paddingY = UIScale.px(4);
+		int rowGap = UIScale.px(2);
+		int iconTextGap = UIScale.px(4);
 
-			if (alEvents.size() == 0) {
-				tooltip = Messages.getString("UIPanel.83"); //$NON-NLS-1$
-				tooltipPoint = TooltipRenderer.rightOf(
-						iconEventsPoint.x + GlobalEventData.getIcon().getTileWidth() / 2
-								- UtilFont.getWidth(tooltip) / 2,
-						iconEventsPoint.y + GlobalEventData.getIcon().getTileHeight());
+		int tooltipWidth = UIScale.textWidth(eventsTooltip);
+		int tooltipHeight = UIScale.fontHeight();
 
+		EventData eventData;
+		EventManagerItem eventItem;
+		int rowWidth;
+
+		for (int i = 0; i < alEvents.size(); i++) {
+			eventData = alEvents.get(i);
+			eventItem = EventManager.getItem(eventData.getEventID());
+
+			if (eventItem == null) {
+				continue;
+			}
+
+			if (eventItem.getIcon() != null) {
+				tooltipHeight += eventItem.getIcon().getTileHeight() + rowGap;
+
+				rowWidth = UIScale.textWidth(eventItem.getName())
+						+ eventItem.getIcon().getTileWidth()
+						+ iconTextGap;
 			} else {
-				// Multi-lineas tooltip
-				if (mousePanel == MOUSE_MESSAGES_ICON_ANNOUNCEMENT) {
-					tooltip = MessagesPanel.getLastestMessage(MessagesPanel.TYPE_ANNOUNCEMENT, 2)
-							+ MessagesPanel.getLastestMessage(MessagesPanel.TYPE_ANNOUNCEMENT, 1)
-							+ MessagesPanel.getLastestMessage(MessagesPanel.TYPE_ANNOUNCEMENT, 0);
-					if (tooltip != null) {
-						tooltipPoint = TooltipRenderer.rightOf(x, y);
+				tooltipHeight += UIScale.fontHeight() + rowGap;
 
-					}
+				rowWidth = UIScale.textWidth(eventItem.getName());
+			}
 
-				} else if (mousePanel == MOUSE_MESSAGES_ICON_COMBAT) {
-					tooltip = MessagesPanel.getLastestMessage(MessagesPanel.TYPE_COMBAT, 2);
-					if (tooltip != null) {
-						tooltipPoint = TooltipRenderer.rightOf(x, y);
-					}
-
-					tooltip = MessagesPanel.getLastestMessage(MessagesPanel.TYPE_COMBAT, 1);
-					if (tooltip != null) {
-						tooltipPoint = TooltipRenderer.rightOf(x, y);
-					}
-
-					tooltip = MessagesPanel.getLastestMessage(MessagesPanel.TYPE_COMBAT, 0);
-					if (tooltip != null) {
-						tooltipPoint = TooltipRenderer.rightOf(x, y);
-					}
-				} else if (mousePanel == MOUSE_MESSAGES_ICON_HEROES) {
-					tooltip = MessagesPanel.getLastestMessage(MessagesPanel.TYPE_HEROES, 2);
-					if (tooltip != null) {
-						tooltipPoint = TooltipRenderer.rightOf(x, y);
-					}
-
-					tooltip = MessagesPanel.getLastestMessage(MessagesPanel.TYPE_HEROES, 1);
-					if (tooltip != null) {
-						tooltipPoint = TooltipRenderer.rightOf(x, y);
-					}
-
-					tooltip = MessagesPanel.getLastestMessage(MessagesPanel.TYPE_HEROES, 0);
-					if (tooltip != null) {
-						tooltipPoint = TooltipRenderer.rightOf(x, y);
-					}
-				} else if (mousePanel == MOUSE_MESSAGES_ICON_SYSTEM) {
-					tooltip = MessagesPanel.getLastestMessage(MessagesPanel.TYPE_SYSTEM, 2);
-					if (tooltip != null) {
-						tooltipPoint = TooltipRenderer.rightOf(x, y);
-					}
-
-					tooltip = MessagesPanel.getLastestMessage(MessagesPanel.TYPE_SYSTEM, 1);
-					if (tooltip != null) {
-						tooltipPoint = TooltipRenderer.rightOf(x, y);
-					}
-
-					tooltip = MessagesPanel.getLastestMessage(MessagesPanel.TYPE_SYSTEM, 0);
-					if (tooltip != null) {
-						tooltipPoint = TooltipRenderer.rightOf(x, y);
-					}
-				} else if (mousePanel == MOUSE_EVENTS_ICON) {
-
-					if (alEvents.size() == 0) {
-						tooltip = Messages.getString("UIPanel.83"); //$NON-NLS-1$
-						UtilsGL.drawTooltip(tooltip,
-								iconEventsPoint.x + GlobalEventData.getIcon().getTileWidth() / 2
-										- UtilFont.getWidth(tooltip) / 2,
-								iconEventsPoint.y + GlobalEventData.getIcon().getTileHeight(),
-								renderWidth, renderHeight);
-					} else {
-						// Obtenemos el tamaño del tooltip
-						tooltip = Messages.getString("UIPanel.84"); //$NON-NLS-1$
-						int tooltipWidth = UtilFont.getWidth(tooltip);
-						int tooltipHeight = UtilFont.MAX_HEIGHT; // Título
-
-						EventData ed;
-						EventManagerItem emi;
-						int iAux;
-						for (int i = 0; i < alEvents.size(); i++) {
-							ed = alEvents.get(i);
-							emi = EventManager.getItem(ed.getEventID());
-							if (emi != null) {
-								// Alto
-								if (emi.getIcon() != null) {
-									tooltipHeight += emi.getIcon().getTileHeight() + 2;
-
-									// Ancho
-									iAux = UtilFont.getWidth(emi.getName()) + emi.getIcon().getTileWidth();
-									if (iAux > tooltipWidth) {
-										tooltipWidth = iAux;
-									}
-								} else {
-									tooltipHeight += UtilFont.MAX_HEIGHT + 2;
-
-									// Ancho
-									iAux = UtilFont.getWidth(emi.getName());
-									if (iAux > tooltipWidth) {
-										tooltipWidth = iAux;
-									}
-								}
-							}
-						}
-						int tooltipX = iconEventsPoint.x + GlobalEventData.getIcon().getTileWidth() / 2
-								- tooltipWidth / 2;
-						int tooltipY = iconEventsPoint.y + GlobalEventData.getIcon().getTileHeight();
-
-						// Renderizamos
-						// Fondo
-						int iCurrentTexture = tileTooltipBackground.getTextureID();
-						GL11.glColor4f(1, 1, 1, 1);
-						GL11.glBindTexture(GL11.GL_TEXTURE_2D, tileTooltipBackground.getTextureID());
-						UtilsGL.glBegin(GL11.GL_QUADS);
-						UtilsGL.drawTexture(tooltipX, tooltipY - 4, tooltipX + tooltipWidth + 8,
-								tooltipY + tooltipHeight + 4, tileTooltipBackground.getTileSetTexX0(),
-								tileTooltipBackground.getTileSetTexY0(),
-								tileTooltipBackground.getTileSetTexX1(),
-								tileTooltipBackground.getTileSetTexY1());
-
-						// Iconos
-						int iCurrentHeight = iconEventsPoint.x + GlobalEventData.getIcon().getTileWidth() / 2
-								- tooltipWidth / 2 + UtilFont.MAX_HEIGHT + 2;
-						for (int i = 0; i < alEvents.size(); i++) {
-							ed = alEvents.get(i);
-							emi = EventManager.getItem(ed.getEventID());
-							if (emi != null) {
-								// Alto
-								if (emi.getIcon() != null) {
-									iCurrentTexture = UtilsGL.setTexture(emi.getIcon(), iCurrentTexture);
-									UIPanel.drawTile(emi.getIcon(),
-											iconEventsPoint.x + GlobalEventData.getIcon().getTileWidth() / 2
-													- tooltipWidth / 2,
-											iCurrentHeight, false);
-									iCurrentHeight += emi.getIcon().getTileHeight() + 2;
-								} else {
-									iCurrentHeight += UtilFont.MAX_HEIGHT + 2;
-								}
-							}
-						}
-						UtilsGL.glEnd();
-
-						// Textos
-						GL11.glBindTexture(GL11.GL_TEXTURE_2D, Game.TEXTURE_FONT_ID);
-						UtilsGL.glBegin(GL11.GL_QUADS);
-						iCurrentHeight = tooltipY;
-						UtilsGL.drawString(tooltip, tooltipX, iCurrentHeight);
-						iCurrentHeight += UtilFont.MAX_HEIGHT + 2;
-
-						for (int i = 0; i < alEvents.size(); i++) {
-							ed = alEvents.get(i);
-							emi = EventManager.getItem(ed.getEventID());
-							if (emi != null) {
-								// Alto
-								if (emi.getIcon() != null) {
-									UtilsGL.drawString(emi.getName(), tooltipX + emi.getIcon().getTileWidth() + 4,
-											iCurrentHeight + emi.getIcon().getTileHeight() / 2
-													- UtilFont.MAX_HEIGHT / 2);
-									iCurrentHeight += emi.getIcon().getTileHeight() + 2;
-								} else {
-									UtilsGL.drawString(emi.getName(), tooltipX, iCurrentHeight);
-									iCurrentHeight += UtilFont.MAX_HEIGHT + 2;
-								}
-							}
-						}
-
-						UtilsGL.glEnd();
-					}
-
-				}
+			if (rowWidth > tooltipWidth) {
+				tooltipWidth = rowWidth;
 			}
 		}
+
+		int tooltipX = iconEventsPoint.x + GlobalEventData.getIcon().getTileWidth() / 2
+				- tooltipWidth / 2;
+		int tooltipY = iconEventsPoint.y + GlobalEventData.getIcon().getTileHeight();
+
+		Point tooltipPosition = clampTooltipPosition(
+				tooltipX,
+				tooltipY,
+				tooltipWidth + paddingX * 2,
+				tooltipHeight + paddingY * 2,
+				renderWidth,
+				renderHeight);
+
+		tooltipX = tooltipPosition.x;
+		tooltipY = tooltipPosition.y;
+
+		int iCurrentTexture = tileTooltipBackground.getTextureID();
+
+		GL11.glColor4f(1, 1, 1, 1);
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, tileTooltipBackground.getTextureID());
+
+		UtilsGL.glBegin(GL11.GL_QUADS);
+
+		UtilsGL.drawTexture(
+				tooltipX,
+				tooltipY,
+				tooltipX + tooltipWidth + paddingX * 2,
+				tooltipY + tooltipHeight + paddingY * 2,
+				tileTooltipBackground.getTileSetTexX0(),
+				tileTooltipBackground.getTileSetTexY0(),
+				tileTooltipBackground.getTileSetTexX1(),
+				tileTooltipBackground.getTileSetTexY1());
+
+		int currentY = tooltipY + paddingY + UIScale.fontHeight() + rowGap;
+
+		for (int i = 0; i < alEvents.size(); i++) {
+			eventData = alEvents.get(i);
+			eventItem = EventManager.getItem(eventData.getEventID());
+
+			if (eventItem == null) {
+				continue;
+			}
+
+			if (eventItem.getIcon() != null) {
+				iCurrentTexture = UtilsGL.setTexture(eventItem.getIcon(), iCurrentTexture);
+
+				UIPanel.drawTile(
+						eventItem.getIcon(),
+						tooltipX + paddingX,
+						currentY,
+						false);
+
+				currentY += eventItem.getIcon().getTileHeight() + rowGap;
+			} else {
+				currentY += UIScale.fontHeight() + rowGap;
+			}
+		}
+
+		UtilsGL.glEnd();
+
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, Game.TEXTURE_FONT_ID);
+
+		UtilsGL.glBegin(GL11.GL_QUADS);
+
+		currentY = tooltipY + paddingY;
+
+		TooltipRenderer.drawScaledString(
+				eventsTooltip,
+				tooltipX + paddingX,
+				currentY);
+
+		currentY += UIScale.fontHeight() + rowGap;
+
+		for (int i = 0; i < alEvents.size(); i++) {
+			eventData = alEvents.get(i);
+			eventItem = EventManager.getItem(eventData.getEventID());
+
+			if (eventItem == null) {
+				continue;
+			}
+
+			if (eventItem.getIcon() != null) {
+				TooltipRenderer.drawScaledString(
+						eventItem.getName(),
+						tooltipX + paddingX + eventItem.getIcon().getTileWidth() + iconTextGap,
+						currentY + eventItem.getIcon().getTileHeight() / 2 - UIScale.fontHeight() / 2);
+
+				currentY += eventItem.getIcon().getTileHeight() + rowGap;
+			} else {
+				TooltipRenderer.drawScaledString(
+						eventItem.getName(),
+						tooltipX + paddingX,
+						currentY);
+
+				currentY += UIScale.fontHeight() + rowGap;
+			}
+		}
+
+		UtilsGL.glEnd();
+
+		GL11.glColor3f(1, 1, 1);
 	}
 
 	public static void livingPlayerEntitiesTooltip(int x, int y, int mousePanel) {

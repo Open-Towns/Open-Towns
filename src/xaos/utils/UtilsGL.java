@@ -516,7 +516,9 @@ public final class UtilsGL {
 		UtilsGL.drawStringZ (sMessage, x, y, color, z);
 	}
 
-
+/**
+ * @deprecated Use TooltipRenderer.draw(...) instead.
+ */
 	public static void drawTooltip (String tooltip, int tooltipX, int tooltipY, int renderWidth, int renderHeight) {
 		if (tooltip != null) {
 			int tooltipWidth = UtilFont.getWidth (tooltip);
