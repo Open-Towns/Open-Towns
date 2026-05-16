@@ -31,7 +31,7 @@ import xaos.main.Game;
 import xaos.main.World;
 import xaos.panels.CommandPanel;
 import xaos.panels.MessagesPanel;
-import xaos.panels.UIPanel;
+import xaos.panels.UI.UIPanel;
 import xaos.panels.menus.SmartMenu;
 import xaos.property.PropertyFile;
 import xaos.skills.SkillManagerItem;

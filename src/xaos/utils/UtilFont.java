@@ -174,6 +174,9 @@ public final class UtilFont {
     }
 
     public static int getWidth(String text) {
+        if (text == null) {
+            return 0;
+        }
         int width = 0;
         for (int i = 0, n = text.length(); i < n; i++) {
             int id = text.charAt(i);

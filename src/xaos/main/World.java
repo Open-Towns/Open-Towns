@@ -40,7 +40,8 @@ import xaos.panels.CommandPanel;
 import xaos.panels.MainPanel;
 import xaos.panels.MessagesPanel;
 import xaos.panels.MiniMapPanel;
-import xaos.panels.UIPanel;
+import xaos.panels.UI.UIPanel;
+import xaos.panels.UI.UIPanelState;
 import xaos.panels.menus.SmartMenu;
 import xaos.stockpiles.Stockpile;
 import xaos.tasks.Task;
@@ -93,6 +94,10 @@ import xaos.zones.ZoneHeroRoom;
 import xaos.zones.ZoneManager;
 import xaos.zones.ZoneManagerItem;
 import xaos.zones.ZonePersonal;
+import xaos.panels.UI.UIPanelInputHandler;
+import static xaos.panels.UI.UIPanelState.*;
+import static xaos.panels.UI.UIPanelInputHandler.*;
+import static xaos.panels.UI.UIPanel.*;
 
 
 public final class World implements Externalizable {
@@ -1602,7 +1607,7 @@ public final class World implements Externalizable {
 	 */
 	public void nextTurn () {
 		// Cursores (si no está sacando el panel de typing)
-		if (UIPanel.typingPanel == null) {
+		if (UIPanelState.typingPanel == null) {
 			if (UtilsKeyboard.isFNKeyDown (UtilsKeyboard.FN_UP)) {
 				keyPressed (Keyboard.KEY_NONE, UtilsKeyboard.FN_UP);
 			} else if (UtilsKeyboard.isFNKeyDown (UtilsKeyboard.FN_DOWN)) {
@@ -3294,7 +3299,7 @@ public final class World implements Externalizable {
 			} else if (Game.getCurrentState () == Game.STATE_SHOWING_CONTEXT_MENU) {
 				Game.deleteCurrentContextMenu ();
 			} else {
-				if (!UIPanel.keyPressed (tecla)) {
+				if (!UIPanelInputHandler.keyPressed (tecla)) {
 					if (Game.getCurrentState () == Game.STATE_NO_STATE) {
 						// Menu
 						CommandPanel.executeCommand (CommandPanel.COMMAND_BACK, null, null, null, null, 0);
