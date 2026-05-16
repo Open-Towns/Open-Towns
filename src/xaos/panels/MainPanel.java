@@ -2624,91 +2624,157 @@ public final class MainPanel {
 			int y,
 			int renderWidth,
 			int renderHeight,
-			int SEPARADOR,
-			ArrayList<String> alMessages,
-			ArrayList<ColorGL> alColor) {
-		if (alMessages.size() <= 0) {
+			int separator,
+			ArrayList<String> messages,
+			ArrayList<ColorGL> colors) {
+		if (messages == null || messages.isEmpty()) {
 			return;
 		}
 
-		int separator = UIScale.px(SEPARADOR);
+		int scaledSeparator = UIScale.px(separator);
 		int lineGap = UIScale.px(5);
 		int lineHeight = UIScale.fontHeight() + lineGap;
 		int paddingX = UIScale.px(4);
 		int paddingY = UIScale.px(4);
 
-		int iWidth = UIScale.textWidth(alMessages.get(0));
+		int width = getMessagesTooltipWidth(messages, paddingX);
+		int height = getMessagesTooltipHeight(messages, lineHeight, lineGap, paddingY);
 
-		for (int i = 1; i < alMessages.size(); i++) {
-			int messageWidth = UIScale.textWidth(alMessages.get(i));
+		Point position = getMessagesTooltipPosition(
+				x,
+				y,
+				width,
+				height,
+				scaledSeparator,
+				renderWidth,
+				renderHeight);
 
-			if (iWidth < messageWidth) {
-				iWidth = messageWidth;
+		drawMessagesTooltipBackground(position.x, position.y, width, height);
+		drawMessagesTooltipText(
+				messages,
+				colors,
+				position.x + paddingX,
+				position.y + paddingY,
+				lineHeight);
+	}
+
+	private static int getMessagesTooltipWidth(ArrayList<String> messages, int paddingX) {
+		int width = 0;
+
+		for (int i = 0; i < messages.size(); i++) {
+			int messageWidth = UIScale.textWidth(messages.get(i));
+
+			if (messageWidth > width) {
+				width = messageWidth;
 			}
 		}
 
-		iWidth += paddingX * 2;
+		return width + paddingX * 2;
+	}
 
-		int iX = x + separator;
-		int iY = y;
-		int iHeight = alMessages.size() * lineHeight - lineGap + paddingY * 2;
+	private static int getMessagesTooltipHeight(
+			ArrayList<String> messages,
+			int lineHeight,
+			int lineGap,
+			int paddingY) {
+		return messages.size() * lineHeight - lineGap + paddingY * 2;
+	}
 
-		// Miramos si cabe
-		if ((iX + iWidth) >= renderWidth) {
-			iX = iX - iWidth - separator;
+	private static Point getMessagesTooltipPosition(
+			int x,
+			int y,
+			int width,
+			int height,
+			int separator,
+			int renderWidth,
+			int renderHeight) {
+		int messageX = x + separator;
+		int messageY = y;
 
-			if (iX < 0) {
-				iX = 0;
+		if ((messageX + width) >= renderWidth) {
+			messageX = messageX - width - separator;
+
+			if (messageX < 0) {
+				messageX = 0;
 			}
 		}
 
-		if ((iY + iHeight) >= renderHeight) {
-			iY = iY - ((iY + iHeight) - renderHeight);
+		if ((messageY + height) >= renderHeight) {
+			messageY = messageY - ((messageY + height) - renderHeight);
 
-			if (iY < 0) {
-				iY = 0;
+			if (messageY < 0) {
+				messageY = 0;
 			}
 		}
 
+		return new Point(messageX, messageY);
+	}
+
+	private static void drawMessagesTooltipBackground(
+			int x,
+			int y,
+			int width,
+			int height) {
 		GL11.glColor4f(1, 1, 1, 1);
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, tileTooltipBackground.getTextureID());
 
 		UtilsGL.glBegin(GL11.GL_QUADS);
 
 		UtilsGL.drawTexture(
-				iX,
-				iY,
-				iX + iWidth,
-				iY + iHeight,
+				x,
+				y,
+				x + width,
+				y + height,
 				tileTooltipBackground.getTileSetTexX0(),
 				tileTooltipBackground.getTileSetTexY0(),
 				tileTooltipBackground.getTileSetTexX1(),
 				tileTooltipBackground.getTileSetTexY1());
 
 		UtilsGL.glEnd();
+	}
 
+	private static void drawMessagesTooltipText(
+			ArrayList<String> messages,
+			ArrayList<ColorGL> colors,
+			int x,
+			int y,
+			int lineHeight) {
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, Game.TEXTURE_FONT_ID);
 
 		UtilsGL.glBegin(GL11.GL_QUADS);
 
-		for (int i = 0; i < alMessages.size(); i++) {
-			ColorGL color = ColorGL.WHITE;
-
-			if (alColor != null && i < alColor.size() && alColor.get(i) != null) {
-				color = alColor.get(i);
-			}
+		for (int i = 0; i < messages.size(); i++) {
+			ColorGL color = getMessageColor(colors, i);
 
 			GL11.glColor3f(color.r, color.g, color.b);
 
 			TooltipRenderer.drawScaledString(
-					alMessages.get(i),
-					iX + paddingX,
-					iY + paddingY + (i * lineHeight));
+					messages.get(i),
+					x,
+					y + (i * lineHeight));
 		}
 
 		UtilsGL.glEnd();
 
 		GL11.glColor3f(1, 1, 1);
+	}
+
+	private static ColorGL getMessageColor(ArrayList<ColorGL> colors, int index) {
+		if (colors == null) {
+			return ColorGL.WHITE;
+		}
+
+		if (index < 0 || index >= colors.size()) {
+			return ColorGL.WHITE;
+		}
+
+		ColorGL color = colors.get(index);
+
+		if (color == null) {
+			return ColorGL.WHITE;
+		}
+
+		return color;
 	}
 
 	/**

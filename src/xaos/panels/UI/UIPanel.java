@@ -1,34 +1,24 @@
 package xaos.panels.UI;
 
-import java.awt.Color;
+import org.lwjgl.opengl.GL11;
+
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import xaos.platform.lwjgl3.input.Keyboard;
 import xaos.platform.lwjgl3.input.Mouse;
-import org.lwjgl.opengl.GL11;
-
 import xaos.TownsProperties;
 import xaos.actions.ActionManager;
 import xaos.actions.ActionManagerItem;
 import xaos.actions.ActionPriorityManager;
 import xaos.campaign.TutorialFlow;
-import xaos.campaign.TutorialTrigger;
 import xaos.data.CaravanData;
-import xaos.data.CitizenGroupData;
 import xaos.data.CitizenGroups;
-import xaos.data.EffectData;
 import xaos.data.EquippedData;
-import xaos.data.EventData;
 import xaos.data.GlobalEventData;
-import xaos.data.HeroData;
 import xaos.data.SoldierData;
 import xaos.data.SoldierGroupData;
 import xaos.data.SoldierGroups;
-import xaos.effects.EffectManager;
-import xaos.events.EventManager;
-import xaos.events.EventManagerItem;
 import xaos.main.Game;
 import xaos.main.World;
 import xaos.panels.CommandPanel;
@@ -41,7 +31,6 @@ import xaos.panels.TradePanel;
 import xaos.panels.TypingPanel;
 import xaos.panels.menus.ContextMenu;
 import xaos.panels.menus.SmartMenu;
-import xaos.stockpiles.Stockpile;
 import xaos.tasks.Task;
 import xaos.tiles.Tile;
 import xaos.tiles.entities.items.Container;
@@ -51,17 +40,12 @@ import xaos.tiles.entities.items.ItemManagerItem;
 import xaos.tiles.entities.items.military.MilitaryItem;
 import xaos.tiles.entities.living.Citizen;
 import xaos.tiles.entities.living.LivingEntity;
-import xaos.tiles.entities.living.heroes.Hero;
 import xaos.utils.ColorGL;
 import xaos.utils.Log;
 import xaos.utils.Messages;
-import xaos.utils.Point3D;
-import xaos.utils.UIScale;
 import xaos.utils.UtilFont;
-import xaos.utils.UtilsAL;
 import xaos.utils.UtilsGL;
 import xaos.utils.UtilsIniHeaders;
-import xaos.utils.UtilsKeyboard;
 import static xaos.panels.UI.UIPanelState.*;
 import static xaos.panels.UI.UIPanelInputHandler.*;
 
@@ -437,7 +421,7 @@ public final class UIPanel {
 		 * BOTTOM menu panel
 		 */
 		int iCurrentTexture = tileBottomScrollLeft.getTextureID(); // Esta textura es la primera quese usa
-																				// en el bottom
+																	// en el bottom
 		// menu
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, iCurrentTexture);
 		GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
@@ -893,7 +877,7 @@ public final class UIPanel {
 		checkBlinkRight = (blinkTurns >= MAX_BLINK_TURNS / 2) && TutorialFlow.isBlinkRight();
 
 		if (isMenuPanelActive()) {
-			
+
 			// XAVI GL11.glColor4f (1, 1, 1, 1);
 			int iCurrentTexture = tileMenuPanel[0].getTextureID();
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, iCurrentTexture);
@@ -3289,7 +3273,7 @@ public final class UIPanel {
 			setBottomMenuPanelActive(false);
 		}
 		// if (right && !isMenuPanelLocked()) {
-		// 	setMenuPanelActive(false);
+		// setMenuPanelActive(false);
 		// }
 		if (production && !isProductionPanelLocked()) {
 			setProductionPanelActive(false);
@@ -3406,7 +3390,8 @@ public final class UIPanel {
 		}
 	}
 
-	public static void createMilitaryContextMenu(SmartMenu smToAdd, int iLocation, LivingEntity le, int mouseX, int mouseY) {
+	public static void createMilitaryContextMenu(SmartMenu smToAdd, int iLocation, LivingEntity le, int mouseX,
+			int mouseY) {
 		// Equipar, miramos si hay objetos militares en el mundo, de paso ya hacemos una
 		// lista para poner en el menú
 		Integer[] aItems = World.getItems().keySet().toArray(new Integer[0]);
