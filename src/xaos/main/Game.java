@@ -1228,22 +1228,24 @@ public final class Game {
 					}
 					continue;
 				}
-				if (iKEY == Keyboard.KEY_ADD || iKEY == Keyboard.KEY_EQUALS) {
-					UIScale.set(UIScale.get() + 0.25f);
-					System.out.println("UI scale: " + UIScale.get());
-				}
-
-				if (iKEY == Keyboard.KEY_SUBTRACT || iKEY == Keyboard.KEY_MINUS) {
-					UIScale.set(UIScale.get() - 0.25f);
-					System.out.println("UI scale: " + UIScale.get());
-				}
-
 				if (typingPanel != null) {
 					// Typing
 					if (TypingPanel.keyPressed(iKEY)) {
 						UIPanel.closeTypingPanel();
 					}
 				} else {
+					if (iKEY == Keyboard.KEY_ADD || iKEY == Keyboard.KEY_EQUALS) {
+						UIScale.set(UIScale.get() + 0.25f);
+						System.out.println("UI scale: " + UIScale.get());
+						continue;
+					}
+
+					if (iKEY == Keyboard.KEY_SUBTRACT || iKEY == Keyboard.KEY_MINUS) {
+						UIScale.set(UIScale.get() - 0.25f);
+						System.out.println("UI scale: " + UIScale.get());
+						continue;
+					}
+
 					if (iKEY == Keyboard.KEY_ESCAPE && getCurrentState() == STATE_SHOWING_CONTEXT_MENU) {
 						// Back al contextMenu
 						if (currentContextMenu.getSmartMenu().getParent() == null) {

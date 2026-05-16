@@ -1121,6 +1121,7 @@ public final class TooltipRenderer {
 		EventData eventData;
 		EventManagerItem eventItem;
 		int rowWidth;
+		int rowHeight;
 
 		for (int i = 0; i < alEvents.size(); i++) {
 			eventData = alEvents.get(i);
@@ -1131,13 +1132,15 @@ public final class TooltipRenderer {
 			}
 
 			if (eventItem.getIcon() != null) {
-				tooltipHeight += eventItem.getIcon().getTileHeight() + rowGap;
+				rowHeight = Math.max(eventItem.getIcon().getTileHeight(), UIScale.fontHeight());
+				tooltipHeight += rowHeight + rowGap;
 
 				rowWidth = UIScale.textWidth(eventItem.getName())
 						+ eventItem.getIcon().getTileWidth()
 						+ iconTextGap;
 			} else {
-				tooltipHeight += UIScale.fontHeight() + rowGap;
+				rowHeight = UIScale.fontHeight();
+				tooltipHeight += rowHeight + rowGap;
 
 				rowWidth = UIScale.textWidth(eventItem.getName());
 			}
@@ -1190,15 +1193,16 @@ public final class TooltipRenderer {
 			}
 
 			if (eventItem.getIcon() != null) {
+				rowHeight = Math.max(eventItem.getIcon().getTileHeight(), UIScale.fontHeight());
 				iCurrentTexture = UtilsGL.setTexture(eventItem.getIcon(), iCurrentTexture);
 
 				UIPanel.drawTile(
 						eventItem.getIcon(),
 						tooltipX + paddingX,
-						currentY,
+						currentY + rowHeight / 2 - eventItem.getIcon().getTileHeight() / 2,
 						false);
 
-				currentY += eventItem.getIcon().getTileHeight() + rowGap;
+				currentY += rowHeight + rowGap;
 			} else {
 				currentY += UIScale.fontHeight() + rowGap;
 			}
@@ -1228,12 +1232,13 @@ public final class TooltipRenderer {
 			}
 
 			if (eventItem.getIcon() != null) {
+				rowHeight = Math.max(eventItem.getIcon().getTileHeight(), UIScale.fontHeight());
 				TooltipRenderer.drawScaledString(
 						eventItem.getName(),
 						tooltipX + paddingX + eventItem.getIcon().getTileWidth() + iconTextGap,
-						currentY + eventItem.getIcon().getTileHeight() / 2 - UIScale.fontHeight() / 2);
+						currentY + rowHeight / 2 - UIScale.fontHeight() / 2);
 
-				currentY += eventItem.getIcon().getTileHeight() + rowGap;
+				currentY += rowHeight + rowGap;
 			} else {
 				TooltipRenderer.drawScaledString(
 						eventItem.getName(),
