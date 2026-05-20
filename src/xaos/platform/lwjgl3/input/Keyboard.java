@@ -63,6 +63,10 @@ public final class Keyboard {
     public static final int KEY_SLASH = GLFW_KEY_SLASH;
     public static final int KEY_SPACE = GLFW_KEY_SPACE;
     public static final int KEY_UP = GLFW_KEY_UP;
+    public static final int KEY_MINUS = GLFW_KEY_MINUS;
+    public static final int KEY_EQUALS = GLFW_KEY_EQUAL;
+    public static final int KEY_ADD = GLFW_KEY_KP_ADD;
+    public static final int KEY_SUBTRACT = GLFW_KEY_KP_SUBTRACT;
 
     private static final boolean[] down = new boolean[GLFW_KEY_LAST + 1];
     private static final Queue<Event> events = new ArrayDeque<Event>();

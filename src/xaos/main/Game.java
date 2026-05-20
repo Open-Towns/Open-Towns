@@ -49,7 +49,7 @@ import xaos.panels.MatsPanelData;
 import xaos.panels.MessagesPanel;
 import xaos.panels.MiniMapPanel;
 import xaos.panels.TypingPanel;
-import xaos.panels.UIPanel;
+import xaos.panels.UI.UIPanel;
 import xaos.panels.menus.ContextMenu;
 import xaos.property.MainProperties;
 import xaos.skills.SkillManager;
@@ -74,6 +74,7 @@ import xaos.utils.Messages;
 import xaos.utils.Names;
 import xaos.utils.Point3D;
 import xaos.utils.Point3DShort;
+import xaos.utils.UIScale;
 import xaos.utils.Utils;
 import xaos.utils.UtilsAL;
 import xaos.utils.UtilsGL;
@@ -81,6 +82,10 @@ import xaos.utils.UtilsIniHeaders;
 import xaos.utils.UtilsKeyboard;
 import xaos.utils.UtilsServer;
 import xaos.zones.ZoneManager;
+import xaos.panels.UI.UIPanelInputHandler;
+import static xaos.panels.UI.UIPanelState.*;
+import static xaos.panels.UI.UIPanelInputHandler.*;
+import static xaos.panels.UI.UIPanel.*;
 
 public final class Game {
 
@@ -148,7 +153,7 @@ public final class Game {
 	private static MainPanel panelMain;
 	private static MainMenuPanel panelMainMenu;
 	private static CommandPanel panelCommand;
-	private static UIPanel panelUI;
+	public static UIPanel panelUI;
 	private static MessagesPanel panelMessages;
 
 	private static World world;
@@ -300,7 +305,7 @@ public final class Game {
 					UtilsGL.getHeight() - World.MAP_HEIGHT, Game.getWorld().getCampaignID(),
 					Game.getWorld().getMissionID());
 		}
-		panelMessages = new MessagesPanel(UIPanel.MESSAGES_PANEL_WIDTH, UIPanel.MESSAGES_PANEL_HEIGHT);
+		panelMessages = new MessagesPanel(MESSAGES_PANEL_WIDTH, MESSAGES_PANEL_HEIGHT);
 
 		// Cargamos las texturas
 		loadAllIniTextures();
@@ -1016,7 +1021,7 @@ public static void taskCreated(Task task) {
 	// }
 
 	public static void togglePause(boolean showInfo) {
-		if (UIPanel.isTradePanelActive()) {
+		if (isTradePanelActive()) {
 			return;
 		}
 
@@ -1027,12 +1032,7 @@ public static void taskCreated(Task task) {
 	}
 
 	public static void pause(boolean showInfo) {
-		if (UIPanel.isTradePanelActive()) {
-			return;
-		}
-
-		if (!bPaused) {
-			bPaused = true;
+		if (isTradePanelActive()) {
 			if (showInfo) {
 				showPauseStatus();
 			}
@@ -1040,7 +1040,7 @@ public static void taskCreated(Task task) {
 	}
 
 	public static void resume(boolean showInfo) {
-		if (UIPanel.isTradePanelActive()) {
+		if (isTradePanelActive()) {
 			return;
 		}
 
@@ -1117,16 +1117,16 @@ public static void taskCreated(Task task) {
 							deleteCurrentContextMenu();
 						}
 					} else {
-						if (getPanelUI().isMouseOnAPanel(mouseX, mouseY) != UIPanel.MOUSE_NONE) {
-							getPanelUI().mousePressed(mouseX, mouseY, mouseButton);
+						if (UIPanelInputHandler.isMouseOnAPanel(mouseX, mouseY) != MOUSE_NONE) {
+							UIPanelInputHandler.mousePressed(mouseX, mouseY, mouseButton);
 						} else {
 							getPanelMain().mousePressed(mouseX, mouseY, mouseButton);
 						}
 					}
 				} else if (mouseButton == 1) {
-					if (UIPanel.typingPanel != null) {
-						if (getPanelUI().isMouseOnAPanel(mouseX, mouseY) != UIPanel.MOUSE_NONE) {
-							getPanelUI().mousePressed(mouseX, mouseY, mouseButton);
+					if (typingPanel != null) {
+						if (UIPanelInputHandler.isMouseOnAPanel(mouseX, mouseY) != MOUSE_NONE) {
+							UIPanelInputHandler.mousePressed(mouseX, mouseY, mouseButton);
 						}
 					} else {
 						// Botón derecho pulsado, cancelamos tarea (si hay)
@@ -1142,8 +1142,8 @@ public static void taskCreated(Task task) {
 						if (mouseX >= 0 && mouseX < MainPanel.renderWidth && mouseY >= 0
 								&& mouseY < MainPanel.renderHeight) {
 							// Main panel
-							if (getPanelUI().isMouseOnAPanel(mouseX, mouseY) != UIPanel.MOUSE_NONE) {
-								getPanelUI().mousePressed(mouseX, mouseY, mouseButton);
+							if (UIPanelInputHandler.isMouseOnAPanel(mouseX, mouseY) != MOUSE_NONE) {
+								UIPanelInputHandler.mousePressed(mouseX, mouseY, mouseButton);
 							} else {
 								setContextMenu(getPanelMain().getContextMenu(mouseX, mouseY));
 							}
@@ -1176,9 +1176,9 @@ public static void taskCreated(Task task) {
 		// Bordes (scroll de mouse)
 		if (isMouseScrollON() && Mouse.isInsideWindow()) {
 			if (!getPanelMainMenu().isActive()) {
-				final int BORDE = UIPanel.PIXELS_TO_BORDER; // Si se acerca X pixels al borde moveremos la cámara
+				final int BORDE = PIXELS_TO_BORDER; // Si se acerca X pixels al borde moveremos la cámara
 				if (mouseX < BORDE) {
-					if (Game.isMouseScrollEarsON() || !UIPanel.isMouseCloseToOpenCloseProductionIcon(mouseX, mouseY)) {
+					if (Game.isMouseScrollEarsON() || !isMouseCloseToOpenCloseProductionIcon(mouseX, mouseY)) {
 						if (getCurrentState() == STATE_SHOWING_CONTEXT_MENU) {
 							if (!(mouseX >= getCurrentContextMenu().getX()
 									&& mouseX < (getCurrentContextMenu().getX() + getCurrentContextMenu().getWidth())
@@ -1193,7 +1193,7 @@ public static void taskCreated(Task task) {
 					}
 				} else if (mouseX > (UtilsGL.getWidth() - BORDE - 1)) {
 					// Miramos que no esté cerca del botón de abrir/cerrar el menu
-					if (Game.isMouseScrollEarsON() || !UIPanel.isMouseCloseToOpenCloseMenuIcon(mouseX, mouseY)) {
+					if (Game.isMouseScrollEarsON() || !isMouseCloseToOpenCloseMenuIcon(mouseX, mouseY)) {
 						if (getCurrentState() == STATE_SHOWING_CONTEXT_MENU) {
 							if (!(mouseX >= getCurrentContextMenu().getX()
 									&& mouseX < (getCurrentContextMenu().getX() + getCurrentContextMenu().getWidth())
@@ -1219,7 +1219,7 @@ public static void taskCreated(Task task) {
 						world.keyPressed(Keyboard.KEY_NONE, UtilsKeyboard.FN_UP);
 					}
 				} else if (mouseY > (UtilsGL.getHeight() - BORDE - 1)) {
-					if (Game.isMouseScrollEarsON() || !UIPanel.isMouseCloseToOpenCloseBottomIcon(mouseX, mouseY)) {
+					if (Game.isMouseScrollEarsON() || !UIPanelInputHandler.isMouseCloseToOpenCloseBottomIcon(mouseX, mouseY)) {
 						if (getCurrentState() == STATE_SHOWING_CONTEXT_MENU) {
 							if (!(mouseX >= getCurrentContextMenu().getX()
 									&& mouseX < (getCurrentContextMenu().getX() + getCurrentContextMenu().getWidth())
@@ -1250,7 +1250,6 @@ public static void taskCreated(Task task) {
 				if (getPanelMainMenu().isActive()) {
 					// Función
 					int iFN = UtilsKeyboard.getFN(iKEY);
-
 					if (iFN == UtilsKeyboard.FN_TOGGLE_FULLSCREEN) {
 						UtilsGL.toggleFullScreen();
 					} else {
@@ -1259,13 +1258,24 @@ public static void taskCreated(Task task) {
 					}
 					continue;
 				}
-
-				if (UIPanel.typingPanel != null) {
+				if (typingPanel != null) {
 					// Typing
 					if (TypingPanel.keyPressed(iKEY)) {
 						UIPanel.closeTypingPanel();
 					}
 				} else {
+					if (iKEY == Keyboard.KEY_ADD || iKEY == Keyboard.KEY_EQUALS) {
+						UIScale.set(UIScale.get() + 0.25f);
+						System.out.println("UI scale: " + UIScale.get());
+						continue;
+					}
+
+					if (iKEY == Keyboard.KEY_SUBTRACT || iKEY == Keyboard.KEY_MINUS) {
+						UIScale.set(UIScale.get() - 0.25f);
+						System.out.println("UI scale: " + UIScale.get());
+						continue;
+					}
+
 					if (iKEY == Keyboard.KEY_ESCAPE && getCurrentState() == STATE_SHOWING_CONTEXT_MENU) {
 						// Back al contextMenu
 						if (currentContextMenu.getSmartMenu().getParent() == null) {
@@ -1311,11 +1321,11 @@ public static void taskCreated(Task task) {
 							// closeInfoPanel();
 							// }
 						} else if (iFN == UtilsKeyboard.FN_SHOW_STOCK) {
-							UIPanel.setMatsPanelActive(!UIPanel.isMatsPanelActive());
+							setMatsPanelActive(!isMatsPanelActive());
 						} else if (iFN == UtilsKeyboard.FN_SHOW_PRIORITIES) {
-							UIPanel.setPrioritiesPanelActive(!UIPanel.isPrioritiesPanelActive());
+							setPrioritiesPanelActive(!isPrioritiesPanelActive());
 						} else if (iFN == UtilsKeyboard.FN_SHOW_TRADE) {
-							UIPanel.setTradePanelActive(!UIPanel.isTradePanelActive());
+							setTradePanelActive(!isTradePanelActive());
 							// } else if (iKEY == Keyboard.KEY_F5) {
 							// UIPanel.setMenuPanelActive (!UIPanel.isMenuPanelActive ());
 							// } else if (iKEY == Keyboard.KEY_F6) {

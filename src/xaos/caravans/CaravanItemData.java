@@ -5,64 +5,70 @@ import xaos.utils.Messages;
 
 public class CaravanItemData {
 
-    private String id;
-    private String type;
-    private int PCT;
-    private String quantity;
+    private String itemId;
+    private String itemType;
+    private int spawnChancePercent;
+    private String itemQuantityFormula;
 
-    public String getId() {
-        return id;
+    public String getItemId() {
+        return itemId;
     }
 
-    public void setId(String id) throws Exception {
-        if (id != null) {
-            if (ItemManager.getItem(id) == null) {
-                throw new Exception(Messages.getString("CaravanItemData.1") + id + "]"); //$NON-NLS-1$ //$NON-NLS-2$
+    public void setItemId(String itemId) throws Exception {
+        if (itemId != null) {
+            if (ItemManager.getItem(itemId) == null) {
+                // message: "Bad caravan item [" + itemId + "]"
+                throw new Exception(Messages.getString("CaravanItemData.1") + itemId + "]"); 
             }
         }
 
-        this.id = id;
+        this.itemId = itemId;
     }
 
-    public void setType(String type) throws Exception {
-        if (type != null) {
-            if (ItemManager.getRandomItemByType(type) == null) {
-                throw new Exception(Messages.getString("CaravanItemData.2") + type + "]"); //$NON-NLS-1$ //$NON-NLS-2$
+    public void setItemType(String itemType) throws Exception {
+        if (itemType != null) {
+            if (ItemManager.getRandomItemByType(itemType) == null) {
+                // message: "Bad caravan item type [" + itemType + "]"
+                throw new Exception(Messages.getString("CaravanItemData.2") + itemType + "]"); 
             }
         }
-        this.type = type;
+        this.itemType = itemType;
     }
 
-    public String getType() {
-        return type;
+    public String getItemType() {
+        return itemType;
     }
 
-    public int getPCT() {
-        return PCT;
+    public int getSpawnChancePercent() {
+        return spawnChancePercent;
     }
 
-    public void setPCT(int iPCT) {
-        PCT = iPCT;
-        if (PCT < 1) {
-            PCT = 1;
-        } else if (PCT > 100) {
-            PCT = 100;
+    public void setSpawnChancePercent(int spawnChancePercent) {
+        if (spawnChancePercent < 1) {
+            this.spawnChancePercent = 1;
+        } else if (spawnChancePercent > 100) {
+            this.spawnChancePercent = 100;
+        } else {
+            this.spawnChancePercent = spawnChancePercent;
         }
     }
 
-    public void setPCT(String sPCT) throws Exception {
+    public void setSpawnChancePercent(String percentAsString) throws Exception {
         try {
-            setPCT(Integer.parseInt(sPCT));
-        } catch (Exception e) {
-            throw new Exception(Messages.getString("CaravanItemData.0") + sPCT + "]"); //$NON-NLS-1$ //$NON-NLS-2$
+            setSpawnChancePercent(Integer.parseInt(percentAsString));
+        } catch (NumberFormatException e) {
+            // message: "Bad caravan item PCT [" + percentAsString + "]"
+            // PCT = percentage
+            throw new Exception(Messages.getString("CaravanItemData.0") + percentAsString + "]"); 
         }
     }
 
     public String getQuantity() {
-        return quantity;
+        return itemQuantityFormula;
     }
 
-    public void setQuantity(String quantity) {
-        this.quantity = quantity;
+    public void setQuantity(String itemQuantityFormula) {
+        //quantity formula can be any string, it will be evaluated later when generating the caravan inventory for example 1d20+20
+        this.itemQuantityFormula = itemQuantityFormula;
     }
 }

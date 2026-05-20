@@ -16,6 +16,7 @@ import xaos.TownsProperties;
 import xaos.campaign.CampaignData;
 import xaos.campaign.CampaignManager;
 import xaos.main.Game;
+import xaos.panels.UI.UIPanel;
 import xaos.panels.menus.ContextMenu;
 import xaos.panels.menus.SmartMenu;
 import xaos.utils.ColorGL;
@@ -28,6 +29,9 @@ import xaos.utils.UtilFont;
 import xaos.utils.Utils;
 import xaos.utils.UtilsGL;
 import xaos.utils.UtilsKeyboard;
+import static xaos.panels.UI.UIPanelState.*;
+import static xaos.panels.UI.UIPanelInputHandler.*;
+import static xaos.panels.UI.UIPanel.*;
 
 public final class MainMenuPanel implements Runnable {
 
@@ -896,10 +900,10 @@ public final class MainMenuPanel implements Runnable {
                 if (isSettingSavegameName()) {
                     // Ha pulsado en algún sitio mientras el panel de savegame name está abierto
                     int iMousePanel = TypingPanel.whereIsMouse(x, y);
-                    if (iMousePanel == UIPanel.MOUSE_TYPING_PANEL_CLOSE) {
+                    if (iMousePanel == MOUSE_TYPING_PANEL_CLOSE) {
                         // Cerramos
                         setSettingSavegameName(false, null, null);
-                    } else if (iMousePanel == UIPanel.MOUSE_TYPING_PANEL_CONFIRM) {
+                    } else if (iMousePanel == MOUSE_TYPING_PANEL_CONFIRM) {
                         if (TypingPanel.getNewText() != null && TypingPanel.getNewText().length() > 0) {
                             // Confirmamos y empieza la partida
                             if (!Utils.existsSavegame(TypingPanel.getNewText())) { // Sólo si no existe en disco previamente
@@ -910,17 +914,17 @@ public final class MainMenuPanel implements Runnable {
                 } else if (isSettingHotkey()) {
                     // Ha pulsado en algún sitio mientras el panel de hotkeys está abierto
                     int iMousePanel = TypingPanel.whereIsMouse(x, y);
-                    if (iMousePanel == UIPanel.MOUSE_TYPING_PANEL_CLOSE) {
+                    if (iMousePanel == MOUSE_TYPING_PANEL_CLOSE) {
                         // Cerramos
                         setSettingHotkey(false, 0);
                     }
                 } else if (isSettingNewServer()) {
                     // Ha pulsado en algún sitio mientras el panel de new server está abierto
                     int iMousePanel = TypingPanel.whereIsMouse(x, y);
-                    if (iMousePanel == UIPanel.MOUSE_TYPING_PANEL_CLOSE) {
+                    if (iMousePanel == MOUSE_TYPING_PANEL_CLOSE) {
                         // Cerramos
                         setSettingNewServer(false);
-                    } else if (iMousePanel == UIPanel.MOUSE_TYPING_PANEL_CONFIRM) {
+                    } else if (iMousePanel == MOUSE_TYPING_PANEL_CONFIRM) {
                         if (TypingPanel.getNewText() != null && TypingPanel.getNewText().length() > 0) {
                             // Confirmamos
                             Game.addServer(TypingPanel.getNewText());

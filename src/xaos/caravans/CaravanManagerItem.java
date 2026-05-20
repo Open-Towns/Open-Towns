@@ -1,6 +1,7 @@
 package xaos.caravans;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import xaos.data.CaravanData;
 import xaos.main.World;
@@ -9,6 +10,7 @@ import xaos.tiles.entities.items.Item;
 import xaos.tiles.entities.items.ItemManager;
 import xaos.tiles.entities.items.ItemManagerItem;
 import xaos.tiles.entities.items.military.MilitaryItem;
+
 import xaos.utils.Messages;
 import xaos.utils.Point3DShort;
 import xaos.utils.Utils;
@@ -18,76 +20,76 @@ public class CaravanManagerItem {
 
     private String id;
     private String zone;
-    private String pricePCT;
+    private String pricePercentFormula;
     private String coins;
     private ArrayList<String> buys;
     private ArrayList<CaravanItemData> itemList;
-    private int comePCT;
+    private int spawnChancePercentage;
 
-    public CaravanData getInstance(int livingID, int x, int y, int z) {
+    public CaravanData createCaravanInstance(int livingID, int x, int y, int z) {
+
         CaravanData caravanData = new CaravanData();
 
         // Items
-        ArrayList<CaravanItemDataInstance> alItems = new ArrayList<CaravanItemDataInstance>();
-        CaravanItemData cid;
-        int iQtty;
-        for (int i = 0; i < itemList.size(); i++) {
-            cid = itemList.get(i);
-            if (Utils.getRandomBetween(1, 100) <= cid.getPCT()) {
-                // Hit, miramos la cantidad
-                iQtty = Utils.launchDice(cid.getQuantity());
-                for (int q = 0; q < iQtty; q++) {
-                    String itemID;
-                    if (cid.getId() != null) {
-                        itemID = cid.getId();
+        ArrayList<CaravanItemDataInstance> caravanItemList = new ArrayList<CaravanItemDataInstance>();
+        HashMap<String, CaravanItemDataInstance> itemCounts = new HashMap<String, CaravanItemDataInstance>();
+
+        int itemTypeQuantity;
+
+        for (CaravanItemData caravanItemData : itemList) {
+
+            if (Utils.getRandomBetween(1, 100) <= caravanItemData.getSpawnChancePercent()) {
+
+                itemTypeQuantity = Utils.launchDice(caravanItemData.getQuantity());
+
+                for (int q = 0; q < itemTypeQuantity; q++) {
+                    String itemId = caravanItemData.getItemId() != null ? caravanItemData.getItemId()
+                            : ItemManager.getRandomItemByType(caravanItemData.getItemType()).getIniHeader();
+
+                    if (itemId == null) {
+                        continue;
+                    }
+
+                    ItemManagerItem itemManagerItem = ItemManager.getItem(itemId);
+                    if (itemManagerItem == null || itemManagerItem.getValue() <= 0) {
+                        continue;
+                    }
+
+                    Item item = Item.createItem(itemManagerItem);
+                    int itemPrice = PricesManager.getPrice(item);
+
+                    if (item instanceof MilitaryItem) {
+                        CaravanItemDataInstance caravanItemDataInstance = createCaravanItemInstance(item, itemPrice);
+                        caravanItemList.add(caravanItemDataInstance);
                     } else {
-                        itemID = ItemManager.getRandomItemByType(cid.getType()).getIniHeader();
-                    }
+                        // For non-military items, we want to combine them if they are the same item and
+                        // price - itemKey allows items to be combined in the same caravan if they have
+                        // the same item and price but allows different items or same item with
+                        // different price to be separate entries in the caravan
+                        String itemKey = item.getIniHeader() + ":" + itemPrice;
+                        CaravanItemDataInstance existing = itemCounts.get(itemKey);
 
-                    // Que el item exista (debería)
-                    if (itemID == null) {
-                        continue;
-                    }
+                        if (existing != null) {
+                            existing.setQuantity(existing.getQuantity() + 1);
+                        } else {
+                            CaravanItemDataInstance newInstance = new CaravanItemDataInstance();
+                            newInstance.setItem(item);
+                            newInstance.setQuantity(1);
+                            newInstance.setPrice(itemPrice);
 
-                    // Miramos que el precio sea mayor que 0
-                    ItemManagerItem imi = ItemManager.getItem(itemID);
-                    if (imi == null || imi.getValue() <= 0) {
-                        continue;
-                    }
-
-                    Item item = Item.createItem(imi);
-                    int iPrice = PricesManager.getPrice(item);
-
-					// Miramos que no exista el item, en ese caso sumamos X a la cantidad
-                    // Los items militares van sueltos
-                    boolean bFound = false;
-                    if (!(item instanceof MilitaryItem)) {
-                        // Iten NO militar
-                        for (int current = 0; current < alItems.size(); current++) {
-                            if (iPrice == alItems.get(current).getPrice() && alItems.get(current).getItem().getIniHeader().equals(itemID)) {
-                                // Bingo!
-                                alItems.get(current).setQuantity(alItems.get(current).getQuantity() + 1);
-                                bFound = true;
-                                break;
-                            }
+                            itemCounts.put(itemKey, newInstance);
                         }
                     }
 
-                    if (!bFound) {
-                        CaravanItemDataInstance cidi = new CaravanItemDataInstance();
-                        cidi.setItem(item);
-                        cidi.setPrice(iPrice);
-                        cidi.setQuantity(1);
-                        alItems.add(cidi);
-                    }
                 }
+                caravanItemList.addAll(itemCounts.values());
             }
         }
 
-        caravanData.setAlItems(alItems);
+        caravanData.setAlItems(caravanItemList);
         caravanData.setStatus(CaravanData.STATUS_COMING);
         caravanData.setLivingId(livingID);
-        caravanData.setPricePCT(Utils.launchDice(getPricePCT()));
+        caravanData.setPricePCT(Utils.launchDice(getPricePercentFormula()));
         caravanData.setCoins(Utils.launchDice(getCoins()));
         caravanData.setStartingPoint(Point3DShort.getPoolInstance(x, y, z));
         caravanData.setTurnsToLeave(World.TIME_MODIFIER_DAY * 3);
@@ -99,6 +101,15 @@ public class CaravanManagerItem {
         caravanData.setMenuTownToSell(new SmartMenu());
 
         return caravanData;
+
+    }
+
+    private CaravanItemDataInstance createCaravanItemInstance(Item item, int itemPrice) {
+        CaravanItemDataInstance newInstance = new CaravanItemDataInstance();
+        newInstance.setItem(item);
+        newInstance.setPrice(itemPrice);
+        newInstance.setQuantity(1);
+        return newInstance;
     }
 
     public String getId() {
@@ -111,11 +122,13 @@ public class CaravanManagerItem {
 
     public void setZone(String zone) throws Exception {
         if (zone == null || zone.length() == 0) {
-            throw new Exception(Messages.getString("CaravanManagerItem.1")); //$NON-NLS-1$
+            // message: "Empty caravan zone"
+            throw new Exception(Messages.getString("CaravanManagerItem.1"));
         }
 
         if (ZoneManager.getItem(zone) == null) {
-            throw new Exception(Messages.getString("CaravanManagerItem.2") + zone + "]"); //$NON-NLS-1$ //$NON-NLS-2$
+            // message: "Unknown caravan zone [" + zone + "]"
+            throw new Exception(Messages.getString("CaravanManagerItem.2") + zone + "]");
         }
 
         this.zone = zone;
@@ -125,12 +138,12 @@ public class CaravanManagerItem {
         return zone;
     }
 
-    public void setPricePCT(String pricePCT) {
-        this.pricePCT = pricePCT;
+    public void setPricePercentFormula(String pricePercentFormula) {
+        this.pricePercentFormula = pricePercentFormula;
     }
 
-    public String getPricePCT() {
-        return pricePCT;
+    public String getPricePercentFormula() {
+        return pricePercentFormula;
     }
 
     public void setCoins(String coins) {
@@ -145,8 +158,8 @@ public class CaravanManagerItem {
         this.buys = buys;
     }
 
-    public void setBuysString(String sBuys) {
-        setBuys(Utils.getArray(sBuys));
+    public void setBuysString(String buys) {
+        setBuys(Utils.getArray(buys));
     }
 
     public ArrayList<String> getBuys() {
@@ -161,35 +174,36 @@ public class CaravanManagerItem {
         this.itemList = itemList;
     }
 
-    public void setComePCT(int comePCT) {
-        this.comePCT = comePCT;
+    public void setSpawnChancePercentage(int spawnChancePercentage) {
+        this.spawnChancePercentage = spawnChancePercentage;
     }
 
-    public void setComePCT(String sComePCT) throws Exception {
-        if (sComePCT == null || sComePCT.trim().length() == 0) {
-            setComePCT(100);
+    public void setComePCT(String spawnChancePercent) throws Exception {
+        if (spawnChancePercent == null || spawnChancePercent.trim().length() == 0) {
+            setSpawnChancePercentage(100);
         } else {
-            boolean bError = false;
+            boolean isPercentChanceInvalid = false;
             try {
-                int iPCT = Integer.parseInt(sComePCT);
-                if (iPCT <= 0) {
-                    bError = true;
+                int spawnPercentage = Integer.parseInt(spawnChancePercent);
+                if (spawnPercentage <= 0) {
+                    isPercentChanceInvalid = true;
                 } else {
-                    if (iPCT > 100) {
-                        iPCT = 100;
+                    if (spawnPercentage > 100) {
+                        spawnPercentage = 100;
                     }
-                    setComePCT(iPCT);
+                    setSpawnChancePercentage(spawnPercentage);
                 }
-            } catch (Exception e) {
-                bError = true;
+            } catch (NumberFormatException e) {
+                isPercentChanceInvalid = true;
             }
-            if (bError) {
-                throw new Exception(Messages.getString("CaravanManagerItem.0") + sComePCT + "]"); //$NON-NLS-1$ //$NON-NLS-2$
+            if (isPercentChanceInvalid) {
+                // message: "Bad caravan come PCT [" + spawnChancePercent + "]"
+                throw new Exception(Messages.getString("CaravanManagerItem.0") + spawnChancePercent + "]");
             }
         }
     }
 
-    public int getComePCT() {
-        return comePCT;
+    public int getSpawnChancePercentage() {
+        return spawnChancePercentage;
     }
 }

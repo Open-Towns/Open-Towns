@@ -6,12 +6,17 @@ import xaos.platform.lwjgl3.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import xaos.main.Game;
+import xaos.panels.UI.UIPanel;
+import xaos.panels.UI.UIPanelInputHandler;
 import xaos.tiles.Tile;
 import xaos.utils.ColorGL;
 import xaos.utils.Messages;
 import xaos.utils.UtilFont;
 import xaos.utils.Utils;
 import xaos.utils.UtilsGL;
+import static xaos.panels.UI.UIPanelState.*;
+import static xaos.panels.UI.UIPanelInputHandler.*;
+import static xaos.panels.UI.UIPanel.*;
 
 public class TypingPanel {
 
@@ -104,7 +109,7 @@ public class TypingPanel {
         HEIGHT_SUBPANEL = UtilFont.MAX_HEIGHT * 2 + 2 * tilePanel[1].getTileHeight();
 
         panelPoint.setLocation(renderWidth / 2 - WIDTH / 2, renderHeight / 2 - HEIGHT / 2);
-        closeButtonPoint.setLocation(panelPoint.x + WIDTH - UIPanel.tileButtonClose.getTileWidth(), panelPoint.y);
+        closeButtonPoint.setLocation(panelPoint.x + WIDTH - tileButtonClose.getTileWidth(), panelPoint.y);
         titlePoint.setLocation(panelPoint.x + WIDTH / 2 - UtilFont.getWidth(getTitle()) / 2, panelPoint.y + tilePanel[1].getTileHeight());
         oldTextPoint.setLocation(panelPoint.x + WIDTH / 2 - UtilFont.getWidth(getOldText()) / 2, titlePoint.y + 2 * UtilFont.MAX_HEIGHT);
 
@@ -125,13 +130,13 @@ public class TypingPanel {
     }
 
     public static int whereIsMouse(int mouseX, int mouseY) {
-        if (UIPanel.isMouseOnAnIcon(mouseX, mouseY, closeButtonPoint, UIPanel.tileButtonClose, UIPanel.tileButtonCloseAlpha)) {
-            return UIPanel.MOUSE_TYPING_PANEL_CLOSE;
-        } else if (UIPanel.isMouseOnAnIcon(mouseX, mouseY, confirmPoint, tileConfirm, tileConfirmAlpha)) {
-            return UIPanel.MOUSE_TYPING_PANEL_CONFIRM;
+        if (UIPanelInputHandler.isMouseOnAnIcon(mouseX, mouseY, closeButtonPoint, tileButtonClose, tileButtonCloseAlpha)) {
+            return MOUSE_TYPING_PANEL_CLOSE;
+        } else if (isMouseOnAnIcon(mouseX, mouseY, confirmPoint, tileConfirm, tileConfirmAlpha)) {
+            return MOUSE_TYPING_PANEL_CONFIRM;
         }
 
-        return UIPanel.MOUSE_NONE;
+        return MOUSE_NONE;
     }
 
     /**
@@ -149,15 +154,15 @@ public class TypingPanel {
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, iCurrentTexture);
         GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
         UtilsGL.glBegin(GL11.GL_QUADS);
-        UIPanel.renderBackground(tilePanel, panelPoint, WIDTH, HEIGHT);
+        drawTile(tilePanel[0], panelPoint);
 
         // Close button
-        if (mousePanel == UIPanel.MOUSE_TYPING_PANEL_CLOSE) {
-            iCurrentTexture = UtilsGL.setTexture(UIPanel.tileButtonClose, iCurrentTexture);
-            UIPanel.drawTile(UIPanel.tileButtonClose, closeButtonPoint);
+        if (mousePanel == MOUSE_TYPING_PANEL_CLOSE) {
+            iCurrentTexture = UtilsGL.setTexture(tileButtonClose, iCurrentTexture);
+            drawTile(tileButtonClose, closeButtonPoint);
         } else {
-            iCurrentTexture = UtilsGL.setTexture(UIPanel.tileButtonCloseDisabled, iCurrentTexture);
-            UIPanel.drawTile(UIPanel.tileButtonCloseDisabled, closeButtonPoint);
+            iCurrentTexture = UtilsGL.setTexture(tileButtonCloseDisabled, iCurrentTexture);
+            drawTile(tileButtonCloseDisabled, closeButtonPoint);
         }
 
         // Subpanel
@@ -166,12 +171,12 @@ public class TypingPanel {
 
         // Confirm
         if (TYPING_TYPE != TYPE_REDEFINE_KEYS) {
-            if (mousePanel == UIPanel.MOUSE_TYPING_PANEL_CONFIRM) {
+            if (mousePanel == MOUSE_TYPING_PANEL_CONFIRM) {
                 iCurrentTexture = UtilsGL.setTexture(tileConfirmON, iCurrentTexture);
-                UIPanel.drawTile(tileConfirmON, confirmPoint);
+                drawTile(tileConfirmON, confirmPoint);
             } else {
                 iCurrentTexture = UtilsGL.setTexture(tileConfirm, iCurrentTexture);
-                UIPanel.drawTile(tileConfirm, confirmPoint);
+                drawTile(tileConfirm, confirmPoint);
             }
         }
 

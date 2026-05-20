@@ -120,7 +120,7 @@ public class LivingEntityManager {
             lemi = iterator.next();
             if (lemi.getCaravan() != null) {
                 cmi = CaravanManager.getItem(lemi.getCaravan());
-                if (cmi != null && Utils.getRandomBetween(1, 100) <= cmi.getComePCT()) {
+                if (cmi != null && Utils.getRandomBetween(1, 100) <= cmi.getSpawnChancePercentage()) {
                     alCaravans.add(lemi);
                 }
             }

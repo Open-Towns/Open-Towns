@@ -26,7 +26,8 @@ import xaos.actions.QueueItem;
 import xaos.main.Game;
 import xaos.panels.CommandPanel;
 import xaos.panels.MainPanel;
-import xaos.panels.UIPanel;
+import xaos.panels.UI.UIPanel;
+import xaos.panels.UI.UIPanelState;
 import xaos.tiles.Tile;
 import xaos.tiles.entities.buildings.BuildingManager;
 import xaos.tiles.entities.buildings.BuildingManagerItem;
@@ -291,9 +292,9 @@ public class SmartMenu implements Externalizable {
     public void render(int x, int y, int width, int height, boolean isContext) {
         if (!isTrasparency()) {
             GL11.glColor4f(1, 1, 1, 1);
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, UIPanel.tileTooltipBackground.getTextureID());
+            GL11.glBindTexture(GL11.GL_TEXTURE_2D, UIPanelState.tileTooltipBackground.getTextureID());
             UtilsGL.glBegin(GL11.GL_QUADS);
-            UtilsGL.drawTexture(x, y, x + width, y + height, UIPanel.tileTooltipBackground.getTileSetTexX0(), UIPanel.tileTooltipBackground.getTileSetTexY0(), UIPanel.tileTooltipBackground.getTileSetTexX1(), UIPanel.tileTooltipBackground.getTileSetTexY1());
+            UtilsGL.drawTexture(x, y, x + width, y + height, UIPanelState.tileTooltipBackground.getTileSetTexX0(), UIPanelState.tileTooltipBackground.getTileSetTexY0(), UIPanelState.tileTooltipBackground.getTileSetTexX1(), UIPanelState.tileTooltipBackground.getTileSetTexY1());
             UtilsGL.glEnd();
         }
 

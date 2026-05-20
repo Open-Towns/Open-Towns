@@ -21,6 +21,7 @@ import xaos.events.EventManager;
 import xaos.events.EventManagerItem;
 import xaos.main.Game;
 import xaos.main.World;
+import xaos.panels.UI.UIPanel;
 import xaos.panels.menus.ContextMenu;
 import xaos.panels.menus.SmartMenu;
 import xaos.stockpiles.Stockpile;
@@ -43,6 +44,7 @@ import xaos.utils.Point3D;
 import xaos.utils.Utils;
 import xaos.utils.UtilsAL;
 import xaos.utils.UtilsGL;
+import xaos.panels.UI.UIPanelState;
 
 public final class CommandPanel {
 
@@ -516,10 +518,10 @@ public final class CommandPanel {
                 Stockpile.disableAll(Integer.parseInt(sParameter), sParameter2);
             } else if (sCommand.equals(COMMAND_STOCKPILE_MANAGE)) {
                 int iPileID = Integer.parseInt(sParameter);
-                UIPanel.setPilePanelActive(iPileID, false);
+                UIPanelState.setPilePanelActive(iPileID, false);
             } else if (sCommand.equals(COMMAND_CONTAINER_MANAGE)) {
                 int iContainerID = Integer.parseInt(sParameter);
-                UIPanel.setPilePanelActive(iContainerID, true);
+                UIPanelState.setPilePanelActive(iContainerID, true);
             } else if (sCommand.equals(COMMAND_STOCKPILE_ENABLE_ITEM)) {
                 Stockpile stockpile = Stockpile.getStockpile(p3dDirect.toPoint3DShort());
                 if (stockpile != null && !stockpile.getType().contains(sParameter)) {
@@ -926,7 +928,7 @@ public final class CommandPanel {
             } else if (sCommand.equals(COMMAND_MINIBLOCKS)) {
                 MainPanel.toggleMiniBlocks();
             } else if (sCommand.equals(COMMAND_TRADE)) {
-                UIPanel.setTradePanelActive(true);
+                UIPanelState.setTradePanelActive(true);
             } else if (sCommand.equals(COMMAND_SAVE)) {
                 try {
                     Utils.save (true);
@@ -942,8 +944,8 @@ public final class CommandPanel {
                     MessagesPanel.addMessage(MessagesPanel.TYPE_SYSTEM, Messages.getString("CommandPanel.38") + ex.toString() + "]", ColorGL.RED); //$NON-NLS-1$ //$NON-NLS-2$
                 }
             } else if (sCommand.equals(COMMAND_ITEM_TEXT_ADD)) {
-                if (UIPanel.typingPanel == null) {
-                    UIPanel.typingPanel = new TypingPanel(UIPanel.renderWidth, UIPanel.renderHeight, Messages.getString("CommandPanel.14"), "", TypingPanel.TYPE_ADD_TEXT_TO_ITEM, Integer.valueOf(sParameter)); //$NON-NLS-1$ //$NON-NLS-2$
+                if (UIPanelState.typingPanel == null) {
+                    UIPanelState.typingPanel = new TypingPanel(UIPanelState.renderWidth, UIPanelState.renderHeight, Messages.getString("CommandPanel.14"), "", TypingPanel.TYPE_ADD_TEXT_TO_ITEM, Integer.valueOf(sParameter)); //$NON-NLS-1$ //$NON-NLS-2$
                 }
             } else if (sCommand.equals(COMMAND_ITEM_TEXT_DELETE)) {
                 World.getItemsText().remove(Integer.valueOf(sParameter));
