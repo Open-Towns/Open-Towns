@@ -112,6 +112,33 @@ public final class MainPanel {
 
 	// LOCKED WALLCONNECTOR
 	private static Tile lockedConnectorTile = new Tile("lockedconnector"); //$NON-NLS-1$
+	private static final float WORLD_ZOOM_MIN = 0.1f;
+private static final float WORLD_ZOOM_MAX = 3.0f;
+private static final float WORLD_ZOOM_STEP = 0.1f;
+
+private static float worldZoom = 1.0f;
+
+public static float getWorldZoom() {
+	return worldZoom;
+}
+
+public static void setWorldZoom(float zoom) {
+	if (zoom < WORLD_ZOOM_MIN) {
+		worldZoom = WORLD_ZOOM_MIN;
+	} else if (zoom > WORLD_ZOOM_MAX) {
+		worldZoom = WORLD_ZOOM_MAX;
+	} else {
+		worldZoom = zoom;
+	}
+}
+
+public static void zoomWorldIn() {
+	setWorldZoom(worldZoom + WORLD_ZOOM_STEP);
+}
+
+public static void zoomWorldOut() {
+	setWorldZoom(worldZoom - WORLD_ZOOM_STEP);
+}
 
 	public MainPanel() {
 		resize(UtilsGL.getWidth(), UtilsGL.getHeight());
@@ -177,35 +204,54 @@ public final class MainPanel {
 	}
 
 	public static void render() {
-		int xView = Game.getWorld().getView().x;
-		int yView = Game.getWorld().getView().y;
-		int zView = Game.getWorld().getView().z;
+		
+	int xView = Game.getWorld().getView().x;
+	int yView = Game.getWorld().getView().y;
+	int zView = Game.getWorld().getView().z;
 
-		int cellXMax = xView + (maxTilesWidthHeight / 2);
-		if (bMiniBlocksON) {
-			cellXMax++;
-		}
-		if (cellXMax >= World.MAP_WIDTH) {
-			cellXMax = (World.MAP_WIDTH - 1);
-		}
+	float zoom = getWorldZoom();
 
-		int cellXMin = xView - (maxTilesWidthHeight / 2);
-		// depthXMin = (cellXMin < 0) ? 0 : cellXMin;
-		cellXMin -= (World.MAP_DEPTH - zView);
+	int visibleTileRange = Math.round(maxTilesWidthHeight / zoom);
 
-		int cellYMax = yView + (maxTilesWidthHeight / 2) + 2;
-		cellYMax += (World.MAP_DEPTH - zView);
+	// Padding prevents visible cut-off at the screen edges
+	visibleTileRange += 8;
 
-		int cellYMin = ((-(maxTilesWidthHeight / 2) - 1) + yView) - 2;
-		if (cellYMin < 0) {
-			cellYMin = 0;
-		}
-		// depthYMin = cellYMin;
+	int halfVisibleTileRange = visibleTileRange / 2;
 
-		int iBaseXGeneral = (-xView) * (Tile.TERRAIN_ICON_WIDTH / 2) + ((-yView) * Tile.TERRAIN_ICON_WIDTH / 2)
-				+ xCentro;
-		int iBaseYGeneral = (-yView) * (Tile.TERRAIN_ICON_HEIGHT / 2) - ((-xView) * Tile.TERRAIN_ICON_HEIGHT / 2)
-				+ yCentro;
+	int cellXMax = xView + halfVisibleTileRange;
+
+	if (bMiniBlocksON) {
+		cellXMax++;
+	}
+
+	if (cellXMax >= World.MAP_WIDTH) {
+		cellXMax = World.MAP_WIDTH - 1;
+	}
+
+	int cellXMin = xView - halfVisibleTileRange;
+	cellXMin -= (World.MAP_DEPTH - zView);
+
+	int cellYMax = yView + halfVisibleTileRange + 2;
+	cellYMax += (World.MAP_DEPTH - zView);
+
+	int cellYMin = ((-halfVisibleTileRange - 1) + yView) - 2;
+
+	if (cellYMin < 0) {
+		cellYMin = 0;
+	}
+
+	int terrainHalfWidth = Math.round((Tile.TERRAIN_ICON_WIDTH / 2f) * zoom);
+	int terrainHalfHeight = Math.round((Tile.TERRAIN_ICON_HEIGHT / 2f) * zoom);
+
+	int iBaseXGeneral = (-xView) * terrainHalfWidth
+			+ ((-yView) * terrainHalfWidth)
+			+ xCentro;
+
+	int iBaseYGeneral = (-yView) * terrainHalfHeight
+			- ((-xView) * terrainHalfHeight)
+			+ yCentro;
+
+	// rest of render continues...
 		Point pointMouse = new Point(Mouse.getX(), renderHeight - Mouse.getY() - 1);
 		Point3D pointTileMouse = getTileMouse(pointMouse.x, pointMouse.y, xView, yView, zView);
 		boolean bMouseInMainArea = UIPanelInputHandler.isMouseOnAPanel(pointMouse.x, pointMouse.y) == MOUSE_NONE;
@@ -270,55 +316,83 @@ public final class MainPanel {
 
 	private static int renderMouse(int iBaseXGeneral, int iBaseYGeneral, int zView, Point3D pointTileMouse,
 			int currentTextureID) {
+
 		// Mouse & 3D Mouse
 		if (pointTileMouse != null && typingPanel == null) {
 			if (!(Game.getCurrentState() == Game.STATE_CREATING_TASK
 					&& (Game.getCurrentTask().getState() == Task.STATE_CREATING_ENDZONE
 							|| Game.getCurrentTask().getState() == Task.STATE_CREATING_SINGLEPOINT))) {
-				int iYGeneral = iBaseYGeneral - (pointTileMouse.x - pointTileMouse.y) * (Tile.TERRAIN_ICON_HEIGHT / 2);
-				int iXGeneral = iBaseXGeneral + (pointTileMouse.x + pointTileMouse.y) * (Tile.TERRAIN_ICON_WIDTH / 2);
+
+				float zoom = getWorldZoom();
+
+				int terrainHalfWidth = Math.round((Tile.TERRAIN_ICON_WIDTH / 2f) * zoom);
+				int terrainHalfHeight = Math.round((Tile.TERRAIN_ICON_HEIGHT / 2f) * zoom);
+				int terrainHeight = Math.round(Tile.TERRAIN_ICON_HEIGHT * zoom);
+
+				int iYGeneral = iBaseYGeneral - (pointTileMouse.x - pointTileMouse.y) * terrainHalfHeight;
+				int iXGeneral = iBaseXGeneral + (pointTileMouse.x + pointTileMouse.y) * terrainHalfWidth;
 
 				if (zView != pointTileMouse.z) {
 					if (zView > pointTileMouse.z) {
-						iYGeneral += ((zView - pointTileMouse.z) * Tile.TERRAIN_ICON_HEIGHT);
+						iYGeneral += ((zView - pointTileMouse.z) * terrainHeight);
 					} else {
-						iYGeneral += ((pointTileMouse.z - zView) * Tile.TERRAIN_ICON_HEIGHT);
+						iYGeneral += ((pointTileMouse.z - zView) * terrainHeight);
 					}
 				}
 
 				// Mouse
 				Cell cell = World.getCell(pointTileMouse);
 				Tile tile;
+
 				if (cell.getTerrain().getTerrainID() == TerrainManagerItem.TERRAIN_AIR_ID
 						&& (pointTileMouse.z + 1) < World.MAP_DEPTH) {
+
 					// Miramos la de abajo
 					Cell cellUnder = World.getCell(pointTileMouse.x, pointTileMouse.y, pointTileMouse.z + 1);
+
 					if (cellUnder.getTerrain().getTerrainID() == TerrainManagerItem.TERRAIN_AIR_ID) {
 						tile = World.getTileMouseCursorAir();
 					} else {
 						boolean bAux = bMiniBlocksON;
+
 						if (pointTileMouse.z != zView) {
 							bMiniBlocksON = false;
 						}
+
 						tile = World.getTileMouseCursor(cell.isDiscovered() && cell.isMined());
+
 						if (pointTileMouse.z != zView) {
 							bMiniBlocksON = bAux;
 						}
 					}
 				} else {
 					boolean bAux = bMiniBlocksON;
+
 					if (pointTileMouse.z != zView) {
 						bMiniBlocksON = false;
 					}
+
 					tile = World.getTileMouseCursor(cell.isDiscovered() && cell.isMined());
+
 					if (pointTileMouse.z != zView) {
 						bMiniBlocksON = bAux;
 					}
 				}
+
 				currentTextureID = UtilsGL.setTexture(tile, currentTextureID);
-				UtilsGL.drawTextureZ(iXGeneral, iYGeneral, iXGeneral + tile.getTileWidth(),
-						iYGeneral + tile.getTileHeight(), tile.getTileSetTexX0(), tile.getTileSetTexY0(),
-						tile.getTileSetTexX1(), tile.getTileSetTexY1(),
+
+				int drawWidth = Math.round(tile.getTileWidth() * zoom);
+				int drawHeight = Math.round(tile.getTileHeight() * zoom);
+
+				UtilsGL.drawTextureZ(
+						iXGeneral,
+						iYGeneral,
+						iXGeneral + drawWidth,
+						iYGeneral + drawHeight,
+						tile.getTileSetTexX0(),
+						tile.getTileSetTexY0(),
+						tile.getTileSetTexX1(),
+						tile.getTileSetTexY1(),
 						Cell.getDepth(pointTileMouse.x, pointTileMouse.y, pointTileMouse.z));
 
 				// Mouse 2D, arrows pointing down
@@ -329,28 +403,44 @@ public final class MainPanel {
 					boolean bEnd = false;
 					Item item;
 					ItemManagerItem imi;
+
 					while (!bEnd) {
 						iZ++;
+
 						if (iZ < World.MAP_DEPTH) {
 							cell = World.getCell(pointTileMouse.x, pointTileMouse.y, iZ);
+
 							if (!cell.isMined() || cell.getTerrain().hasFluids()) {
 								bEnd = true;
 							} else {
 								item = cell.getItem();
+
 								if (item != null) {
 									imi = ItemManager.getItem(item.getIniHeader());
+
 									if (imi.isBase()) {
 										bEnd = true;
 									}
 								}
 
 								if (!bEnd) {
-									iYGeneral += (tile.getTileHeight() / 2);
+									int arrowStep = Math.round((tile.getTileHeight() / 2f) * zoom);
+									iYGeneral += arrowStep;
 
 									currentTextureID = UtilsGL.setTexture(tile, currentTextureID);
-									UtilsGL.drawTextureZ(iXGeneral, iYGeneral, iXGeneral + tile.getTileWidth(),
-											iYGeneral + tile.getTileHeight(), tile.getTileSetTexX0(),
-											tile.getTileSetTexY0(), tile.getTileSetTexX1(), tile.getTileSetTexY1(),
+
+									int arrowDrawWidth = Math.round(tile.getTileWidth() * zoom);
+									int arrowDrawHeight = Math.round(tile.getTileHeight() * zoom);
+
+									UtilsGL.drawTextureZ(
+											iXGeneral,
+											iYGeneral,
+											iXGeneral + arrowDrawWidth,
+											iYGeneral + arrowDrawHeight,
+											tile.getTileSetTexX0(),
+											tile.getTileSetTexY0(),
+											tile.getTileSetTexX1(),
+											tile.getTileSetTexY1(),
 											Cell.getDepth(pointTileMouse.x, pointTileMouse.y, iZ));
 								}
 							}
@@ -365,9 +455,14 @@ public final class MainPanel {
 					int iLevel = World.MAP_NUM_LEVELS_OUTSIDE - pointTileMouse.z;
 					String sLevel = Integer.toString(iLevel);
 					int sLevelW = UtilFont.getWidth(sLevel) / 2;
+
 					currentTextureID = UtilsGL.setTexture(currentTextureID, Game.TEXTURE_FONT_ID);
-					UtilsGL.drawStringZ(sLevel, iXGeneral + tile.getTileWidth() / 2 - sLevelW,
-							iYGeneral + tile.getTileHeight() / 2 + UtilFont.MAX_HEIGHT / 2 - 2, ColorGL.WHITE,
+
+					UtilsGL.drawStringZ(
+							sLevel,
+							iXGeneral + drawWidth / 2 - sLevelW,
+							iYGeneral + drawHeight / 2 + UtilFont.MAX_HEIGHT / 2 - 2,
+							ColorGL.WHITE,
 							Cell.getDepth(pointTileMouse.x, pointTileMouse.y, pointTileMouse.z));
 				}
 			}
@@ -378,18 +473,49 @@ public final class MainPanel {
 		return currentTextureID;
 	}
 
+
+	private static void drawWorldTileZ(Tile tile, int x, int y, int depth) {
+		float zoom = getWorldZoom();
+
+		int drawWidth = Math.round(tile.getTileWidth() * zoom);
+		int drawHeight = Math.round(tile.getTileHeight() * zoom);
+
+		UtilsGL.drawTextureZ(
+				x,
+				y,
+				x + drawWidth,
+				y + drawHeight,
+				tile.getTileSetTexX0(),
+				tile.getTileSetTexY0(),
+				tile.getTileSetTexX1(),
+				tile.getTileSetTexY1(),
+				depth);
+	}
+
 	public static int renderAllTerrains(int zView, int cellXMin, int cellXMax, int cellYMin, int cellYMax,
 			int iBaseXGeneral, int iBaseYGeneral, Point3D pointTileMouse, int zLevelOffset, int currentTextureID) {
+
 		Tile tile;
 		int iXGeneral, iYGeneral, iDepth;
 		Cell cell;
+
+		float zoom = getWorldZoom();
+
+		int terrainHalfWidth = Math.round((Tile.TERRAIN_ICON_WIDTH / 2f) * zoom);
+		int terrainHalfHeight = Math.round((Tile.TERRAIN_ICON_HEIGHT / 2f) * zoom);
+		int terrainWidth = Math.round(Tile.TERRAIN_ICON_WIDTH * zoom);
+		int terrainHeight = Math.round(Tile.TERRAIN_ICON_HEIGHT * zoom);
+
 		forPrincipal: for (int i = cellXMax; i >= cellXMin; i--) {
 			for (int j = cellYMin; j <= cellYMax; j++) {
-				iYGeneral = iBaseYGeneral - (i - j) * (Tile.TERRAIN_ICON_HEIGHT / 2);
-				if (iYGeneral <= -2 * Tile.TERRAIN_ICON_HEIGHT) {
+
+				iYGeneral = iBaseYGeneral - (i - j) * terrainHalfHeight;
+
+				if (iYGeneral <= -2 * terrainHeight) {
 					continue;
 				}
-				iXGeneral = iBaseXGeneral + (i + j) * (Tile.TERRAIN_ICON_WIDTH / 2);
+
+				iXGeneral = iBaseXGeneral + (i + j) * terrainHalfWidth;
 
 				if (i >= 0 && j >= 0 && i < World.MAP_WIDTH && j < World.MAP_HEIGHT) {
 					cell = World.getCell(i, j, zView);
@@ -397,13 +523,15 @@ public final class MainPanel {
 					cell = null;
 				}
 
-				if (cell != null && iXGeneral > -Tile.TERRAIN_ICON_WIDTH
-						&& iYGeneral < (renderHeight + 4 * Tile.TERRAIN_ICON_HEIGHT)) {
+				if (cell != null && iXGeneral > -terrainWidth
+						&& iYGeneral < (renderHeight + 4 * terrainHeight)) {
+
 					iDepth = Cell.getDepth(i, j, zView);
 
 					// Zones + stockpiles
 					if (cell.hasZone()) {
 						Zone zone = Zone.getZone(cell.getZoneID());
+
 						if (zone != null) {
 							ZoneManagerItem zmi = ZoneManager.getItem(zone.getIniHeader());
 							tile = zmi.getTile();
@@ -416,17 +544,29 @@ public final class MainPanel {
 								currentTextureID = setColorShadowLightCellTerrain(cell, tile, zLevelOffset + 1,
 										currentTextureID, false);
 							}
-							UtilsGL.drawTextureZ(iXGeneral, iYGeneral + Tile.TERRAIN_ICON_HEIGHT,
-									iXGeneral + tile.getTileWidth(),
-									iYGeneral + tile.getTileHeight() + Tile.TERRAIN_ICON_HEIGHT, tile.getTileSetTexX0(),
-									tile.getTileSetTexY0(), tile.getTileSetTexX1(), tile.getTileSetTexY1(), iDepth);
+
+							int drawWidth = Math.round(tile.getTileWidth() * zoom);
+							int drawHeight = Math.round(tile.getTileHeight() * zoom);
+
+							UtilsGL.drawTextureZ(
+									iXGeneral,
+									iYGeneral + terrainHeight,
+									iXGeneral + drawWidth,
+									iYGeneral + drawHeight + terrainHeight,
+									tile.getTileSetTexX0(),
+									tile.getTileSetTexY0(),
+									tile.getTileSetTexX1(),
+									tile.getTileSetTexY1(),
+									iDepth);
 						}
 					} else if (cell.hasStockPile()) {
 						tile = World.getTileStockpile();
 
 						boolean blink = false;
+
 						if (bCheckBlinkPiles) {
 							Type type = Stockpile.getStockpile(i, j, zView).getType();
+
 							if (type != null && TutorialFlow.currentBlinkPiles(type.getID())) {
 								blink = true;
 							}
@@ -444,10 +584,21 @@ public final class MainPanel {
 						if (blink) {
 							UtilsGL.setColorRed();
 						}
-						UtilsGL.drawTextureZ(iXGeneral, iYGeneral + Tile.TERRAIN_ICON_HEIGHT,
-								iXGeneral + tile.getTileWidth(),
-								iYGeneral + tile.getTileHeight() + Tile.TERRAIN_ICON_HEIGHT, tile.getTileSetTexX0(),
-								tile.getTileSetTexY0(), tile.getTileSetTexX1(), tile.getTileSetTexY1(), iDepth);
+
+						int drawWidth = Math.round(tile.getTileWidth() * zoom);
+						int drawHeight = Math.round(tile.getTileHeight() * zoom);
+
+						UtilsGL.drawTextureZ(
+								iXGeneral,
+								iYGeneral + terrainHeight,
+								iXGeneral + drawWidth,
+								iYGeneral + drawHeight + terrainHeight,
+								tile.getTileSetTexX0(),
+								tile.getTileSetTexY0(),
+								tile.getTileSetTexX1(),
+								tile.getTileSetTexY1(),
+								iDepth);
+
 						if (blink) {
 							UtilsGL.unsetColor();
 						}
@@ -471,42 +622,76 @@ public final class MainPanel {
 
 						currentTextureID = setColorShadowLightCellTerrain(cell, tile, zLevelOffset, currentTextureID,
 								false);
-						UtilsGL.drawTextureZ(iXGeneral, iYGeneral, iXGeneral + tile.getTileWidth(),
-								iYGeneral + tile.getTileHeight(), tile.getTileSetTexX0(), tile.getTileSetTexY0(),
-								tile.getTileSetTexX1(), tile.getTileSetTexY1(), iDepth);
+
+						int drawWidth = Math.round(tile.getTileWidth() * zoom);
+						int drawHeight = Math.round(tile.getTileHeight() * zoom);
+
+						UtilsGL.drawTextureZ(
+								iXGeneral,
+								iYGeneral,
+								iXGeneral + drawWidth,
+								iYGeneral + drawHeight,
+								tile.getTileSetTexX0(),
+								tile.getTileSetTexY0(),
+								tile.getTileSetTexX1(),
+								tile.getTileSetTexY1(),
+								iDepth);
 					}
 
 					// Blink?
 					if (bCheckBlinkCells && cell.isBlink()) {
 						tile = World.getTileMouseCursorBAD(true);
 						currentTextureID = UtilsGL.setTexture(tile, currentTextureID);
-						// UtilsGL.setColorGreen ();
+
 						GL11.glColor3f(1f, 1f, 1f);
-						UtilsGL.drawTextureZ(iXGeneral, iYGeneral, iXGeneral + tile.getTileWidth(),
-								iYGeneral + tile.getTileHeight(), tile.getTileSetTexX0(), tile.getTileSetTexY0(),
-								tile.getTileSetTexX1(), tile.getTileSetTexY1(), iDepth);
-						// UtilsGL.unsetColor ();
+
+						int drawWidth = Math.round(tile.getTileWidth() * zoom);
+						int drawHeight = Math.round(tile.getTileHeight() * zoom);
+
+						UtilsGL.drawTextureZ(
+								iXGeneral,
+								iYGeneral,
+								iXGeneral + drawWidth,
+								iYGeneral + drawHeight,
+								tile.getTileSetTexX0(),
+								tile.getTileSetTexY0(),
+								tile.getTileSetTexX1(),
+								tile.getTileSetTexY1(),
+								iDepth);
 					}
 				}
 
 				// Under
 				if (cell == null || cell.isShouldPaintUnder() || (flatMouseON && zLevelOffset == 0
-						&& pointTileMouse != null && isMouseNearCell(cell, pointTileMouse))) { // El zLevelOffset es
-																								// para que se vea bien
-																								// cuando acercas al
-																								// ratón a un item con
-																								// _block
+						&& pointTileMouse != null && isMouseNearCell(cell, pointTileMouse))) {
+
 					// Hay que pintar lo de abajo
 					if (zView < (World.MAP_DEPTH - 1)) {
-						currentTextureID = renderAllTerrains(zView + 1, i + 1, i + 1, j - 1, j - 1, iBaseXGeneral,
-								iBaseYGeneral + (Tile.TERRAIN_ICON_WIDTH / 2), null, (zLevelOffset + 1),
+						currentTextureID = renderAllTerrains(
+								zView + 1,
+								i + 1,
+								i + 1,
+								j - 1,
+								j - 1,
+								iBaseXGeneral,
+								iBaseYGeneral + terrainHalfWidth,
+								null,
+								zLevelOffset + 1,
 								currentTextureID);
 					}
 				} else {
 					if (bMiniBlocksON && zLevelOffset == 0) {
 						if (zView < (World.MAP_DEPTH - 1)) {
-							currentTextureID = renderAllTerrains(zView + 1, i + 1, i + 1, j - 1, j - 1, iBaseXGeneral,
-									iBaseYGeneral + (Tile.TERRAIN_ICON_WIDTH / 2), null, (zLevelOffset + 1),
+							currentTextureID = renderAllTerrains(
+									zView + 1,
+									i + 1,
+									i + 1,
+									j - 1,
+									j - 1,
+									iBaseXGeneral,
+									iBaseYGeneral + terrainHalfWidth,
+									null,
+									zLevelOffset + 1,
 									currentTextureID);
 						}
 					}
@@ -775,55 +960,82 @@ public final class MainPanel {
 
 	public static int renderAllEntities(int zView, int cellXMin, int cellXMax, int cellYMin, int cellYMax,
 			int iBaseXGeneral, int iBaseYGeneral, Point3D pointTileMouse, int zLevelOffset, int currentTextureID) {
+
 		int iXGeneral, iYGeneral;
 		Cell cell;
 
+		float zoom = getWorldZoom();
+
+		int terrainHalfWidth = Math.round((Tile.TERRAIN_ICON_WIDTH / 2f) * zoom);
+		int terrainHalfHeight = Math.round((Tile.TERRAIN_ICON_HEIGHT / 2f) * zoom);
+		int terrainWidth = Math.round(Tile.TERRAIN_ICON_WIDTH * zoom);
+		int terrainHeight = Math.round(Tile.TERRAIN_ICON_HEIGHT * zoom);
+
 		forPrincipal: for (int i = cellXMax; i >= cellXMin; i--) {
 			for (int j = cellYMin; j <= cellYMax; j++) {
-				iYGeneral = iBaseYGeneral - (i - j) * (Tile.TERRAIN_ICON_HEIGHT / 2);
-				if (iYGeneral <= -2 * Tile.TERRAIN_ICON_HEIGHT) {
+
+				iYGeneral = iBaseYGeneral - (i - j) * terrainHalfHeight;
+
+				if (iYGeneral <= -2 * terrainHeight) {
 					continue;
 				}
-				iXGeneral = iBaseXGeneral + (i + j) * (Tile.TERRAIN_ICON_WIDTH / 2);
+
+				iXGeneral = iBaseXGeneral + (i + j) * terrainHalfWidth;
 
 				if (i >= 0 && j >= 0 && i < World.MAP_WIDTH && j < World.MAP_HEIGHT) {
 					cell = World.getCell(i, j, zView);
 				} else {
 					cell = null;
 				}
-				if (cell != null && iXGeneral > -Tile.TERRAIN_ICON_WIDTH
-						&& iYGeneral < (renderHeight + 4 * Tile.TERRAIN_ICON_HEIGHT)) {
+
+				if (cell != null && iXGeneral > -terrainWidth
+						&& iYGeneral < (renderHeight + 4 * terrainHeight)) {
+
 					float fColorShadowLight = getColorShadowLightCell(cell, zLevelOffset);
-					currentTextureID = renderEntities(i, j, zView, cell, iXGeneral,
-							iYGeneral + Tile.TERRAIN_ICON_HEIGHT, currentTextureID, pointTileMouse, fColorShadowLight,
+
+					currentTextureID = renderEntities(
+							i,
+							j,
+							zView,
+							cell,
+							iXGeneral,
+							iYGeneral + terrainHeight,
+							currentTextureID,
+							pointTileMouse,
+							fColorShadowLight,
 							zLevelOffset);
 				}
 
 				// Under
-				// if (cell == null || cell.isShouldPaintUnder ()) {
-				// if (zView < (World.MAP_DEPTH - 1)) {
-				// currentTextureID = renderAllEntities (zView + 1, i + 1, i + 1, j - 1, j - 1,
-				// iBaseXGeneral, iBaseYGeneral + (Tile.TERRAIN_ICON_WIDTH / 2), null,
-				// (zLevelOffset + 1), currentTextureID);
-				// }
-				// }
 				if (cell == null || cell.isShouldPaintUnder() || (flatMouseON && zLevelOffset == 0
-						&& pointTileMouse != null && isMouseNearCell(cell, pointTileMouse))) { // El zLevelOffset es
-																								// para que se vea bien
-																								// cuando acercas al
-																								// ratón a un item con
-																								// _block
-					// Hay que pintar lo de abajo
+						&& pointTileMouse != null && isMouseNearCell(cell, pointTileMouse))) {
+
 					if (zView < (World.MAP_DEPTH - 1)) {
-						currentTextureID = renderAllEntities(zView + 1, i + 1, i + 1, j - 1, j - 1, iBaseXGeneral,
-								iBaseYGeneral + (Tile.TERRAIN_ICON_WIDTH / 2), null, (zLevelOffset + 1),
+						currentTextureID = renderAllEntities(
+								zView + 1,
+								i + 1,
+								i + 1,
+								j - 1,
+								j - 1,
+								iBaseXGeneral,
+								iBaseYGeneral + terrainHalfWidth,
+								null,
+								zLevelOffset + 1,
 								currentTextureID);
 					}
 				} else {
 					if (bMiniBlocksON && zLevelOffset == 0) {
 						if (zView < (World.MAP_DEPTH - 1)) {
-							currentTextureID = renderAllEntities(zView + 1, i + 1, i + 1, j - 1, j - 1, iBaseXGeneral,
-									iBaseYGeneral + (Tile.TERRAIN_ICON_WIDTH / 2), null, (zLevelOffset + 1),
+							currentTextureID = renderAllEntities(
+									zView + 1,
+									i + 1,
+									i + 1,
+									j - 1,
+									j - 1,
+									iBaseXGeneral,
+									iBaseYGeneral + terrainHalfWidth,
+									null,
+									zLevelOffset + 1,
 									currentTextureID);
 						}
 					}
@@ -837,22 +1049,28 @@ public final class MainPanel {
 
 		// Grid + orders
 		GL11.glColor3f(1, 1, 1);
+
 		forPrincipalGrid: for (int i = cellXMax; i >= cellXMin; i--) {
 			for (int j = cellYMin; j <= cellYMax; j++) {
-				iYGeneral = iBaseYGeneral - (i - j) * (Tile.TERRAIN_ICON_HEIGHT / 2);
-				if (iYGeneral <= -2 * Tile.TERRAIN_ICON_HEIGHT) {
+
+				iYGeneral = iBaseYGeneral - (i - j) * terrainHalfHeight;
+
+				if (iYGeneral <= -2 * terrainHeight) {
 					continue;
 				}
-				iXGeneral = iBaseXGeneral + (i + j) * (Tile.TERRAIN_ICON_WIDTH / 2);
+
+				iXGeneral = iBaseXGeneral + (i + j) * terrainHalfWidth;
 
 				if (i >= 0 && j >= 0 && i < World.MAP_WIDTH && j < World.MAP_HEIGHT
-						&& iXGeneral > -Tile.TERRAIN_ICON_WIDTH
-						&& iYGeneral < (renderHeight + Tile.TERRAIN_ICON_HEIGHT)) {
+						&& iXGeneral > -terrainWidth
+						&& iYGeneral < (renderHeight + terrainHeight)) {
+
 					cell = World.getCells()[i][j][zView];
 
 					// Si la celda tiene órdenes pintamos su tile
 					if (cell.isFlagOrders()) {
 						Tile tile;
+
 						if (zLevelOffset == 0 && bMiniBlocksON) {
 							if (cell.isDiscovered() && cell.isMined()) {
 								tile = World.getTileOrders(true);
@@ -864,53 +1082,50 @@ public final class MainPanel {
 						}
 
 						currentTextureID = UtilsGL.setTexture(tile, currentTextureID);
-						UtilsGL.drawTextureZ(iXGeneral, iYGeneral, iXGeneral + tile.getTileWidth(),
-								iYGeneral + tile.getTileHeight(), tile.getTileSetTexX0(), tile.getTileSetTexY0(),
-								tile.getTileSetTexX1(), tile.getTileSetTexY1(), Cell.getDepth(i, j, zView));
+						drawWorldTileZ(tile, iXGeneral, iYGeneral, Cell.getDepth(i, j, zView));
 					}
 
 					// Grid
 					if (gridON && zLevelOffset == 0 && cell.isDiscovered() && cell.isMined()) {
 						if (!cell.isDigged()) {
 							currentTextureID = UtilsGL.setTexture(GRID_TILE, currentTextureID);
-							UtilsGL.drawTextureZ(iXGeneral, iYGeneral + Tile.TERRAIN_ICON_HEIGHT,
-									iXGeneral + GRID_TILE.getTileWidth(),
-									iYGeneral + GRID_TILE.getTileHeight() + Tile.TERRAIN_ICON_HEIGHT,
-									GRID_TILE.getTileSetTexX0(), GRID_TILE.getTileSetTexY0(),
-									GRID_TILE.getTileSetTexX1(), GRID_TILE.getTileSetTexY1(),
+
+							drawWorldTileZ(
+									GRID_TILE,
+									iXGeneral,
+									iYGeneral + terrainHeight,
 									Cell.getDepth(i, j, zView));
 						} else {
-							// Celda digada, pero miramos si hay algo debajo (simplemente mirando el ASZID
-							// bastará)
+							// Celda digada, pero miramos si hay algo debajo
 							if (cell.getAstarZoneID() != -1) {
 								currentTextureID = UtilsGL.setTexture(GRID_TILE, currentTextureID);
-								UtilsGL.drawTextureZ(iXGeneral, iYGeneral + Tile.TERRAIN_ICON_HEIGHT,
-										iXGeneral + GRID_TILE.getTileWidth(),
-										iYGeneral + GRID_TILE.getTileHeight() + Tile.TERRAIN_ICON_HEIGHT,
-										GRID_TILE.getTileSetTexX0(), GRID_TILE.getTileSetTexY0(),
-										GRID_TILE.getTileSetTexX1(), GRID_TILE.getTileSetTexY1(),
+
+								drawWorldTileZ(
+										GRID_TILE,
+										iXGeneral,
+										iYGeneral + terrainHeight,
 										Cell.getDepth(i, j, zView));
 							} else {
 								currentTextureID = UtilsGL.setTexture(GRID_NOT_ALLOWED_TILE, currentTextureID);
-								UtilsGL.drawTextureZ(iXGeneral, iYGeneral,
-										iXGeneral + GRID_NOT_ALLOWED_TILE.getTileWidth(),
-										iYGeneral + GRID_NOT_ALLOWED_TILE.getTileHeight(),
-										GRID_NOT_ALLOWED_TILE.getTileSetTexX0(),
-										GRID_NOT_ALLOWED_TILE.getTileSetTexY0(),
-										GRID_NOT_ALLOWED_TILE.getTileSetTexX1(),
-										GRID_NOT_ALLOWED_TILE.getTileSetTexY1(), Cell.getDepth(i, j, zView));
+
+								drawWorldTileZ(
+										GRID_NOT_ALLOWED_TILE,
+										iXGeneral,
+										iYGeneral,
+										Cell.getDepth(i, j, zView));
 							}
 						}
 					}
-				}
 
-				if (iXGeneral >= renderWidth) {
-					continue forPrincipalGrid;
+					if (iXGeneral >= renderWidth) {
+						continue forPrincipalGrid;
+					}
 				}
 			}
 		}
 
 		GL11.glColor3f(1, 1, 1);
+
 		return currentTextureID;
 	}
 
@@ -1278,9 +1493,15 @@ public final class MainPanel {
 
 	private static int renderEntities(int i, int j, int zView, Cell cell, int iXGeneral, int iYGeneral,
 			int currentTextureID, Point3D pointTileMouse, float fColorShadowLight, int zLevelOffset) {
+
 		// Entities
 		Tile tile;
 		int iXSpecific, iYSpecific;
+
+		float zoom = getWorldZoom();
+		int terrainHalfWidth = Math.round((Tile.TERRAIN_ICON_WIDTH / 2f) * zoom);
+		int terrainHalfHeight = Math.round((Tile.TERRAIN_ICON_HEIGHT / 2f) * zoom);
+		int terrainHeight = Math.round(Tile.TERRAIN_ICON_HEIGHT * zoom);
 
 		// Discovered
 		if (cell.isDiscovered()) {
@@ -1291,45 +1512,60 @@ public final class MainPanel {
 				// Patrol points
 				if (cell.isFlagPatrol()) {
 					tile = World.getTilePatrolMark();
-					// currentTextureID = UtilsGL.setTexture (tile, currentTextureID);
 					currentTextureID = setColorShadowLightCell(cell, tile, zLevelOffset, currentTextureID, false);
-					UtilsGL.drawTextureZ(iXGeneral, iYGeneral, iXGeneral + tile.getTileWidth(),
-							iYGeneral + tile.getTileHeight(), tile.getTileSetTexX0(), tile.getTileSetTexY0(),
-							tile.getTileSetTexX1(), tile.getTileSetTexY1(), iDepth);
+					drawWorldTileZ(tile, iXGeneral, iYGeneral, iDepth);
 				}
 
 				// Miramos si hay proyectiles
 				if (Projectile.getLocations()[i][j][zView] > 0) {
 					// Hay proyectil, lo buscamos y lo pintamos
 					Projectile projectile;
+
 					for (int c = 0; c < Game.getWorld().getProjectiles().size(); c++) {
 						projectile = Game.getWorld().getProjectiles().get(c);
-						if (projectile.getCoordinates().x == (i) && projectile.getCoordinates().y == (j)
+
+						if (projectile.getCoordinates().x == i
+								&& projectile.getCoordinates().y == j
 								&& projectile.getCoordinates().z == zView) {
-							iYSpecific = iYGeneral - (projectile.getTileHeight() - Tile.TERRAIN_ICON_HEIGHT);
+
+							int projectileDrawWidth = Math.round(projectile.getTileWidth() * zoom);
+							int projectileDrawHeight = Math.round(projectile.getTileHeight() * zoom);
+
+							iYSpecific = iYGeneral - (projectileDrawHeight - terrainHeight);
 
 							// Dirección
 							float texX0 = projectile.getTileSetTexX0();
 							float texX1 = projectile.getTileSetTexX1();
 							float texY0 = projectile.getTileSetTexY0();
 							float texY1 = projectile.getTileSetTexY1();
+
 							if ((projectile.getDirection() & Projectile.DIRECTION_WEST) > 0) {
 								// Oeste
 								float fAux = texX0;
 								texX0 = texX1;
 								texX1 = fAux;
 							}
+
 							if ((projectile.getDirection() & Projectile.DIRECTION_SOUTH) > 0) {
 								// Sur
 								float fAux = texY0;
 								texY0 = texY1;
 								texY1 = fAux;
 							}
-							// currentTextureID = UtilsGL.setTexture (projectile, currentTextureID);
+
 							currentTextureID = setColorShadowLightCell(cell, projectile, zLevelOffset, currentTextureID,
 									false);
-							UtilsGL.drawTextureZ(iXGeneral, iYSpecific, iXGeneral + projectile.getTileWidth(),
-									iYSpecific + projectile.getTileHeight(), texX0, texY0, texX1, texY1, iDepth);
+
+							UtilsGL.drawTextureZ(
+									iXGeneral,
+									iYSpecific,
+									iXGeneral + projectileDrawWidth,
+									iYSpecific + projectileDrawHeight,
+									texX0,
+									texY0,
+									texX1,
+									texY1,
+									iDepth);
 						}
 					}
 				}
@@ -1342,37 +1578,58 @@ public final class MainPanel {
 				// Buildings
 				if (cell.hasBuilding()) {
 					Building building = Building.getBuilding(cell.getBuildingCoordinates());
+
 					if (building != null) {
 						BuildingManagerItem bmi = BuildingManager.getItem(building.getIniHeader());
-						if ((building.getCoordinates().x) == cell.getCoordinates().x
+
+						if (building.getCoordinates().x == cell.getCoordinates().x
 								&& (building.getCoordinates().y + bmi.getHeight() - 1) == cell.getCoordinates().y) {
+
 							building.updateAnimation();
-							iXSpecific = iXGeneral - ((bmi.getHeight() - 1) * (Tile.TERRAIN_ICON_WIDTH / 2));
-							iYSpecific = iYGeneral - building.getTileHeight() + building.getTileHeightOffset()
-									+ ((bmi.getHeight() - 1) * Tile.TERRAIN_ICON_HEIGHT / 2);
-							// currentTextureID = UtilsGL.setTexture (building, currentTextureID);
-							boolean bTransparency = (flatMouseON && pointTileMouse != null
-									&& isMouseNearCell(cell, pointTileMouse, building));
+
+							int buildingDrawWidth = Math.round(building.getTileWidth() * zoom);
+							int buildingDrawHeight = Math.round(building.getTileHeight() * zoom);
+							int buildingTileHeightOffset = Math.round(building.getTileHeightOffset() * zoom);
+
+							iXSpecific = iXGeneral - ((bmi.getHeight() - 1) * terrainHalfWidth);
+							iYSpecific = iYGeneral - buildingDrawHeight + buildingTileHeightOffset
+									+ ((bmi.getHeight() - 1) * terrainHalfHeight);
+
+							boolean bTransparency = flatMouseON && pointTileMouse != null
+									&& isMouseNearCell(cell, pointTileMouse, building);
+
 							currentTextureID = setColorShadowLightCell(cell, building, zLevelOffset, currentTextureID,
 									bTransparency);
-							UtilsGL.drawTextureZ(iXSpecific, iYSpecific, iXSpecific + building.getTileWidth(),
-									iYSpecific + building.getTileHeight(), building.getTileSetTexX0(),
-									building.getTileSetTexY0(), building.getTileSetTexX1(), building.getTileSetTexY1(),
+
+							UtilsGL.drawTextureZ(
+									iXSpecific,
+									iYSpecific,
+									iXSpecific + buildingDrawWidth,
+									iYSpecific + buildingDrawHeight,
+									building.getTileSetTexX0(),
+									building.getTileSetTexY0(),
+									building.getTileSetTexX1(),
+									building.getTileSetTexY1(),
 									iDepth);
 
 							// Edificio NO construido (NO operativo) o item no construido (no operativo)
 							// (cruz roja)
 							if (!building.isOperative()) {
-								// currentTextureID = UtilsGL.setTexture (World.getTileRedCross (),
-								// currentTextureID);
-								currentTextureID = setColorShadowLightCell(cell, World.getTileRedCross(), zLevelOffset,
+								Tile redCrossTile = World.getTileRedCross();
+
+								currentTextureID = setColorShadowLightCell(cell, redCrossTile, zLevelOffset,
 										currentTextureID, bTransparency);
-								UtilsGL.drawTextureZ(iXSpecific, iYSpecific, iXSpecific + building.getTileWidth(),
-										iYSpecific + building.getTileHeight(),
-										World.getTileRedCross().getTileSetTexX0(),
-										World.getTileRedCross().getTileSetTexY0(),
-										World.getTileRedCross().getTileSetTexX1(),
-										World.getTileRedCross().getTileSetTexY1(), iDepth);
+
+								UtilsGL.drawTextureZ(
+										iXSpecific,
+										iYSpecific,
+										iXSpecific + buildingDrawWidth,
+										iYSpecific + buildingDrawHeight,
+										redCrossTile.getTileSetTexX0(),
+										redCrossTile.getTileSetTexY0(),
+										redCrossTile.getTileSetTexX1(),
+										redCrossTile.getTileSetTexY1(),
+										iDepth);
 							}
 						}
 					}
@@ -1380,7 +1637,7 @@ public final class MainPanel {
 
 				// Fluids
 				if (cell.getTerrain().hasFluids()) {
-					iYSpecific = iYGeneral - Tile.TERRAIN_ICON_HEIGHT;
+					iYSpecific = iYGeneral - terrainHeight;
 
 					if (cell.getTerrain().getFluidType() == Terrain.FLUIDS_WATER) {
 						if (item != null && ItemManager.getItem(item.getIniHeader()).isAllowFluids()) {
@@ -1388,31 +1645,16 @@ public final class MainPanel {
 						} else {
 							tile = World.getTileWater(cell.getTerrain().getFluidCount());
 						}
-					} else { // if (cell.getTerrain ().getFluidType () == Terrain.FLUIDS_LAVA) {
+					} else {
 						if (item != null && ItemManager.getItem(item.getIniHeader()).isAllowFluids()) {
 							tile = World.getTileLava(1);
 						} else {
 							tile = World.getTileLava(cell.getTerrain().getFluidCount());
 						}
 					}
-					// currentTextureID = UtilsGL.setTexture (tile, currentTextureID);
+
 					currentTextureID = setColorShadowLightCell(cell, tile, zLevelOffset, currentTextureID, false);
-					UtilsGL.drawTextureZ(iXGeneral, iYSpecific, iXGeneral + tile.getTileWidth(),
-							iYSpecific + tile.getTileHeight(), tile.getTileSetTexX0(), tile.getTileSetTexY0(),
-							tile.getTileSetTexX1(), tile.getTileSetTexY1(), iDepth);
-					// Debug, fuerza de los fluidos
-					// if (Game.DEBUG_MODE) {
-					// UtilsGL.glEnd ();
-					// GL11.glBindTexture (GL11.GL_TEXTURE_2D, Game.TEXTURE_FONT_ID);
-					// GL11.glTexEnvf (GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE,
-					// GL11.GL_MODULATE);
-					// UtilsGL.glBegin (GL11.GL_QUADS);
-					// currentTextureID = Game.TEXTURE_FONT_ID;
-					//
-					// UtilsGL.drawStringZ (Integer.toString (cell.getTerrain ().getFluidCount ()),
-					// iXGeneral + Tile.TERRAIN_ICON_WIDTH / 2 - UtilFont.MAX_WIDTH / 2, iYSpecific
-					// + UtilFont.MAX_HEIGHT / 2, iDepth + 1);
-					// }
+					drawWorldTileZ(tile, iXGeneral, iYSpecific, iDepth);
 				}
 
 				// Livings
@@ -1422,6 +1664,10 @@ public final class MainPanel {
 		}
 
 		return currentTextureID;
+	}
+
+	private static int zoomed(int value) {
+		return Math.round(value * getWorldZoom());
 	}
 
 	private static boolean isMouseNearCell(Cell cell, Point3D pointTileMouse) {
@@ -1437,9 +1683,15 @@ public final class MainPanel {
 
 	private static int renderItems(Cell cell, Item item, int iXGeneral, int iYGeneral, int currentTextureID,
 			Point3D pointTileMouse, float fColorShadowLight, int iDepth, int zLevelOffset) {
+
 		if (item != null) {
 			Tile tile = (Tile) item;
 			boolean bFlatNearMouse = false;
+
+			float zoom = getWorldZoom();
+
+			int terrainWidth = Math.round(Tile.TERRAIN_ICON_WIDTH * zoom);
+			int terrainHeight = Math.round(Tile.TERRAIN_ICON_HEIGHT * zoom);
 
 			tile.updateAnimation(item.isFacingNorth() || item.isFacingEast());
 
@@ -1451,17 +1703,25 @@ public final class MainPanel {
 
 			if (bFlatNearMouse || (bMiniBlocksON && zLevelOffset == 0)) {
 				Tile tileAux = ItemManager.getMiniItem(tile.getIniHeader());
+
 				if (tileAux != null) {
 					tile = tileAux;
 				}
 			}
-			int iXSpecific, iYSpecific;
+
+			int tileDrawWidth = Math.round(tile.getTileWidth() * zoom);
+			int tileDrawHeight = Math.round(tile.getTileHeight() * zoom);
+
+			int iXSpecific;
+			int iYSpecific;
+
 			if (tile.getTileWidth() != Tile.TERRAIN_ICON_WIDTH) {
-				iXSpecific = iXGeneral - (tile.getTileWidth() / 2) + (Tile.TERRAIN_ICON_WIDTH / 2);
+				iXSpecific = iXGeneral - (tileDrawWidth / 2) + (terrainWidth / 2);
 			} else {
 				iXSpecific = iXGeneral;
 			}
-			iYSpecific = iYGeneral - (tile.getTileHeight() - Tile.TERRAIN_ICON_HEIGHT);
+
+			iYSpecific = iYGeneral - (tileDrawHeight - terrainHeight);
 
 			int addDepth = (tile.getTileHeight() > 2 * Tile.TERRAIN_ICON_HEIGHT)
 					? (tile.getTileHeight() - (2 * Tile.TERRAIN_ICON_HEIGHT)) / Tile.TERRAIN_ICON_HEIGHT
@@ -1471,6 +1731,7 @@ public final class MainPanel {
 
 			// Blink? tutorial?
 			boolean blink = false;
+
 			if (bCheckBlinkItems) {
 				blink = TutorialFlow.currentBlinkItem(item.getIniHeader());
 
@@ -1481,13 +1742,27 @@ public final class MainPanel {
 
 			// Rotate
 			if (item.isFacingWest() || item.isFacingEast()) {
-				UtilsGL.drawTextureZ(iXSpecific, iYSpecific, iXSpecific + tile.getTileWidth(),
-						iYSpecific + tile.getTileHeight(), tile.getTileSetTexX0(), tile.getTileSetTexY0(),
-						tile.getTileSetTexX1(), tile.getTileSetTexY1(), iDepth + addDepth);
+				UtilsGL.drawTextureZ(
+						iXSpecific,
+						iYSpecific,
+						iXSpecific + tileDrawWidth,
+						iYSpecific + tileDrawHeight,
+						tile.getTileSetTexX0(),
+						tile.getTileSetTexY0(),
+						tile.getTileSetTexX1(),
+						tile.getTileSetTexY1(),
+						iDepth + addDepth);
 			} else {
-				UtilsGL.drawTextureZ(iXSpecific, iYSpecific, iXSpecific + tile.getTileWidth(),
-						iYSpecific + tile.getTileHeight(), tile.getTileSetTexX1(), tile.getTileSetTexY0(),
-						tile.getTileSetTexX0(), tile.getTileSetTexY1(), iDepth + addDepth);
+				UtilsGL.drawTextureZ(
+						iXSpecific,
+						iYSpecific,
+						iXSpecific + tileDrawWidth,
+						iYSpecific + tileDrawHeight,
+						tile.getTileSetTexX1(),
+						tile.getTileSetTexY0(),
+						tile.getTileSetTexX0(),
+						tile.getTileSetTexY1(),
+						iDepth + addDepth);
 			}
 
 			if (blink) {
@@ -1496,25 +1771,46 @@ public final class MainPanel {
 
 			// Locked doors
 			if (item.isDoorStatus(Item.FLAG_WALL_CONNECTOR_STATUS_LOCKED_AND_CLOSED)) {
-				int iYSpecificLocked = iYSpecific + (tile.getTileHeight() / 2)
-						- (lockedConnectorTile.getTileHeight() / 2);
+				int lockedDrawWidth = Math.round(lockedConnectorTile.getTileWidth() * zoom);
+				int lockedDrawHeight = Math.round(lockedConnectorTile.getTileHeight() * zoom);
+
+				int iYSpecificLocked = iYSpecific + (tileDrawHeight / 2) - (lockedDrawHeight / 2);
 
 				currentTextureID = setColorShadowLightCell(cell, lockedConnectorTile, zLevelOffset, currentTextureID,
 						bFlatNearMouse);
-				UtilsGL.drawTextureZ(iXSpecific, iYSpecificLocked, iXSpecific + lockedConnectorTile.getTileWidth(),
-						iYSpecificLocked + lockedConnectorTile.getTileHeight(), lockedConnectorTile.getTileSetTexX0(),
-						lockedConnectorTile.getTileSetTexY0(), lockedConnectorTile.getTileSetTexX1(),
-						lockedConnectorTile.getTileSetTexY1(), iDepth + addDepth);
+
+				UtilsGL.drawTextureZ(
+						iXSpecific,
+						iYSpecificLocked,
+						iXSpecific + lockedDrawWidth,
+						iYSpecificLocked + lockedDrawHeight,
+						lockedConnectorTile.getTileSetTexX0(),
+						lockedConnectorTile.getTileSetTexY0(),
+						lockedConnectorTile.getTileSetTexX1(),
+						lockedConnectorTile.getTileSetTexY1(),
+						iDepth + addDepth);
 			}
 
 			// (NO operativo) o item no construido (no operativo) (cruz roja)
 			if (!item.isOperative()) {
-				currentTextureID = setColorShadowLightCell(cell, World.getTileRedCross(), zLevelOffset,
+				Tile redCrossTile = World.getTileRedCross();
+
+				int redCrossDrawWidth = Math.round(redCrossTile.getTileWidth() * zoom);
+				int redCrossDrawHeight = Math.round(redCrossTile.getTileHeight() * zoom);
+
+				currentTextureID = setColorShadowLightCell(cell, redCrossTile, zLevelOffset,
 						currentTextureID, bFlatNearMouse);
-				UtilsGL.drawTextureZ(iXGeneral, iYSpecific, iXGeneral + tile.getTileWidth(),
-						iYSpecific + tile.getTileHeight(), World.getTileRedCross().getTileSetTexX0(),
-						World.getTileRedCross().getTileSetTexY0(), World.getTileRedCross().getTileSetTexX1(),
-						World.getTileRedCross().getTileSetTexY1(), iDepth + addDepth);
+
+				UtilsGL.drawTextureZ(
+						iXSpecific,
+						iYSpecific,
+						iXSpecific + redCrossDrawWidth,
+						iYSpecific + redCrossDrawHeight,
+						redCrossTile.getTileSetTexX0(),
+						redCrossTile.getTileSetTexY0(),
+						redCrossTile.getTileSetTexX1(),
+						redCrossTile.getTileSetTexY1(),
+						iDepth + addDepth);
 			}
 		}
 
@@ -1523,6 +1819,7 @@ public final class MainPanel {
 
 	private static int renderLivings(Cell cell, int iXGeneral, int iYGeneral, int currentTextureID,
 			float fColorShadowLight, boolean bLight, int zLevelOffset) {
+
 		// Miramos si aquí hay friendlies
 		int iXSpecific = -1, iYSpecific = -1;
 		int iFacingDirection;
@@ -1532,10 +1829,16 @@ public final class MainPanel {
 			return currentTextureID;
 		}
 
+		float zoom = getWorldZoom();
+
+		int terrainWidth = Math.round(Tile.TERRAIN_ICON_WIDTH * zoom);
+		int terrainHeight = Math.round(Tile.TERRAIN_ICON_HEIGHT * zoom);
+
 		LivingEntity le;
 		Citizen cit;
 		LivingEntityManagerItem lemi;
 		int iDepth;
+
 		for (int liv = 0; liv < alLivings.size(); liv++) {
 			le = alLivings.get(liv);
 
@@ -1565,11 +1868,11 @@ public final class MainPanel {
 				int addDepth = (item.getTileHeight() > 2 * Tile.TERRAIN_ICON_HEIGHT)
 						? (item.getTileHeight() - (2 * Tile.TERRAIN_ICON_HEIGHT)) / Tile.TERRAIN_ICON_HEIGHT
 						: 0;
+
 				if (addDepth > 0) {
 					iDepth = Math.max(iDepth,
 							Cell.getDepth(cell.getCoordinates().x, cell.getCoordinates().y, cell.getCoordinates().z)
 									+ addDepth);
-					;
 				} else {
 					// Item road, sumamos 1
 					if (ItemManager.getItem(item.getIniHeader()).getFloorWalkSpeed() != 100) {
@@ -1585,37 +1888,53 @@ public final class MainPanel {
 			if (iNumEffects > 0) {
 				int iCurrentCounter = le.getSkillAnimationCounter();
 				iCurrentCounter++;
-				if (iCurrentCounter >= (iNumEffects * 2 * 8)) { // El x2 es para el mostrar / no mostrar
+
+				if (iCurrentCounter >= (iNumEffects * 2 * 8)) {
 					le.setSkillAnimationCounter(0);
 				} else {
 					le.setSkillAnimationCounter(iCurrentCounter);
 				}
 
-				// Usamos la misma variable para ver que skill mirar
 				int iIndexSkill = iCurrentCounter / 16;
+
 				if (iIndexSkill < iNumEffects && (iCurrentCounter % 16 < 8)) {
 					EffectData effectData = le.getLivingEntityData().getEffects().get(iIndexSkill);
 					Tile tile = EffectManager.getItem(effectData.getEffectID()).getIcon();
+
 					if (tile != null) {
-						iXSpecific = iXGeneral + (int) le.getPositionOffset().x;
-						iYSpecific = iYGeneral - (tile.getTileHeight() + tile.getTileHeight())
-								+ tile.getTileHeightOffset() + (int) le.getPositionOffset().y;
+						int tileDrawWidth = Math.round(tile.getTileWidth() * zoom);
+						int tileDrawHeight = Math.round(tile.getTileHeight() * zoom);
+						int tileHeightOffset = Math.round(tile.getTileHeightOffset() * zoom);
+
+						int offsetX = Math.round(le.getPositionOffset().x * zoom);
+						int offsetY = Math.round(le.getPositionOffset().y * zoom);
+
+						iXSpecific = iXGeneral + offsetX;
+						iYSpecific = iYGeneral - (tileDrawHeight + tileDrawHeight) + tileHeightOffset + offsetY;
 
 						currentTextureID = setColorShadowLightCellNoLight(cell, tile, zLevelOffset, currentTextureID,
 								false);
-						UtilsGL.drawTextureZ(iXSpecific, iYSpecific, iXSpecific + tile.getTileWidth(),
-								iYSpecific + tile.getTileHeight(), tile.getTileSetTexX0(), tile.getTileSetTexY0(),
-								tile.getTileSetTexX1(), tile.getTileSetTexY1(), iDepth);
+
+						UtilsGL.drawTextureZ(
+								iXSpecific,
+								iYSpecific,
+								iXSpecific + tileDrawWidth,
+								iYSpecific + tileDrawHeight,
+								tile.getTileSetTexX0(),
+								tile.getTileSetTexY0(),
+								tile.getTileSetTexX1(),
+								tile.getTileSetTexY1(),
+								iDepth);
 					}
 				}
 			}
 
 			lemi = LivingEntityManager.getItem(le.getIniHeader());
+
 			if (lemi.getType() == LivingEntity.TYPE_CITIZEN) {
 				// RENDER CITIZENS
 				cit = (Citizen) le;
 
-				// Comprobamos que no tenga un effect de graphicchange
 				boolean bGraphiChanged = false;
 				for (int e = 0; e < cit.getLivingEntityData().getEffects().size(); e++) {
 					if (cit.getLivingEntityData().getEffects().get(e).isGraphicChange()) {
@@ -1634,11 +1953,13 @@ public final class MainPanel {
 							currentTextureID = renderCarrying(cell, cit, iXGeneral, iYGeneral, currentTextureID,
 									fColorShadowLight, bLight, iDepth, zLevelOffset);
 						}
+
 						currentTextureID = renderCitizen(cell, cit, iXGeneral, iYGeneral, currentTextureID,
 								bGraphiChanged, fColorShadowLight, bLight, iDepth, zLevelOffset);
 					} else {
 						currentTextureID = renderCitizen(cell, cit, iXGeneral, iYGeneral, currentTextureID,
 								bGraphiChanged, fColorShadowLight, bLight, iDepth, zLevelOffset);
+
 						if (!bGraphiChanged) {
 							currentTextureID = renderCarrying(cell, cit, iXGeneral, iYGeneral, currentTextureID,
 									fColorShadowLight, bLight, iDepth, zLevelOffset);
@@ -1647,6 +1968,7 @@ public final class MainPanel {
 				} else {
 					currentTextureID = renderCitizen(cell, cit, iXGeneral, iYGeneral, currentTextureID, bGraphiChanged,
 							fColorShadowLight, bLight, iDepth, zLevelOffset);
+
 					if (!bGraphiChanged) {
 						currentTextureID = renderCarrying(cell, cit, iXGeneral, iYGeneral, currentTextureID,
 								fColorShadowLight, bLight, iDepth, zLevelOffset);
@@ -1656,21 +1978,36 @@ public final class MainPanel {
 				// Miramos si tiene que mostrar el signo de exclamación
 				if (cit.getShowExclamationTurns() > 0) {
 					Tile tileExclamation = World.getTileCitizenExclamation();
-					iYSpecific = iYGeneral - (tileExclamation.getTileHeight() - Tile.TERRAIN_ICON_HEIGHT)
-							+ tileExclamation.getTileHeightOffset() + (int) cit.getPositionOffset().y;
-					iXSpecific = iXGeneral + (int) cit.getPositionOffset().x;
+
+					int tileDrawWidth = Math.round(tileExclamation.getTileWidth() * zoom);
+					int tileDrawHeight = Math.round(tileExclamation.getTileHeight() * zoom);
+					int tileHeightOffset = Math.round(tileExclamation.getTileHeightOffset() * zoom);
+
+					int offsetX = Math.round(cit.getPositionOffset().x * zoom);
+					int offsetY = Math.round(cit.getPositionOffset().y * zoom);
+
+					iYSpecific = iYGeneral - (tileDrawHeight - terrainHeight) + tileHeightOffset + offsetY;
+					iXSpecific = iXGeneral + offsetX;
 
 					currentTextureID = setColorShadowLightCell(cell, tileExclamation, zLevelOffset, currentTextureID,
 							false);
-					UtilsGL.drawTextureZ(iXSpecific, iYSpecific, iXSpecific + tileExclamation.getTileWidth(),
-							iYSpecific + tileExclamation.getTileHeight(), tileExclamation.getTileSetTexX0(),
-							tileExclamation.getTileSetTexY0(), tileExclamation.getTileSetTexX1(),
-							tileExclamation.getTileSetTexY1(), iDepth);
+
+					UtilsGL.drawTextureZ(
+							iXSpecific,
+							iYSpecific,
+							iXSpecific + tileDrawWidth,
+							iYSpecific + tileDrawHeight,
+							tileExclamation.getTileSetTexX0(),
+							tileExclamation.getTileSetTexY0(),
+							tileExclamation.getTileSetTexX1(),
+							tileExclamation.getTileSetTexY1(),
+							iDepth);
 				}
 
 				// Miramos si duerme o come
 				if (cit.getCitizenData().getBlinkAnimationTurns() > (CitizenData.MAX_BLINK_ANIMATION_TURNS / 2)) {
 					Tile tileTask = null;
+
 					if (cit.isSleeping()) {
 						tileTask = World.getTileCitizenSleeping();
 					} else if (cit.getCitizenData().getHungry() <= 0) {
@@ -1678,35 +2015,57 @@ public final class MainPanel {
 					}
 
 					if (tileTask != null) {
-						iYSpecific = iYGeneral - (tileTask.getTileHeight() - Tile.TERRAIN_ICON_HEIGHT)
-								+ tileTask.getTileHeightOffset() + (int) cit.getPositionOffset().y;
-						iXSpecific = iXGeneral + (int) cit.getPositionOffset().x;
+						int tileDrawWidth = Math.round(tileTask.getTileWidth() * zoom);
+						int tileDrawHeight = Math.round(tileTask.getTileHeight() * zoom);
+						int tileHeightOffset = Math.round(tileTask.getTileHeightOffset() * zoom);
+
+						int offsetX = Math.round(cit.getPositionOffset().x * zoom);
+						int offsetY = Math.round(cit.getPositionOffset().y * zoom);
+
+						iYSpecific = iYGeneral - (tileDrawHeight - terrainHeight) + tileHeightOffset + offsetY;
+						iXSpecific = iXGeneral + offsetX;
 
 						currentTextureID = setColorShadowLightCellNoLight(cell, tileTask, zLevelOffset,
 								currentTextureID, false);
-						UtilsGL.drawTextureZ(iXSpecific, iYSpecific, iXSpecific + tileTask.getTileWidth(),
-								iYSpecific + tileTask.getTileHeight(), tileTask.getTileSetTexX0(),
-								tileTask.getTileSetTexY0(), tileTask.getTileSetTexX1(), tileTask.getTileSetTexY1(),
+
+						UtilsGL.drawTextureZ(
+								iXSpecific,
+								iYSpecific,
+								iXSpecific + tileDrawWidth,
+								iYSpecific + tileDrawHeight,
+								tileTask.getTileSetTexX0(),
+								tileTask.getTileSetTexY0(),
+								tileTask.getTileSetTexX1(),
+								tileTask.getTileSetTexY1(),
 								iDepth);
 
 						// En el caso de comer, miramos si está pasando hambre porque no hay comida
 						if (!cit.isSleeping() && cit.getCitizenData().getHungryEating() < 0) {
-							// Dibujamos la cruz roja
 							Tile tileRedCross = World.getTileRedCross();
-							// currentTextureID = UtilsGL.setTexture (tileRedCross, currentTextureID);
+
+							int redDrawWidth = Math.round(tileRedCross.getTileWidth() * zoom);
+							int redDrawHeight = Math.round(tileRedCross.getTileHeight() * zoom);
+
 							currentTextureID = setColorShadowLightCellNoLight(cell, tileRedCross, zLevelOffset,
 									currentTextureID, false);
-							UtilsGL.drawTextureZ(iXSpecific, iYSpecific, iXSpecific + tileRedCross.getTileWidth(),
-									iYSpecific + tileRedCross.getTileHeight(), tileRedCross.getTileSetTexX0(),
-									tileRedCross.getTileSetTexY0(), tileRedCross.getTileSetTexX1(),
-									tileRedCross.getTileSetTexY1(), iDepth);
+
+							UtilsGL.drawTextureZ(
+									iXSpecific,
+									iYSpecific,
+									iXSpecific + redDrawWidth,
+									iYSpecific + redDrawHeight,
+									tileRedCross.getTileSetTexX0(),
+									tileRedCross.getTileSetTexY0(),
+									tileRedCross.getTileSetTexX1(),
+									tileRedCross.getTileSetTexY1(),
+									iDepth);
 						}
 					}
 				}
 
 			} else if (lemi.getType() == LivingEntity.TYPE_HERO) {
-				// Comprobamos que no tenga un effect de graphicchange
 				Hero hero = (Hero) le;
+
 				boolean bGraphiChanged = false;
 				for (int e = 0; e < hero.getLivingEntityData().getEffects().size(); e++) {
 					if (hero.getLivingEntityData().getEffects().get(e).isGraphicChange()) {
@@ -1717,191 +2076,320 @@ public final class MainPanel {
 
 				currentTextureID = renderHero(cell, hero, iXGeneral, iYGeneral, currentTextureID, bGraphiChanged,
 						fColorShadowLight, bLight, iDepth, zLevelOffset);
+
 			} else if (lemi.getType() == LivingEntity.TYPE_ENEMY) {
 				Enemy enemy = (Enemy) le;
+
+				int leDrawWidth = Math.round(le.getTileWidth() * zoom);
+				int leDrawHeight = Math.round(le.getTileHeight() * zoom);
+
+				int offsetX = Math.round(le.getPositionOffset().x * zoom);
+				int offsetY = Math.round(le.getPositionOffset().y * zoom);
+
 				if (le.getTileWidth() != Tile.TERRAIN_ICON_WIDTH) {
-					iXSpecific = iXGeneral - (le.getTileWidth() / 2) + (Tile.TERRAIN_ICON_WIDTH / 2)
-							+ (int) le.getPositionOffset().x;
+					iXSpecific = iXGeneral - (leDrawWidth / 2) + (terrainWidth / 2) + offsetX;
 				} else {
-					iXSpecific = iXGeneral + (int) le.getPositionOffset().x;
+					iXSpecific = iXGeneral + offsetX;
 				}
-				iYSpecific = iYGeneral - (le.getTileHeight() - Tile.TERRAIN_ICON_HEIGHT)
-						+ (int) le.getPositionOffset().y;
+
+				iYSpecific = iYGeneral - (leDrawHeight - terrainHeight) + offsetY;
 
 				if (lemi.isFacingDirections()) {
 					iFacingDirection = le.getFacingDirection();
-					// Carrying?
+
+					// Carrying first for north/east directions
 					if (iFacingDirection == LivingEntity.FACING_DIRECTION_NORTH
 							|| iFacingDirection == LivingEntity.FACING_DIRECTION_NORTH_EAST
 							|| iFacingDirection == LivingEntity.FACING_DIRECTION_EAST) {
 						if (enemy.getCarryingData() != null) {
 							if (enemy.getCarryingData().getCarrying() != null) {
 								Item itemCarrying = enemy.getCarryingData().getCarrying();
-								int iXCarrying = iXSpecific + (le.getTileWidth() / 2)
-										- (itemCarrying.getTileWidth() / 2);
-								int iYCarrying = iYSpecific + (le.getTileHeight()) - itemCarrying.getTileHeight();
+
+								int carryDrawWidth = Math.round(itemCarrying.getTileWidth() * zoom);
+								int carryDrawHeight = Math.round(itemCarrying.getTileHeight() * zoom);
+
+								int iXCarrying = iXSpecific + (leDrawWidth / 2) - (carryDrawWidth / 2);
+								int iYCarrying = iYSpecific + leDrawHeight - carryDrawHeight;
+
 								currentTextureID = setColorShadowLightCell(cell, itemCarrying, zLevelOffset,
 										currentTextureID, false);
-								UtilsGL.drawTextureZ(iXCarrying, iYCarrying, iXCarrying + itemCarrying.getTileWidth(),
-										iYCarrying + itemCarrying.getTileHeight(), itemCarrying.getTileSetTexX0(),
-										itemCarrying.getTileSetTexY0(), itemCarrying.getTileSetTexX1(),
-										itemCarrying.getTileSetTexY1(), iDepth);
+
+								UtilsGL.drawTextureZ(
+										iXCarrying,
+										iYCarrying,
+										iXCarrying + carryDrawWidth,
+										iYCarrying + carryDrawHeight,
+										itemCarrying.getTileSetTexX0(),
+										itemCarrying.getTileSetTexY0(),
+										itemCarrying.getTileSetTexX1(),
+										itemCarrying.getTileSetTexY1(),
+										iDepth);
 							}
+
 							if (enemy.getCarryingData().getCarryingLiving() != null) {
 								LivingEntity leCarrying = enemy.getCarryingData().getCarryingLiving();
-								int iXCarrying = iXSpecific + (le.getTileWidth() / 2) - (leCarrying.getTileWidth() / 2);
-								int iYCarrying = iYSpecific + (le.getTileHeight()) - leCarrying.getTileHeight();
+
+								int carryDrawWidth = Math.round(leCarrying.getTileWidth() * zoom);
+								int carryDrawHeight = Math.round(leCarrying.getTileHeight() * zoom);
+
+								int iXCarrying = iXSpecific + (leDrawWidth / 2) - (carryDrawWidth / 2);
+								int iYCarrying = iYSpecific + leDrawHeight - carryDrawHeight;
+
 								currentTextureID = setColorShadowLightCell(cell, leCarrying, zLevelOffset,
 										currentTextureID, false);
-								UtilsGL.drawTextureZ(iXCarrying, iYCarrying + le.getTileHeight(),
-										iXCarrying + leCarrying.getTileWidth(), iYCarrying,
-										leCarrying.getTileSetTexX0(), leCarrying.getTileSetTexY0(),
-										leCarrying.getTileSetTexX1(), leCarrying.getTileSetTexY1(), iDepth);
+
+								UtilsGL.drawTextureZ(
+										iXCarrying,
+										iYCarrying + leDrawHeight,
+										iXCarrying + carryDrawWidth,
+										iYCarrying,
+										leCarrying.getTileSetTexX0(),
+										leCarrying.getTileSetTexY0(),
+										leCarrying.getTileSetTexX1(),
+										leCarrying.getTileSetTexY1(),
+										iDepth);
 							}
 						}
 					}
 
-					// Miramos si hay que hacer flip según la dirección donde mire
-					// currentTextureID = UtilsGL.setTexture (le, currentTextureID);
 					currentTextureID = setColorShadowLightCell(cell, le, zLevelOffset, currentTextureID, false);
+
 					if (iFacingDirection == LivingEntity.FACING_DIRECTION_EAST
 							|| iFacingDirection == LivingEntity.FACING_DIRECTION_SOUTH_EAST
 							|| iFacingDirection == LivingEntity.FACING_DIRECTION_SOUTH) {
 						// Flip
-						UtilsGL.drawTextureZ(iXSpecific, iYSpecific, iXSpecific + le.getTileWidth(),
-								iYSpecific + le.getTileHeight(), le.getTileSetTexX1(), le.getTileSetTexY0(),
-								le.getTileSetTexX0(), le.getTileSetTexY1(), iDepth);
+						UtilsGL.drawTextureZ(
+								iXSpecific,
+								iYSpecific,
+								iXSpecific + leDrawWidth,
+								iYSpecific + leDrawHeight,
+								le.getTileSetTexX1(),
+								le.getTileSetTexY0(),
+								le.getTileSetTexX0(),
+								le.getTileSetTexY1(),
+								iDepth);
 					} else {
-						UtilsGL.drawTextureZ(iXSpecific, iYSpecific, iXSpecific + le.getTileWidth(),
-								iYSpecific + le.getTileHeight(), le.getTileSetTexX0(), le.getTileSetTexY0(),
-								le.getTileSetTexX1(), le.getTileSetTexY1(), iDepth);
+						UtilsGL.drawTextureZ(
+								iXSpecific,
+								iYSpecific,
+								iXSpecific + leDrawWidth,
+								iYSpecific + leDrawHeight,
+								le.getTileSetTexX0(),
+								le.getTileSetTexY0(),
+								le.getTileSetTexX1(),
+								le.getTileSetTexY1(),
+								iDepth);
 					}
 
-					// Carrying?
+					// Carrying after for south/west directions
 					if (iFacingDirection != LivingEntity.FACING_DIRECTION_NORTH
 							&& iFacingDirection != LivingEntity.FACING_DIRECTION_NORTH_EAST
 							&& iFacingDirection != LivingEntity.FACING_DIRECTION_EAST) {
 						if (enemy.getCarryingData() != null) {
 							if (enemy.getCarryingData().getCarrying() != null) {
 								Item itemCarrying = enemy.getCarryingData().getCarrying();
-								int iXCarrying = iXSpecific + (le.getTileWidth() / 2)
-										- (itemCarrying.getTileWidth() / 2);
-								int iYCarrying = iYSpecific + (le.getTileHeight()) - itemCarrying.getTileHeight();
+
+								int carryDrawWidth = Math.round(itemCarrying.getTileWidth() * zoom);
+								int carryDrawHeight = Math.round(itemCarrying.getTileHeight() * zoom);
+
+								int iXCarrying = iXSpecific + (leDrawWidth / 2) - (carryDrawWidth / 2);
+								int iYCarrying = iYSpecific + leDrawHeight - carryDrawHeight;
+
 								currentTextureID = setColorShadowLightCell(cell, itemCarrying, zLevelOffset,
 										currentTextureID, false);
-								UtilsGL.drawTextureZ(iXCarrying, iYCarrying, iXCarrying + itemCarrying.getTileWidth(),
-										iYCarrying + itemCarrying.getTileHeight(), itemCarrying.getTileSetTexX0(),
-										itemCarrying.getTileSetTexY0(), itemCarrying.getTileSetTexX1(),
-										itemCarrying.getTileSetTexY1(), iDepth);
+
+								UtilsGL.drawTextureZ(
+										iXCarrying,
+										iYCarrying,
+										iXCarrying + carryDrawWidth,
+										iYCarrying + carryDrawHeight,
+										itemCarrying.getTileSetTexX0(),
+										itemCarrying.getTileSetTexY0(),
+										itemCarrying.getTileSetTexX1(),
+										itemCarrying.getTileSetTexY1(),
+										iDepth);
 							}
+
 							if (enemy.getCarryingData().getCarryingLiving() != null) {
 								LivingEntity leCarrying = enemy.getCarryingData().getCarryingLiving();
-								int iXCarrying = iXSpecific + (le.getTileWidth() / 2) - (leCarrying.getTileWidth() / 2);
-								int iYCarrying = iYSpecific + (le.getTileHeight()) - leCarrying.getTileHeight();
+
+								int carryDrawWidth = Math.round(leCarrying.getTileWidth() * zoom);
+								int carryDrawHeight = Math.round(leCarrying.getTileHeight() * zoom);
+
+								int iXCarrying = iXSpecific + (leDrawWidth / 2) - (carryDrawWidth / 2);
+								int iYCarrying = iYSpecific + leDrawHeight - carryDrawHeight;
+
 								currentTextureID = setColorShadowLightCell(cell, leCarrying, zLevelOffset,
 										currentTextureID, false);
-								UtilsGL.drawTextureZ(iXCarrying, iYCarrying + le.getTileHeight(),
-										iXCarrying + leCarrying.getTileWidth(), iYCarrying,
-										leCarrying.getTileSetTexX0(), leCarrying.getTileSetTexY0(),
-										leCarrying.getTileSetTexX1(), leCarrying.getTileSetTexY1(), iDepth);
+
+								UtilsGL.drawTextureZ(
+										iXCarrying,
+										iYCarrying + leDrawHeight,
+										iXCarrying + carryDrawWidth,
+										iYCarrying,
+										leCarrying.getTileSetTexX0(),
+										leCarrying.getTileSetTexY0(),
+										leCarrying.getTileSetTexX1(),
+										leCarrying.getTileSetTexY1(),
+										iDepth);
 							}
 						}
 					}
 				} else {
 					currentTextureID = setColorShadowLightCell(cell, le, zLevelOffset, currentTextureID, false);
-					UtilsGL.drawTextureZ(iXSpecific, iYSpecific, iXSpecific + le.getTileWidth(),
-							iYSpecific + le.getTileHeight(), le.getTileSetTexX0(), le.getTileSetTexY0(),
-							le.getTileSetTexX1(), le.getTileSetTexY1(), iDepth);
+
+					UtilsGL.drawTextureZ(
+							iXSpecific,
+							iYSpecific,
+							iXSpecific + leDrawWidth,
+							iYSpecific + leDrawHeight,
+							le.getTileSetTexX0(),
+							le.getTileSetTexY0(),
+							le.getTileSetTexX1(),
+							le.getTileSetTexY1(),
+							iDepth);
+
 					// Carrying
 					if (enemy.getCarryingData() != null) {
 						if (enemy.getCarryingData().getCarrying() != null) {
 							Item itemCarrying = enemy.getCarryingData().getCarrying();
-							iXSpecific = iXSpecific + (le.getTileWidth() / 2) - (itemCarrying.getTileWidth() / 2);
-							iYSpecific = iYSpecific + (le.getTileHeight()) - itemCarrying.getTileHeight();
+
+							int carryDrawWidth = Math.round(itemCarrying.getTileWidth() * zoom);
+							int carryDrawHeight = Math.round(itemCarrying.getTileHeight() * zoom);
+
+							iXSpecific = iXSpecific + (leDrawWidth / 2) - (carryDrawWidth / 2);
+							iYSpecific = iYSpecific + leDrawHeight - carryDrawHeight;
+
 							currentTextureID = setColorShadowLightCell(cell, itemCarrying, zLevelOffset,
 									currentTextureID, false);
-							UtilsGL.drawTextureZ(iXSpecific, iYSpecific, iXSpecific + itemCarrying.getTileWidth(),
-									iYSpecific + itemCarrying.getTileHeight(), itemCarrying.getTileSetTexX0(),
-									itemCarrying.getTileSetTexY0(), itemCarrying.getTileSetTexX1(),
-									itemCarrying.getTileSetTexY1(), iDepth);
+
+							UtilsGL.drawTextureZ(
+									iXSpecific,
+									iYSpecific,
+									iXSpecific + carryDrawWidth,
+									iYSpecific + carryDrawHeight,
+									itemCarrying.getTileSetTexX0(),
+									itemCarrying.getTileSetTexY0(),
+									itemCarrying.getTileSetTexX1(),
+									itemCarrying.getTileSetTexY1(),
+									iDepth);
 						}
 					}
 				}
 
 			} else {
 				// RENDER LIVINGS (FRIENDLIES?)
+				int leDrawWidth = Math.round(le.getTileWidth() * zoom);
+				int leDrawHeight = Math.round(le.getTileHeight() * zoom);
+
+				int offsetX = Math.round(le.getPositionOffset().x * zoom);
+				int offsetY = Math.round(le.getPositionOffset().y * zoom);
+
 				if (le.getTileWidth() != Tile.TERRAIN_ICON_WIDTH) {
-					iXSpecific = iXGeneral - (le.getTileWidth() / 2) + (Tile.TERRAIN_ICON_WIDTH / 2)
-							+ (int) le.getPositionOffset().x;
+					iXSpecific = iXGeneral - (leDrawWidth / 2) + (terrainWidth / 2) + offsetX;
 				} else {
-					iXSpecific = iXGeneral + (int) le.getPositionOffset().x;
+					iXSpecific = iXGeneral + offsetX;
 				}
-				iYSpecific = iYGeneral - (le.getTileHeight() - Tile.TERRAIN_ICON_HEIGHT)
-						+ (int) le.getPositionOffset().y;
+
+				iYSpecific = iYGeneral - (leDrawHeight - terrainHeight) + offsetY;
 
 				currentTextureID = setColorShadowLightCell(cell, le, zLevelOffset, currentTextureID, false);
+
 				if (lemi.isFacingDirections()) {
-					// Miramos si hay que hacer flip según la dirección donde mire
 					iFacingDirection = le.getFacingDirection();
+
 					if (iFacingDirection == LivingEntity.FACING_DIRECTION_EAST
 							|| iFacingDirection == LivingEntity.FACING_DIRECTION_SOUTH_EAST
 							|| iFacingDirection == LivingEntity.FACING_DIRECTION_SOUTH) {
 						// Flip
-						UtilsGL.drawTextureZ(iXSpecific, iYSpecific, iXSpecific + le.getTileWidth(),
-								iYSpecific + le.getTileHeight(), le.getTileSetTexX1(), le.getTileSetTexY0(),
-								le.getTileSetTexX0(), le.getTileSetTexY1(), iDepth);
+						UtilsGL.drawTextureZ(
+								iXSpecific,
+								iYSpecific,
+								iXSpecific + leDrawWidth,
+								iYSpecific + leDrawHeight,
+								le.getTileSetTexX1(),
+								le.getTileSetTexY0(),
+								le.getTileSetTexX0(),
+								le.getTileSetTexY1(),
+								iDepth);
 					} else {
-						UtilsGL.drawTextureZ(iXSpecific, iYSpecific, iXSpecific + le.getTileWidth(),
-								iYSpecific + le.getTileHeight(), le.getTileSetTexX0(), le.getTileSetTexY0(),
-								le.getTileSetTexX1(), le.getTileSetTexY1(), iDepth);
+						UtilsGL.drawTextureZ(
+								iXSpecific,
+								iYSpecific,
+								iXSpecific + leDrawWidth,
+								iYSpecific + leDrawHeight,
+								le.getTileSetTexX0(),
+								le.getTileSetTexY0(),
+								le.getTileSetTexX1(),
+								le.getTileSetTexY1(),
+								iDepth);
 					}
 				} else {
-					UtilsGL.drawTextureZ(iXSpecific, iYSpecific, iXSpecific + le.getTileWidth(),
-							iYSpecific + le.getTileHeight(), le.getTileSetTexX0(), le.getTileSetTexY0(),
-							le.getTileSetTexX1(), le.getTileSetTexY1(), iDepth);
+					UtilsGL.drawTextureZ(
+							iXSpecific,
+							iYSpecific,
+							iXSpecific + leDrawWidth,
+							iYSpecific + leDrawHeight,
+							le.getTileSetTexX0(),
+							le.getTileSetTexY0(),
+							le.getTileSetTexX1(),
+							le.getTileSetTexY1(),
+							iDepth);
 				}
 			}
 
 			// Attack "animation" tile
 			if (le.getAttackAnimationCounter() > 0) {
+				int leDrawWidth = Math.round(le.getTileWidth() * zoom);
+				int leDrawHeight = Math.round(le.getTileHeight() * zoom);
+
+				int lockedDrawWidth = Math.round(lockedConnectorTile.getTileWidth() * zoom);
+				int lockedDrawHeight = Math.round(lockedConnectorTile.getTileHeight() * zoom);
+
 				if (le.getTileWidth() != Tile.TERRAIN_ICON_WIDTH) {
-					// iXSpecific = iXGeneral - (le.getTileWidth () / 2) + (Tile.TERRAIN_ICON_WIDTH
-					// / 2) + (int) le.getPositionOffset ().x;
-					iXSpecific = iXGeneral - (le.getTileWidth() / 2) + (Tile.TERRAIN_ICON_WIDTH / 2);
+					iXSpecific = iXGeneral - (leDrawWidth / 2) + (terrainWidth / 2);
 				} else {
-					// iXSpecific = iXGeneral + (int) le.getPositionOffset ().x;
 					iXSpecific = iXGeneral;
 				}
-				iXSpecific = iXSpecific + (le.getTileWidth() / 2) - lockedConnectorTile.getTileWidth() / 2;
-				iYSpecific = iYGeneral + le.getTileHeight() / 2 - lockedConnectorTile.getTileHeight() / 2;
+
+				iXSpecific = iXSpecific + (leDrawWidth / 2) - (lockedDrawWidth / 2);
+				iYSpecific = iYGeneral + (leDrawHeight / 2) - (lockedDrawHeight / 2);
 
 				currentTextureID = UtilsGL.setTexture(lockedConnectorTile, currentTextureID);
-				UtilsGL.drawTextureZ(iXGeneral, iYGeneral, iXGeneral + lockedConnectorTile.getTileWidth(),
-						iYGeneral + lockedConnectorTile.getTileHeight(), lockedConnectorTile.getTileSetTexX0(),
-						lockedConnectorTile.getTileSetTexY0(), lockedConnectorTile.getTileSetTexX1(),
-						lockedConnectorTile.getTileSetTexY1(), iDepth);
+
+				UtilsGL.drawTextureZ(
+						iXSpecific,
+						iYSpecific,
+						iXSpecific + lockedDrawWidth,
+						iYSpecific + lockedDrawHeight,
+						lockedConnectorTile.getTileSetTexX0(),
+						lockedConnectorTile.getTileSetTexY0(),
+						lockedConnectorTile.getTileSetTexX1(),
+						lockedConnectorTile.getTileSetTexY1(),
+						iDepth);
 			}
 
 			// Damage animation (for all the livings)
 			if (le.getDamageAnimationCounter() > 0) {
 				if (le.getDamageAnimationText() != null) {
-					// Render it!
+					int leDrawWidth = Math.round(le.getTileWidth() * zoom);
+					int leDrawHeight = Math.round(le.getTileHeight() * zoom);
+
 					if (le.getTileWidth() != Tile.TERRAIN_ICON_WIDTH) {
-						// iXSpecific = iXGeneral - (le.getTileWidth () / 2) + (Tile.TERRAIN_ICON_WIDTH
-						// / 2) + (int) le.getPositionOffset ().x;
-						iXSpecific = iXGeneral - (le.getTileWidth() / 2) + (Tile.TERRAIN_ICON_WIDTH / 2);
+						iXSpecific = iXGeneral - (leDrawWidth / 2) + (terrainWidth / 2);
 					} else {
-						// iXSpecific = iXGeneral + (int) le.getPositionOffset ().x;
 						iXSpecific = iXGeneral;
 					}
-					iXSpecific = iXSpecific + (le.getTileWidth() / 2) - le.getDamageAnimationTextWidth() / 2;
-					iYSpecific = iYGeneral - (le.getTileHeight() - Tile.TERRAIN_ICON_HEIGHT)
-							+ (int) le.getPositionOffset().y
-							- 4 * (LivingEntity.DAMAGE_ANIMATION_FPS - le.getDamageAnimationCounter());
+
+					iXSpecific = iXSpecific + (leDrawWidth / 2) - le.getDamageAnimationTextWidth() / 2;
+
+					iYSpecific = iYGeneral - (leDrawHeight - terrainHeight)
+							+ Math.round(le.getPositionOffset().y * zoom)
+							- Math.round(4 * zoom)
+									* (LivingEntity.DAMAGE_ANIMATION_FPS - le.getDamageAnimationCounter());
 
 					currentTextureID = UtilsGL.setTexture(-1, Game.TEXTURE_FONT_ID);
 					UtilsGL.drawStringZ(le.getDamageAnimationText(), iXSpecific, iYSpecific, ColorGL.RED, iDepth);
-
 				}
 			}
 
@@ -1917,119 +2405,253 @@ public final class MainPanel {
 
 	private static int renderCitizen(Cell cell, Citizen cit, int iXGeneral, int iYGeneral, int currentTextureID,
 			boolean bGraphicChanged, float fColorShadowLight, boolean bLight, int iDepth, int zLevelOffset) {
+
+		float zoom = getWorldZoom();
+
+		int terrainHeight = Math.round(Tile.TERRAIN_ICON_HEIGHT * zoom);
+
+		int citDrawWidth = Math.round(cit.getTileWidth() * zoom);
+		int citDrawHeight = Math.round(cit.getTileHeight() * zoom);
+
+		int offsetX = Math.round(cit.getPositionOffset().x * zoom);
+		int offsetY = Math.round(cit.getPositionOffset().y * zoom);
+
 		int iFacingDirection = cit.getFacingDirection();
-		int iXSpecific = iXGeneral + (int) cit.getPositionOffset().x;
-		int iYSpecific = iYGeneral - (cit.getTileHeight() - Tile.TERRAIN_ICON_HEIGHT) + (int) cit.getPositionOffset().y;
+
+		int iXSpecific = iXGeneral + offsetX;
+		int iYSpecific = iYGeneral - (citDrawHeight - terrainHeight) + offsetY;
 
 		// Render
 		currentTextureID = setColorShadowLightCell(cell, cit, zLevelOffset, currentTextureID, false);
+
 		if (iFacingDirection == LivingEntity.FACING_DIRECTION_EAST
 				|| iFacingDirection == LivingEntity.FACING_DIRECTION_SOUTH_EAST
 				|| iFacingDirection == LivingEntity.FACING_DIRECTION_SOUTH) {
+
 			// Flip
-			UtilsGL.drawTextureZ(iXSpecific, iYSpecific, iXSpecific + cit.getTileWidth(),
-					iYSpecific + cit.getTileHeight(), cit.getTileSetTexX1(), cit.getTileSetTexY0(),
-					cit.getTileSetTexX0(), cit.getTileSetTexY1(), iDepth);
+			UtilsGL.drawTextureZ(
+					iXSpecific,
+					iYSpecific,
+					iXSpecific + citDrawWidth,
+					iYSpecific + citDrawHeight,
+					cit.getTileSetTexX1(),
+					cit.getTileSetTexY0(),
+					cit.getTileSetTexX0(),
+					cit.getTileSetTexY1(),
+					iDepth);
 		} else {
-			UtilsGL.drawTextureZ(iXSpecific, iYSpecific, iXSpecific + cit.getTileWidth(),
-					iYSpecific + cit.getTileHeight(), cit.getTileSetTexX0(), cit.getTileSetTexY0(),
-					cit.getTileSetTexX1(), cit.getTileSetTexY1(), iDepth);
+			UtilsGL.drawTextureZ(
+					iXSpecific,
+					iYSpecific,
+					iXSpecific + citDrawWidth,
+					iYSpecific + citDrawHeight,
+					cit.getTileSetTexX0(),
+					cit.getTileSetTexY0(),
+					cit.getTileSetTexX1(),
+					cit.getTileSetTexY1(),
+					iDepth);
 		}
 
 		// Miramos si lleva algo equipado para dibujarlo
 		if (!bGraphicChanged) {
 			EquippedData equippedData = cit.getEquippedData();
+
 			if (equippedData.isWearing(MilitaryItem.LOCATION_BODY)) {
 				MilitaryItem mi = equippedData.getBody();
+
 				float height = mi.getBaseTileSetTexY1() - mi.getBaseTileSetTexY0();
 				float directionOffset = mi.getFacingDirectionYOffset(iFacingDirection);
+
+				int miDrawWidth = Math.round(mi.getTileWidth() * zoom);
+				int miDrawHeight = Math.round(mi.getTileHeight() * zoom);
+
+				int miOffsetX = Math.round(cit.getOffset_body_x() * zoom);
+				int miOffsetY = Math.round(cit.getOffset_body_y() * zoom);
+
 				currentTextureID = setColorShadowLightCell(cell, mi, zLevelOffset, currentTextureID, false);
+
 				if (iFacingDirection == LivingEntity.FACING_DIRECTION_EAST
 						|| iFacingDirection == LivingEntity.FACING_DIRECTION_SOUTH_EAST
 						|| iFacingDirection == LivingEntity.FACING_DIRECTION_SOUTH) {
+
 					// Flip
-					UtilsGL.drawTextureZ(iXSpecific + cit.getOffset_body_x(), iYSpecific + cit.getOffset_body_y(),
-							iXSpecific + cit.getOffset_body_x() + mi.getTileWidth(),
-							iYSpecific + cit.getOffset_body_y() + mi.getTileHeight(), mi.getTileSetTexX1(),
-							directionOffset, mi.getTileSetTexX0(), directionOffset + height, iDepth);
+					UtilsGL.drawTextureZ(
+							iXSpecific + miOffsetX,
+							iYSpecific + miOffsetY,
+							iXSpecific + miOffsetX + miDrawWidth,
+							iYSpecific + miOffsetY + miDrawHeight,
+							mi.getTileSetTexX1(),
+							directionOffset,
+							mi.getTileSetTexX0(),
+							directionOffset + height,
+							iDepth);
 				} else {
-					UtilsGL.drawTextureZ(iXSpecific + cit.getOffset_body_x(), iYSpecific + cit.getOffset_body_y(),
-							iXSpecific + cit.getOffset_body_x() + mi.getTileWidth(),
-							iYSpecific + cit.getOffset_body_y() + mi.getTileHeight(), mi.getTileSetTexX0(),
-							directionOffset, mi.getTileSetTexX1(), directionOffset + height, iDepth);
+					UtilsGL.drawTextureZ(
+							iXSpecific + miOffsetX,
+							iYSpecific + miOffsetY,
+							iXSpecific + miOffsetX + miDrawWidth,
+							iYSpecific + miOffsetY + miDrawHeight,
+							mi.getTileSetTexX0(),
+							directionOffset,
+							mi.getTileSetTexX1(),
+							directionOffset + height,
+							iDepth);
 				}
+
 				mi.updateAnimation(false);
 			}
+
 			if (equippedData.isWearing(MilitaryItem.LOCATION_HEAD)) {
 				MilitaryItem mi = equippedData.getHead();
+
 				float height = mi.getBaseTileSetTexY1() - mi.getBaseTileSetTexY0();
 				float directionOffset = mi.getFacingDirectionYOffset(iFacingDirection);
+
+				int miDrawWidth = Math.round(mi.getTileWidth() * zoom);
+				int miDrawHeight = Math.round(mi.getTileHeight() * zoom);
+
+				int miOffsetX = Math.round(cit.getOffset_head_x() * zoom);
+				int miOffsetY = Math.round(cit.getOffset_head_y() * zoom);
+
 				currentTextureID = setColorShadowLightCell(cell, mi, zLevelOffset, currentTextureID, false);
+
 				if (iFacingDirection == LivingEntity.FACING_DIRECTION_EAST
 						|| iFacingDirection == LivingEntity.FACING_DIRECTION_SOUTH_EAST
 						|| iFacingDirection == LivingEntity.FACING_DIRECTION_SOUTH) {
+
 					// Flip
-					UtilsGL.drawTextureZ(iXSpecific + cit.getOffset_head_x(), iYSpecific + cit.getOffset_head_y(),
-							iXSpecific + cit.getOffset_head_x() + mi.getTileWidth(),
-							iYSpecific + cit.getOffset_head_y() + mi.getTileHeight(), mi.getTileSetTexX1(),
-							directionOffset, mi.getTileSetTexX0(), directionOffset + height, iDepth);
+					UtilsGL.drawTextureZ(
+							iXSpecific + miOffsetX,
+							iYSpecific + miOffsetY,
+							iXSpecific + miOffsetX + miDrawWidth,
+							iYSpecific + miOffsetY + miDrawHeight,
+							mi.getTileSetTexX1(),
+							directionOffset,
+							mi.getTileSetTexX0(),
+							directionOffset + height,
+							iDepth);
 				} else {
-					UtilsGL.drawTextureZ(iXSpecific + cit.getOffset_head_x(), iYSpecific + cit.getOffset_head_y(),
-							iXSpecific + cit.getOffset_head_x() + mi.getTileWidth(),
-							iYSpecific + cit.getOffset_head_y() + mi.getTileHeight(), mi.getTileSetTexX0(),
-							directionOffset, mi.getTileSetTexX1(), directionOffset + height, iDepth);
+					UtilsGL.drawTextureZ(
+							iXSpecific + miOffsetX,
+							iYSpecific + miOffsetY,
+							iXSpecific + miOffsetX + miDrawWidth,
+							iYSpecific + miOffsetY + miDrawHeight,
+							mi.getTileSetTexX0(),
+							directionOffset,
+							mi.getTileSetTexX1(),
+							directionOffset + height,
+							iDepth);
 				}
+
 				mi.updateAnimation(false);
 			}
+
 			if (equippedData.isWearing(MilitaryItem.LOCATION_FEET)) {
 				MilitaryItem mi = equippedData.getFeet();
+
 				float height = mi.getBaseTileSetTexY1() - mi.getBaseTileSetTexY0();
 				float directionOffset = mi.getFacingDirectionYOffset(iFacingDirection);
+
+				int miDrawWidth = Math.round(mi.getTileWidth() * zoom);
+				int miDrawHeight = Math.round(mi.getTileHeight() * zoom);
+
+				int miOffsetX = Math.round(cit.getOffset_feet_x() * zoom);
+				int miOffsetY = Math.round(cit.getOffset_feet_y() * zoom);
+
 				currentTextureID = setColorShadowLightCell(cell, mi, zLevelOffset, currentTextureID, false);
+
 				if (iFacingDirection == LivingEntity.FACING_DIRECTION_EAST
 						|| iFacingDirection == LivingEntity.FACING_DIRECTION_SOUTH_EAST
 						|| iFacingDirection == LivingEntity.FACING_DIRECTION_SOUTH) {
+
 					// Flip
-					UtilsGL.drawTextureZ(iXSpecific + cit.getOffset_feet_x(), iYSpecific + cit.getOffset_feet_y(),
-							iXSpecific + cit.getOffset_feet_x() + mi.getTileWidth(),
-							iYSpecific + cit.getOffset_feet_y() + mi.getTileHeight(), mi.getTileSetTexX1(),
-							directionOffset, mi.getTileSetTexX0(), directionOffset + height, iDepth);
+					UtilsGL.drawTextureZ(
+							iXSpecific + miOffsetX,
+							iYSpecific + miOffsetY,
+							iXSpecific + miOffsetX + miDrawWidth,
+							iYSpecific + miOffsetY + miDrawHeight,
+							mi.getTileSetTexX1(),
+							directionOffset,
+							mi.getTileSetTexX0(),
+							directionOffset + height,
+							iDepth);
 				} else {
-					UtilsGL.drawTextureZ(iXSpecific + cit.getOffset_feet_x(), iYSpecific + cit.getOffset_feet_y(),
-							iXSpecific + cit.getOffset_feet_x() + mi.getTileWidth(),
-							iYSpecific + cit.getOffset_feet_y() + mi.getTileHeight(), mi.getTileSetTexX0(),
-							directionOffset, mi.getTileSetTexX1(), directionOffset + height, iDepth);
+					UtilsGL.drawTextureZ(
+							iXSpecific + miOffsetX,
+							iYSpecific + miOffsetY,
+							iXSpecific + miOffsetX + miDrawWidth,
+							iYSpecific + miOffsetY + miDrawHeight,
+							mi.getTileSetTexX0(),
+							directionOffset,
+							mi.getTileSetTexX1(),
+							directionOffset + height,
+							iDepth);
 				}
+
 				mi.updateAnimation(false);
 			}
+
 			if (equippedData.isWearing(MilitaryItem.LOCATION_LEGS)) {
 				MilitaryItem mi = equippedData.getLegs();
+
 				float height = mi.getBaseTileSetTexY1() - mi.getBaseTileSetTexY0();
 				float directionOffset = mi.getFacingDirectionYOffset(iFacingDirection);
+
+				int miDrawWidth = Math.round(mi.getTileWidth() * zoom);
+				int miDrawHeight = Math.round(mi.getTileHeight() * zoom);
+
+				int miOffsetX = Math.round(cit.getOffset_legs_x() * zoom);
+				int miOffsetY = Math.round(cit.getOffset_legs_y() * zoom);
+
 				currentTextureID = setColorShadowLightCell(cell, mi, zLevelOffset, currentTextureID, false);
+
 				if (iFacingDirection == LivingEntity.FACING_DIRECTION_EAST
 						|| iFacingDirection == LivingEntity.FACING_DIRECTION_SOUTH_EAST
 						|| iFacingDirection == LivingEntity.FACING_DIRECTION_SOUTH) {
+
 					// Flip
-					UtilsGL.drawTextureZ(iXSpecific + cit.getOffset_legs_x(), iYSpecific + cit.getOffset_legs_y(),
-							iXSpecific + cit.getOffset_legs_x() + mi.getTileWidth(),
-							iYSpecific + cit.getOffset_legs_y() + mi.getTileHeight(), mi.getTileSetTexX1(),
-							directionOffset, mi.getTileSetTexX0(), directionOffset + height, iDepth);
+					UtilsGL.drawTextureZ(
+							iXSpecific + miOffsetX,
+							iYSpecific + miOffsetY,
+							iXSpecific + miOffsetX + miDrawWidth,
+							iYSpecific + miOffsetY + miDrawHeight,
+							mi.getTileSetTexX1(),
+							directionOffset,
+							mi.getTileSetTexX0(),
+							directionOffset + height,
+							iDepth);
 				} else {
-					UtilsGL.drawTextureZ(iXSpecific + cit.getOffset_legs_x(), iYSpecific + cit.getOffset_legs_y(),
-							iXSpecific + cit.getOffset_legs_x() + mi.getTileWidth(),
-							iYSpecific + cit.getOffset_legs_y() + mi.getTileHeight(), mi.getTileSetTexX0(),
-							directionOffset, mi.getTileSetTexX1(), directionOffset + height, iDepth);
+					UtilsGL.drawTextureZ(
+							iXSpecific + miOffsetX,
+							iYSpecific + miOffsetY,
+							iXSpecific + miOffsetX + miDrawWidth,
+							iYSpecific + miOffsetY + miDrawHeight,
+							mi.getTileSetTexX0(),
+							directionOffset,
+							mi.getTileSetTexX1(),
+							directionOffset + height,
+							iDepth);
 				}
+
 				mi.updateAnimation(false);
 			}
 		}
-
 		return currentTextureID;
 	}
 
 	private static int renderHero(Cell cell, Hero hero, int iXGeneral, int iYGeneral, int currentTextureID,
 			boolean bGraphicChanged, float fColorShadowLight, boolean bLight, int iDepth, int zLevelOffset) {
+
+		float zoom = getWorldZoom();
+
+		int terrainHeight = Math.round(Tile.TERRAIN_ICON_HEIGHT * zoom);
+
+		int heroDrawWidth = Math.round(hero.getTileWidth() * zoom);
+		int heroDrawHeight = Math.round(hero.getTileHeight() * zoom);
+
+		int offsetX = Math.round(hero.getPositionOffset().x * zoom);
+		int offsetY = Math.round(hero.getPositionOffset().y * zoom);
+
 		int iFacingDirection = hero.getFacingDirection();
 
 		// Render
@@ -2044,27 +2666,50 @@ public final class MainPanel {
 		}
 
 		// Hero
-		int iXSpecific = iXGeneral + (int) hero.getPositionOffset().x;
-		int iYSpecific = iYGeneral - (hero.getTileHeight() - Tile.TERRAIN_ICON_HEIGHT)
-				+ (int) hero.getPositionOffset().y;
+		int iXSpecific = iXGeneral + offsetX;
+		int iYSpecific = iYGeneral - (heroDrawHeight - terrainHeight) + offsetY;
+
 		currentTextureID = setColorShadowLightCell(cell, hero, zLevelOffset, currentTextureID, false);
+
 		if (LivingEntityManager.getItem(hero.getIniHeader()).isFacingDirections()) {
 			if (iFacingDirection == LivingEntity.FACING_DIRECTION_EAST
 					|| iFacingDirection == LivingEntity.FACING_DIRECTION_SOUTH_EAST
 					|| iFacingDirection == LivingEntity.FACING_DIRECTION_SOUTH) {
+
 				// Flip
-				UtilsGL.drawTextureZ(iXSpecific, iYSpecific, iXSpecific + hero.getTileWidth(),
-						iYSpecific + hero.getTileHeight(), hero.getTileSetTexX1(), hero.getTileSetTexY0(),
-						hero.getTileSetTexX0(), hero.getTileSetTexY1(), iDepth);
+				UtilsGL.drawTextureZ(
+						iXSpecific,
+						iYSpecific,
+						iXSpecific + heroDrawWidth,
+						iYSpecific + heroDrawHeight,
+						hero.getTileSetTexX1(),
+						hero.getTileSetTexY0(),
+						hero.getTileSetTexX0(),
+						hero.getTileSetTexY1(),
+						iDepth);
 			} else {
-				UtilsGL.drawTextureZ(iXSpecific, iYSpecific, iXSpecific + hero.getTileWidth(),
-						iYSpecific + hero.getTileHeight(), hero.getTileSetTexX0(), hero.getTileSetTexY0(),
-						hero.getTileSetTexX1(), hero.getTileSetTexY1(), iDepth);
+				UtilsGL.drawTextureZ(
+						iXSpecific,
+						iYSpecific,
+						iXSpecific + heroDrawWidth,
+						iYSpecific + heroDrawHeight,
+						hero.getTileSetTexX0(),
+						hero.getTileSetTexY0(),
+						hero.getTileSetTexX1(),
+						hero.getTileSetTexY1(),
+						iDepth);
 			}
 		} else {
-			UtilsGL.drawTextureZ(iXSpecific, iYSpecific, iXSpecific + hero.getTileWidth(),
-					iYSpecific + hero.getTileHeight(), hero.getTileSetTexX0(), hero.getTileSetTexY0(),
-					hero.getTileSetTexX1(), hero.getTileSetTexY1(), iDepth);
+			UtilsGL.drawTextureZ(
+					iXSpecific,
+					iYSpecific,
+					iXSpecific + heroDrawWidth,
+					iYSpecific + heroDrawHeight,
+					hero.getTileSetTexX0(),
+					hero.getTileSetTexY0(),
+					hero.getTileSetTexX1(),
+					hero.getTileSetTexY1(),
+					iDepth);
 		}
 
 		// Carrying?
@@ -2080,6 +2725,7 @@ public final class MainPanel {
 		// Miramos si duerme o come
 		if (hero.getCitizenData().getBlinkAnimationTurns() > (CitizenData.MAX_BLINK_ANIMATION_TURNS / 2)) {
 			Tile tileTask = null;
+
 			if (hero.isSleeping()) {
 				tileTask = World.getTileCitizenSleeping();
 			} else if (hero.getCitizenData().getHungry() <= 0) {
@@ -2087,27 +2733,49 @@ public final class MainPanel {
 			}
 
 			if (tileTask != null) {
-				iXSpecific = iXGeneral + (int) hero.getPositionOffset().x;
-				iYSpecific = iYGeneral - (tileTask.getTileHeight() - Tile.TERRAIN_ICON_HEIGHT)
-						+ tileTask.getTileHeightOffset() + (int) hero.getPositionOffset().y;
+				int tileTaskDrawWidth = Math.round(tileTask.getTileWidth() * zoom);
+				int tileTaskDrawHeight = Math.round(tileTask.getTileHeight() * zoom);
+				int tileTaskHeightOffset = Math.round(tileTask.getTileHeightOffset() * zoom);
+
+				iXSpecific = iXGeneral + offsetX;
+				iYSpecific = iYGeneral - (tileTaskDrawHeight - terrainHeight) + tileTaskHeightOffset + offsetY;
 
 				// En el caso de comer, miramos si está pasando hambre porque no hay comida
 				if (!hero.isSleeping() && hero.getCitizenData().getHungryEating() < 0) {
 					// Dibujamos la cruz roja
 					Tile tileRedCross = World.getTileRedCross();
+
+					int redCrossDrawWidth = Math.round(tileRedCross.getTileWidth() * zoom);
+					int redCrossDrawHeight = Math.round(tileRedCross.getTileHeight() * zoom);
+
 					currentTextureID = setColorShadowLightCellNoLight(cell, tileRedCross, zLevelOffset,
 							currentTextureID, false);
-					UtilsGL.drawTextureZ(iXSpecific, iYSpecific, iXSpecific + tileRedCross.getTileWidth(),
-							iYSpecific + tileRedCross.getTileHeight(), tileRedCross.getTileSetTexX0(),
-							tileRedCross.getTileSetTexY0(), tileRedCross.getTileSetTexX1(),
-							tileRedCross.getTileSetTexY1(), iDepth);
+
+					UtilsGL.drawTextureZ(
+							iXSpecific,
+							iYSpecific,
+							iXSpecific + redCrossDrawWidth,
+							iYSpecific + redCrossDrawHeight,
+							tileRedCross.getTileSetTexX0(),
+							tileRedCross.getTileSetTexY0(),
+							tileRedCross.getTileSetTexX1(),
+							tileRedCross.getTileSetTexY1(),
+							iDepth);
 				}
 
 				currentTextureID = setColorShadowLightCellNoLight(cell, tileTask, zLevelOffset, currentTextureID,
 						false);
-				UtilsGL.drawTextureZ(iXSpecific, iYSpecific, iXSpecific + tileTask.getTileWidth(),
-						iYSpecific + tileTask.getTileHeight(), tileTask.getTileSetTexX0(), tileTask.getTileSetTexY0(),
-						tileTask.getTileSetTexX1(), tileTask.getTileSetTexY1(), iDepth);
+
+				UtilsGL.drawTextureZ(
+						iXSpecific,
+						iYSpecific,
+						iXSpecific + tileTaskDrawWidth,
+						iYSpecific + tileTaskDrawHeight,
+						tileTask.getTileSetTexX0(),
+						tileTask.getTileSetTexY0(),
+						tileTask.getTileSetTexX1(),
+						tileTask.getTileSetTexY1(),
+						iDepth);
 			}
 		}
 
@@ -2116,76 +2784,149 @@ public final class MainPanel {
 
 	private static int renderCarrying(Cell cell, Citizen cit, int iXGeneral, int iYGeneral, int currentTextureID,
 			float fColorShadowLight, boolean bLight, int iDepth, int zLevelOffset) {
+
+		float zoom = getWorldZoom();
+
+		int terrainHeight = Math.round(Tile.TERRAIN_ICON_HEIGHT * zoom);
+
+		int citDrawHeight = Math.round(cit.getTileHeight() * zoom);
+
+		int positionOffsetX = Math.round(cit.getPositionOffset().x * zoom);
+		int positionOffsetY = Math.round(cit.getPositionOffset().y * zoom);
+
+		int carryOffsetX = Math.round(cit.getOffset_carry_x() * zoom);
+		int carryOffsetY = Math.round(cit.getOffset_carry_y() * zoom);
+
 		int iFacingDirection = cit.getFacingDirection();
 
 		// Miramos si está cargando algo para dibujarlo
 		if (cit.getCarrying() != null) {
-			int iXSpecific = iXGeneral + cit.getOffset_carry_x() + (int) cit.getPositionOffset().x;
-			int iYSpecific = iYGeneral - (cit.getCarrying().getTileHeight() - Tile.TERRAIN_ICON_HEIGHT)
-					+ cit.getOffset_carry_y() + (int) cit.getPositionOffset().y;
+			Item carrying = cit.getCarrying();
 
-			currentTextureID = setColorShadowLightCell(cell, cit.getCarrying(), zLevelOffset, currentTextureID, false);
+			int carryDrawWidth = Math.round(carrying.getTileWidth() * zoom);
+			int carryDrawHeight = Math.round(carrying.getTileHeight() * zoom);
+
+			int iXSpecific = iXGeneral + carryOffsetX + positionOffsetX;
+			int iYSpecific = iYGeneral - (carryDrawHeight - terrainHeight) + carryOffsetY + positionOffsetY;
+
+			currentTextureID = setColorShadowLightCell(cell, carrying, zLevelOffset, currentTextureID, false);
+
 			if (iFacingDirection == LivingEntity.FACING_DIRECTION_EAST
 					|| iFacingDirection == LivingEntity.FACING_DIRECTION_SOUTH_EAST
 					|| iFacingDirection == LivingEntity.FACING_DIRECTION_SOUTH) {
-				UtilsGL.drawTextureZ(iXSpecific, iYSpecific, iXSpecific + cit.getCarrying().getTileWidth(),
-						iYSpecific + cit.getCarrying().getTileHeight(), cit.getCarrying().getTileSetTexX1(),
-						cit.getCarrying().getTileSetTexY0(), cit.getCarrying().getTileSetTexX0(),
-						cit.getCarrying().getTileSetTexY1(), iDepth);
+
+				UtilsGL.drawTextureZ(
+						iXSpecific,
+						iYSpecific,
+						iXSpecific + carryDrawWidth,
+						iYSpecific + carryDrawHeight,
+						carrying.getTileSetTexX1(),
+						carrying.getTileSetTexY0(),
+						carrying.getTileSetTexX0(),
+						carrying.getTileSetTexY1(),
+						iDepth);
 			} else {
-				UtilsGL.drawTextureZ(iXSpecific, iYSpecific, iXSpecific + cit.getCarrying().getTileWidth(),
-						iYSpecific + cit.getCarrying().getTileHeight(), cit.getCarrying().getTileSetTexX0(),
-						cit.getCarrying().getTileSetTexY0(), cit.getCarrying().getTileSetTexX1(),
-						cit.getCarrying().getTileSetTexY1(), iDepth);
+				UtilsGL.drawTextureZ(
+						iXSpecific,
+						iYSpecific,
+						iXSpecific + carryDrawWidth,
+						iYSpecific + carryDrawHeight,
+						carrying.getTileSetTexX0(),
+						carrying.getTileSetTexY0(),
+						carrying.getTileSetTexX1(),
+						carrying.getTileSetTexY1(),
+						iDepth);
 			}
-			cit.getCarrying().updateAnimation(cit.getCarrying().isFacingEast() || cit.getCarrying().isFacingNorth());
+
+			carrying.updateAnimation(carrying.isFacingEast() || carrying.isFacingNorth());
 		}
 
 		if (cit.getCarryingLiving() != null) {
-			int iXSpecific = iXGeneral + cit.getOffset_carry_x() + (int) cit.getPositionOffset().x;
-			int iYSpecific = iYGeneral - (cit.getCarryingLiving().getTileHeight() - Tile.TERRAIN_ICON_HEIGHT)
-					+ cit.getOffset_carry_y() + (int) cit.getPositionOffset().y;
+			LivingEntity carryingLiving = cit.getCarryingLiving();
 
-			currentTextureID = setColorShadowLightCell(cell, cit.getCarryingLiving(), zLevelOffset, currentTextureID,
-					false);
+			int carryLivingDrawWidth = Math.round(carryingLiving.getTileWidth() * zoom);
+			int carryLivingDrawHeight = Math.round(carryingLiving.getTileHeight() * zoom);
+
+			int iXSpecific = iXGeneral + carryOffsetX + positionOffsetX;
+			int iYSpecific = iYGeneral - (carryLivingDrawHeight - terrainHeight) + carryOffsetY + positionOffsetY;
+
+			currentTextureID = setColorShadowLightCell(cell, carryingLiving, zLevelOffset, currentTextureID, false);
+
 			if (iFacingDirection == LivingEntity.FACING_DIRECTION_EAST
 					|| iFacingDirection == LivingEntity.FACING_DIRECTION_SOUTH_EAST
 					|| iFacingDirection == LivingEntity.FACING_DIRECTION_SOUTH) {
-				UtilsGL.drawTextureZ(iXSpecific, iYSpecific + cit.getCarryingLiving().getTileHeight(),
-						iXSpecific + cit.getCarryingLiving().getTileWidth(), iYSpecific,
-						cit.getCarryingLiving().getTileSetTexX1(), cit.getCarryingLiving().getTileSetTexY0(),
-						cit.getCarryingLiving().getTileSetTexX0(), cit.getCarryingLiving().getTileSetTexY1(), iDepth);
+
+				UtilsGL.drawTextureZ(
+						iXSpecific,
+						iYSpecific + carryLivingDrawHeight,
+						iXSpecific + carryLivingDrawWidth,
+						iYSpecific,
+						carryingLiving.getTileSetTexX1(),
+						carryingLiving.getTileSetTexY0(),
+						carryingLiving.getTileSetTexX0(),
+						carryingLiving.getTileSetTexY1(),
+						iDepth);
 			} else {
-				UtilsGL.drawTextureZ(iXSpecific, iYSpecific + cit.getCarryingLiving().getTileHeight(),
-						iXSpecific + cit.getCarryingLiving().getTileWidth(), iYSpecific,
-						cit.getCarryingLiving().getTileSetTexX0(), cit.getCarryingLiving().getTileSetTexY0(),
-						cit.getCarryingLiving().getTileSetTexX1(), cit.getCarryingLiving().getTileSetTexY1(), iDepth);
+				UtilsGL.drawTextureZ(
+						iXSpecific,
+						iYSpecific + carryLivingDrawHeight,
+						iXSpecific + carryLivingDrawWidth,
+						iYSpecific,
+						carryingLiving.getTileSetTexX0(),
+						carryingLiving.getTileSetTexY0(),
+						carryingLiving.getTileSetTexX1(),
+						carryingLiving.getTileSetTexY1(),
+						iDepth);
 			}
 		}
 
 		EquippedData equippedData = cit.getEquippedData();
+
 		if (equippedData.isWearing(MilitaryItem.LOCATION_WEAPON)) {
-			int iXSpecific = iXGeneral + (int) cit.getPositionOffset().x;
-			int iYSpecific = iYGeneral - (cit.getTileHeight() - Tile.TERRAIN_ICON_HEIGHT)
-					+ (int) cit.getPositionOffset().y;
+			int iXSpecific = iXGeneral + positionOffsetX;
+			int iYSpecific = iYGeneral - (citDrawHeight - terrainHeight) + positionOffsetY;
+
 			MilitaryItem mi = equippedData.getWeapon();
+
 			float height = mi.getBaseTileSetTexY1() - mi.getBaseTileSetTexY0();
 			float directionOffset = mi.getFacingDirectionYOffset(iFacingDirection);
+
+			int weaponDrawWidth = Math.round(mi.getTileWidth() * zoom);
+			int weaponDrawHeight = Math.round(mi.getTileHeight() * zoom);
+
+			int weaponOffsetX = Math.round(cit.getOffset_weapon_x() * zoom);
+			int weaponOffsetY = Math.round(cit.getOffset_weapon_y() * zoom);
+
 			currentTextureID = setColorShadowLightCell(cell, mi, zLevelOffset, currentTextureID, false);
+
 			if (iFacingDirection == LivingEntity.FACING_DIRECTION_EAST
 					|| iFacingDirection == LivingEntity.FACING_DIRECTION_SOUTH_EAST
 					|| iFacingDirection == LivingEntity.FACING_DIRECTION_SOUTH) {
+
 				// Flip
-				UtilsGL.drawTextureZ(iXSpecific + cit.getOffset_weapon_x(), iYSpecific + cit.getOffset_weapon_y(),
-						iXSpecific + cit.getOffset_weapon_x() + mi.getTileWidth(),
-						iYSpecific + cit.getOffset_weapon_y() + mi.getTileHeight(), mi.getTileSetTexX1(),
-						directionOffset, mi.getTileSetTexX0(), directionOffset + height, iDepth);
+				UtilsGL.drawTextureZ(
+						iXSpecific + weaponOffsetX,
+						iYSpecific + weaponOffsetY,
+						iXSpecific + weaponOffsetX + weaponDrawWidth,
+						iYSpecific + weaponOffsetY + weaponDrawHeight,
+						mi.getTileSetTexX1(),
+						directionOffset,
+						mi.getTileSetTexX0(),
+						directionOffset + height,
+						iDepth);
 			} else {
-				UtilsGL.drawTextureZ(iXSpecific + cit.getOffset_weapon_x(), iYSpecific + cit.getOffset_weapon_y(),
-						iXSpecific + cit.getOffset_weapon_x() + mi.getTileWidth(),
-						iYSpecific + cit.getOffset_weapon_y() + mi.getTileHeight(), mi.getTileSetTexX0(),
-						directionOffset, mi.getTileSetTexX1(), directionOffset + height, iDepth);
+				UtilsGL.drawTextureZ(
+						iXSpecific + weaponOffsetX,
+						iYSpecific + weaponOffsetY,
+						iXSpecific + weaponOffsetX + weaponDrawWidth,
+						iYSpecific + weaponOffsetY + weaponDrawHeight,
+						mi.getTileSetTexX0(),
+						directionOffset,
+						mi.getTileSetTexX1(),
+						directionOffset + height,
+						iDepth);
 			}
+
 			mi.updateAnimation(false);
 		}
 
@@ -2194,76 +2935,149 @@ public final class MainPanel {
 
 	private static int renderCarrying(Cell cell, Hero hero, int iXGeneral, int iYGeneral, int currentTextureID,
 			float fColorShadowLight, boolean bLight, int iDepth, int zLevelOffset) {
+
+		float zoom = getWorldZoom();
+
+		int terrainHeight = Math.round(Tile.TERRAIN_ICON_HEIGHT * zoom);
+
+		int heroDrawHeight = Math.round(hero.getTileHeight() * zoom);
+
+		int positionOffsetX = Math.round(hero.getPositionOffset().x * zoom);
+		int positionOffsetY = Math.round(hero.getPositionOffset().y * zoom);
+
+		int carryOffsetX = Math.round(hero.getOffset_carry_x() * zoom);
+		int carryOffsetY = Math.round(hero.getOffset_carry_y() * zoom);
+
 		int iFacingDirection = hero.getFacingDirection();
 
 		// Miramos si está cargando algo para dibujarlo
 		if (hero.getCarrying() != null) {
-			int iXSpecific = iXGeneral + hero.getOffset_carry_x() + (int) hero.getPositionOffset().x;
-			int iYSpecific = iYGeneral - (hero.getCarrying().getTileHeight() - Tile.TERRAIN_ICON_HEIGHT)
-					+ hero.getOffset_carry_y() + (int) hero.getPositionOffset().y;
+			Item carrying = hero.getCarrying();
 
-			currentTextureID = setColorShadowLightCell(cell, hero.getCarrying(), zLevelOffset, currentTextureID, false);
+			int carryDrawWidth = Math.round(carrying.getTileWidth() * zoom);
+			int carryDrawHeight = Math.round(carrying.getTileHeight() * zoom);
+
+			int iXSpecific = iXGeneral + carryOffsetX + positionOffsetX;
+			int iYSpecific = iYGeneral - (carryDrawHeight - terrainHeight) + carryOffsetY + positionOffsetY;
+
+			currentTextureID = setColorShadowLightCell(cell, carrying, zLevelOffset, currentTextureID, false);
+
 			if (iFacingDirection == LivingEntity.FACING_DIRECTION_EAST
 					|| iFacingDirection == LivingEntity.FACING_DIRECTION_SOUTH_EAST
 					|| iFacingDirection == LivingEntity.FACING_DIRECTION_SOUTH) {
-				UtilsGL.drawTextureZ(iXSpecific, iYSpecific, iXSpecific + hero.getCarrying().getTileWidth(),
-						iYSpecific + hero.getCarrying().getTileHeight(), hero.getCarrying().getTileSetTexX1(),
-						hero.getCarrying().getTileSetTexY0(), hero.getCarrying().getTileSetTexX0(),
-						hero.getCarrying().getTileSetTexY1(), iDepth);
+
+				UtilsGL.drawTextureZ(
+						iXSpecific,
+						iYSpecific,
+						iXSpecific + carryDrawWidth,
+						iYSpecific + carryDrawHeight,
+						carrying.getTileSetTexX1(),
+						carrying.getTileSetTexY0(),
+						carrying.getTileSetTexX0(),
+						carrying.getTileSetTexY1(),
+						iDepth);
 			} else {
-				UtilsGL.drawTextureZ(iXSpecific, iYSpecific, iXSpecific + hero.getCarrying().getTileWidth(),
-						iYSpecific + hero.getCarrying().getTileHeight(), hero.getCarrying().getTileSetTexX0(),
-						hero.getCarrying().getTileSetTexY0(), hero.getCarrying().getTileSetTexX1(),
-						hero.getCarrying().getTileSetTexY1(), iDepth);
+				UtilsGL.drawTextureZ(
+						iXSpecific,
+						iYSpecific,
+						iXSpecific + carryDrawWidth,
+						iYSpecific + carryDrawHeight,
+						carrying.getTileSetTexX0(),
+						carrying.getTileSetTexY0(),
+						carrying.getTileSetTexX1(),
+						carrying.getTileSetTexY1(),
+						iDepth);
 			}
-			hero.getCarrying().updateAnimation(hero.getCarrying().isFacingEast() || hero.getCarrying().isFacingNorth());
+
+			carrying.updateAnimation(carrying.isFacingEast() || carrying.isFacingNorth());
 		}
 
 		if (hero.getCarryingLiving() != null) {
-			int iXSpecific = iXGeneral + hero.getOffset_carry_x() + (int) hero.getPositionOffset().x;
-			int iYSpecific = iYGeneral - (hero.getCarryingLiving().getTileHeight() - Tile.TERRAIN_ICON_HEIGHT)
-					+ hero.getOffset_carry_y() + (int) hero.getPositionOffset().y;
+			LivingEntity carryingLiving = hero.getCarryingLiving();
 
-			currentTextureID = setColorShadowLightCell(cell, hero.getCarryingLiving(), zLevelOffset, currentTextureID,
-					false);
+			int carryLivingDrawWidth = Math.round(carryingLiving.getTileWidth() * zoom);
+			int carryLivingDrawHeight = Math.round(carryingLiving.getTileHeight() * zoom);
+
+			int iXSpecific = iXGeneral + carryOffsetX + positionOffsetX;
+			int iYSpecific = iYGeneral - (carryLivingDrawHeight - terrainHeight) + carryOffsetY + positionOffsetY;
+
+			currentTextureID = setColorShadowLightCell(cell, carryingLiving, zLevelOffset, currentTextureID, false);
+
 			if (iFacingDirection == LivingEntity.FACING_DIRECTION_EAST
 					|| iFacingDirection == LivingEntity.FACING_DIRECTION_SOUTH_EAST
 					|| iFacingDirection == LivingEntity.FACING_DIRECTION_SOUTH) {
-				UtilsGL.drawTextureZ(iXSpecific, iYSpecific + hero.getCarryingLiving().getTileHeight(),
-						iXSpecific + hero.getCarryingLiving().getTileWidth(), iYSpecific,
-						hero.getCarryingLiving().getTileSetTexX1(), hero.getCarryingLiving().getTileSetTexY0(),
-						hero.getCarryingLiving().getTileSetTexX0(), hero.getCarryingLiving().getTileSetTexY1(), iDepth);
+
+				UtilsGL.drawTextureZ(
+						iXSpecific,
+						iYSpecific + carryLivingDrawHeight,
+						iXSpecific + carryLivingDrawWidth,
+						iYSpecific,
+						carryingLiving.getTileSetTexX1(),
+						carryingLiving.getTileSetTexY0(),
+						carryingLiving.getTileSetTexX0(),
+						carryingLiving.getTileSetTexY1(),
+						iDepth);
 			} else {
-				UtilsGL.drawTextureZ(iXSpecific, iYSpecific + hero.getCarryingLiving().getTileHeight(),
-						iXSpecific + hero.getCarryingLiving().getTileWidth(), iYSpecific,
-						hero.getCarryingLiving().getTileSetTexX0(), hero.getCarryingLiving().getTileSetTexY0(),
-						hero.getCarryingLiving().getTileSetTexX1(), hero.getCarryingLiving().getTileSetTexY1(), iDepth);
+				UtilsGL.drawTextureZ(
+						iXSpecific,
+						iYSpecific + carryLivingDrawHeight,
+						iXSpecific + carryLivingDrawWidth,
+						iYSpecific,
+						carryingLiving.getTileSetTexX0(),
+						carryingLiving.getTileSetTexY0(),
+						carryingLiving.getTileSetTexX1(),
+						carryingLiving.getTileSetTexY1(),
+						iDepth);
 			}
 		}
 
 		EquippedData equippedData = hero.getEquippedData();
+
 		if (equippedData.isWearing(MilitaryItem.LOCATION_WEAPON)) {
-			int iXSpecific = iXGeneral + (int) hero.getPositionOffset().x;
-			int iYSpecific = iYGeneral - (hero.getTileHeight() - Tile.TERRAIN_ICON_HEIGHT)
-					+ (int) hero.getPositionOffset().y;
+			int iXSpecific = iXGeneral + positionOffsetX;
+			int iYSpecific = iYGeneral - (heroDrawHeight - terrainHeight) + positionOffsetY;
+
 			MilitaryItem mi = equippedData.getWeapon();
+
 			float height = mi.getBaseTileSetTexY1() - mi.getBaseTileSetTexY0();
 			float directionOffset = mi.getFacingDirectionYOffset(iFacingDirection);
+
+			int weaponDrawWidth = Math.round(mi.getTileWidth() * zoom);
+			int weaponDrawHeight = Math.round(mi.getTileHeight() * zoom);
+
+			int weaponOffsetX = Math.round(hero.getOffset_weapon_x() * zoom);
+			int weaponOffsetY = Math.round(hero.getOffset_weapon_y() * zoom);
+
 			currentTextureID = setColorShadowLightCell(cell, mi, zLevelOffset, currentTextureID, false);
+
 			if (iFacingDirection == LivingEntity.FACING_DIRECTION_EAST
 					|| iFacingDirection == LivingEntity.FACING_DIRECTION_SOUTH_EAST
 					|| iFacingDirection == LivingEntity.FACING_DIRECTION_SOUTH) {
+
 				// Flip
-				UtilsGL.drawTextureZ(iXSpecific + hero.getOffset_weapon_x(), iYSpecific + hero.getOffset_weapon_y(),
-						iXSpecific + hero.getOffset_weapon_x() + mi.getTileWidth(),
-						iYSpecific + hero.getOffset_weapon_y() + mi.getTileHeight(), mi.getTileSetTexX1(),
-						directionOffset, mi.getTileSetTexX0(), directionOffset + height, iDepth);
+				UtilsGL.drawTextureZ(
+						iXSpecific + weaponOffsetX,
+						iYSpecific + weaponOffsetY,
+						iXSpecific + weaponOffsetX + weaponDrawWidth,
+						iYSpecific + weaponOffsetY + weaponDrawHeight,
+						mi.getTileSetTexX1(),
+						directionOffset,
+						mi.getTileSetTexX0(),
+						directionOffset + height,
+						iDepth);
 			} else {
-				UtilsGL.drawTextureZ(iXSpecific + hero.getOffset_weapon_x(), iYSpecific + hero.getOffset_weapon_y(),
-						iXSpecific + hero.getOffset_weapon_x() + mi.getTileWidth(),
-						iYSpecific + hero.getOffset_weapon_y() + mi.getTileHeight(), mi.getTileSetTexX0(),
-						directionOffset, mi.getTileSetTexX1(), directionOffset + height, iDepth);
+				UtilsGL.drawTextureZ(
+						iXSpecific + weaponOffsetX,
+						iYSpecific + weaponOffsetY,
+						iXSpecific + weaponOffsetX + weaponDrawWidth,
+						iYSpecific + weaponOffsetY + weaponDrawHeight,
+						mi.getTileSetTexX0(),
+						directionOffset,
+						mi.getTileSetTexX1(),
+						directionOffset + height,
+						iDepth);
 			}
+
 			mi.updateAnimation(false);
 		}
 
@@ -2818,16 +3632,29 @@ public final class MainPanel {
 	 * @return
 	 */
 	private static Point3D getTileMouse(int x, int y, int xView, int yView, int zView) {
-		// Mouse en ningún panel (o sea, en la main area)
-		y -= Tile.TERRAIN_ICON_HEIGHT;
-		int casellaX = (x / 2 - y) / Tile.TERRAIN_ICON_HEIGHT;
-		if (x / 2 - y < 0) {
-			casellaX--;
-		}
+		float zoom = getWorldZoom();
 
-		int casellaY = (x / 2 + y) / Tile.TERRAIN_ICON_HEIGHT;
+		float terrainHalfWidth = (Tile.TERRAIN_ICON_WIDTH / 2f) * zoom;
+		float terrainHalfHeight = (Tile.TERRAIN_ICON_HEIGHT / 2f) * zoom;
+		float terrainHeight = Tile.TERRAIN_ICON_HEIGHT * zoom;
 
-		Point3D pointTileMouse = new Point3D(xView + casellaX - maxTilesX, yView + casellaY - maxTilesY, zView);
+		int iBaseXGeneral = Math.round((-xView) * terrainHalfWidth + (-yView) * terrainHalfWidth + xCentro);
+		int iBaseYGeneral = Math.round((-yView) * terrainHalfHeight - (-xView) * terrainHalfHeight + yCentro);
+
+		// Original method subtracted Tile.TERRAIN_ICON_HEIGHT before converting.
+		// Do the same, but scaled.
+		y -= Math.round(terrainHeight);
+
+		float localX = x - iBaseXGeneral;
+		float localY = y - iBaseYGeneral;
+
+		float tileXFloat = ((localX / terrainHalfWidth) - (localY / terrainHalfHeight)) / 2f;
+		float tileYFloat = ((localX / terrainHalfWidth) + (localY / terrainHalfHeight)) / 2f;
+
+		int tileX = (int) Math.floor(tileXFloat);
+		int tileY = (int) Math.floor(tileYFloat);
+
+		Point3D pointTileMouse = new Point3D(tileX, tileY, zView);
 
 		if (tDMouseON) {
 			pointTileMouse = getMax3DMouse(pointTileMouse.x, pointTileMouse.y, pointTileMouse.z);
@@ -2840,6 +3667,24 @@ public final class MainPanel {
 
 		return pointTileMouse;
 	}
+	// }private static void drawWorldTileZ(Tile tile, int x, int y, int depth) {
+	// float zoom = getWorldZoom();
+
+	// int drawWidth = Math.round(tile.getTileWidth() * zoom);
+	// int drawHeight = Math.round(tile.getTileHeight() * zoom);
+
+	// UtilsGL.drawTextureZ(
+	// x,
+	// y,
+	// x + drawWidth,
+	// y + drawHeight,
+	// tile.getTileSetTexX0(),
+	// tile.getTileSetTexY0(),
+	// tile.getTileSetTexX1(),
+	// tile.getTileSetTexY1(),
+	// depth
+	// );
+	// }
 
 	public static Point3D getMax3DMouse(int x, int y, int z) {
 		int iX = x;

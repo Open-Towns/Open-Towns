@@ -1038,11 +1038,35 @@ public final class Game {
 		}
 	}
 
+	private static boolean handleWorldZoomMouseWheel() {
+		int wheelDelta = Mouse.getEventDWheel();
+
+		
+		if (wheelDelta == 0) {
+			return false;
+		}
+
+		boolean ctrlDown = Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)
+				|| Keyboard.isKeyDown(Keyboard.KEY_RCONTROL);
+
+		if (!ctrlDown) {
+			return false;
+		}
+		if (wheelDelta > 0) {
+			MainPanel.zoomWorldIn();
+		} else {
+			MainPanel.zoomWorldOut();
+		}
+
+		return true;
+	}
+
 	/**
 	 * Obtiene eventos del mouse y llama al "panel" correspondiente según donde sea
 	 * el click
 	 */
 	private void checkMouseEvents() {
+
 		int mouseX = Mouse.getEventX();
 		int mouseY = UtilsGL.getHeight() - Mouse.getEventY() - 1;
 		int mouseButton;
@@ -1128,6 +1152,9 @@ public final class Game {
 					}
 				}
 			}
+			if (handleWorldZoomMouseWheel()) {
+				return;
+			}
 
 			// Wheel
 			if (Mouse.getEventDWheel() > 0) {
@@ -1189,7 +1216,8 @@ public final class Game {
 						world.keyPressed(Keyboard.KEY_NONE, UtilsKeyboard.FN_UP);
 					}
 				} else if (mouseY > (UtilsGL.getHeight() - BORDE - 1)) {
-					if (Game.isMouseScrollEarsON() || !UIPanelInputHandler.isMouseCloseToOpenCloseBottomIcon(mouseX, mouseY)) {
+					if (Game.isMouseScrollEarsON()
+							|| !UIPanelInputHandler.isMouseCloseToOpenCloseBottomIcon(mouseX, mouseY)) {
 						if (getCurrentState() == STATE_SHOWING_CONTEXT_MENU) {
 							if (!(mouseX >= getCurrentContextMenu().getX()
 									&& mouseX < (getCurrentContextMenu().getX() + getCurrentContextMenu().getWidth())
