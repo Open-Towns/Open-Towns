@@ -173,6 +173,7 @@ public final class UtilsGL {
 	public static void toggleFullScreen () {
 		try {
 			if (Display.isFullscreen ()) {
+				Display.setFullscreen (false);
 				Display.setDisplayMode (new DisplayMode (lastWindowWidth, lastWindowHeight));
 			} else {
 				lastWindowWidth = Display.getWidth ();
