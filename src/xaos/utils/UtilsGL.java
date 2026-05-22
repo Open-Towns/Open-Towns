@@ -216,14 +216,14 @@ public final class UtilsGL {
 		IntBuffer intBuffer = ByteBuffer.allocateDirect (imageCursor.getWidth () * imageCursor.getHeight () * 4).order (ByteOrder.nativeOrder ()).asIntBuffer ();
 
 		// swap y-axis
-		for (int y = imageCursor.getHeight () - 1; y >= 0; --y) {
+		for (int y = 0; y < imageCursor.getHeight (); y++) {
 			imageCursor.getRGB (0, y, imageCursor.getWidth (), 1, buffer, 0, imageCursor.getWidth ());
 			intBuffer.put (buffer);
 		}
 		intBuffer.rewind ();
 
 		try {
-			Mouse.setNativeCursor (new Cursor (imageCursor.getWidth (), imageCursor.getHeight (), 0, 15, 1, intBuffer, null));
+			Mouse.setNativeCursor (new Cursor (imageCursor.getWidth (), imageCursor.getHeight (), 0, 0, 1, intBuffer, null));
 		}
 		catch (LWJGLException e) {
 			Log.log (Log.LEVEL_ERROR, "No native cursor support.", UtilsGL.class.getCanonicalName ());
@@ -516,9 +516,10 @@ public final class UtilsGL {
 		UtilsGL.drawStringZ (sMessage, x, y, color, z);
 	}
 
-/**
- * @deprecated Use TooltipRenderer.draw(...) instead.
- */
+	/**
+	 * @deprecated Use TooltipRenderer.draw(...) instead.
+	 */
+	@Deprecated
 	public static void drawTooltip (String tooltip, int tooltipX, int tooltipY, int renderWidth, int renderHeight) {
 		if (tooltip != null) {
 			int tooltipWidth = UtilFont.getWidth (tooltip);
