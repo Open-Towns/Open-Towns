@@ -1,114 +1,158 @@
-# Building TownsEX
+# Building Open-Towns
 
-This repository keeps the original released Towns layout: Java source, XML data, and INI files all live under `src/`.
+This repository keeps the original Towns project layout: Java source, XML data, INI files, and runtime-relative resources all live under `src/`.
+
+The Gradle build modernizes how the project compiles, runs, prepares local assets, and packages portable app images while keeping that legacy runtime layout intact.
+
+For the command-by-command task reference, see [GRADLE_TASKS.md](GRADLE_TASKS.md).
 
 ## Requirements
 
-- JDK 25 is the current default project baseline.
-- Gradle 9.x.
+- Use the checked-in Gradle wrapper.
+- JDK 25 is the default Java toolchain target.
+- Original Towns runtime assets are required to run the game locally.
 
-Java 25 is the current LTS line as of 2026. Java 26 is a non-LTS feature release, so it is not the best long-lived baseline for this project. The Gradle wrapper is on a Java-25-capable version, and the build target is controlled by `towns.javaVersion` in `gradle.properties`.
+The Java target is controlled by the `towns.javaVersion` Gradle property. The default comes from `gradle.properties` and currently resolves to Java 25.
 
-The build pulls the legacy game libraries from public Maven repositories:
+Example override:
 
-- LWJGL 2.9.3
-- JNA 4.1.0
-- TWL PNGDecoder 1.0
-- Slick Util 1.0.0
+```powershell
+.\gradlew.bat -Ptowns.javaVersion=21 clean classes
+```
 
-The legacy runtime dependencies are older than the new project baseline. Their class files range from Java 1.4 through Java 6 bytecode, and they run on modern JVMs through backwards compatibility. LWJGL 2 remains the main modernization risk because it depends on old native libraries and APIs.
+Gradle can auto-provision a matching Java toolchain when one is not already installed locally.
+
+## Core Dependencies
+
+The build resolves Java dependencies from Maven Central.
+
+Current runtime stack:
+
+- LWJGL 3.4.1
+- LWJGL GLFW, OpenGL, OpenAL, and STB modules
+- Gradle-selected LWJGL native jars for the current operating system
+- JNA 5.18.1
+- JUnit Jupiter 5.10.1 for tests
+
+The project uses the LWJGL BOM so LWJGL module versions stay aligned.
+
+## Source Layout
+
+Gradle is configured so the main source set reads from `src/`.
+
+```text
+src/
+  xaos/              Java source
+  data/              XML, language files, and runtime data
+  towns.ini          Main runtime configuration
+  graphics.ini       Graphics runtime configuration
+  audio.ini          Audio runtime configuration
+```
+
+The main Java source set excludes `src/test/**`. The main resources source set also reads from `src/`, but excludes Java files and tests.
+
+Tests live under:
+
+```text
+src/test/java
+src/test/resources
+```
+
+This layout exists because the original game loads many files through relative paths.
 
 ## Compile
 
-```powershell
-gradle classes
-```
-
-The Java source files have been normalized to UTF-8, and the Gradle build compiles them with UTF-8 explicitly.
-
-To test a different Java target, override the project Java version:
+Compile the project:
 
 ```powershell
-gradle "-Ptowns.javaVersion=21" clean classes
+.\gradlew.bat classes
 ```
 
-Gradle can auto-provision a matching JDK toolchain when one is not already installed locally.
-
-To inspect Java modernization warnings, enable compiler lint:
+Compile with lint warnings enabled:
 
 ```powershell
-gradle "-Ptowns.enableLint=true" clean classes
+.\gradlew.bat -Ptowns.enableLint=true clean classes
 ```
 
-To preflight the Maven dependencies needed to compile and run:
-
-```powershell
-gradle resolveBuildDependencies
-```
-
-If this fails with `No such host is known (repo.maven.apache.org)`, the runtime assets are fine, but Gradle cannot reach Maven Central yet. Check internet, DNS, VPN, firewall, or proxy settings, then rerun the command.
+Compilation uses UTF-8 source encoding and Gradle's `--release` option for the configured Java target.
 
 ## Run
 
-```powershell
-gradle run
-```
-
-The `run` task uses `src/` as the working directory because the original code loads files such as `towns.ini`, `graphics.ini`, and `data/actions.xml` using relative paths.
-
-The build also extracts LWJGL 2 native libraries into `build/natives/lwjgl` and passes that directory to the JVM.
-
-The original runtime graphics, audio, and font folders are not committed to this source repository. If those folders have been copied locally from an installed Towns release, `gradle run` can launch the game.
-
-## Check Runtime Assets
+Run the game from Gradle:
 
 ```powershell
-gradle checkRuntimeAssets
+.\gradlew.bat run
 ```
 
-This prints which expected runtime files/folders are present.
+The `run` task uses `src/` as its working directory. This is intentional because the legacy game expects files like `towns.ini`, `graphics.ini`, `audio.ini`, and `data/actions.xml` to be available relative to the process working directory.
 
-To do the usual first-time local setup in one command:
+The `run` task also passes:
+
+```text
+--enable-native-access=ALL-UNNAMED
+```
+
+That keeps native library access available for LWJGL and JNA on modern Java versions.
+
+## Runtime Assets
+
+The source tree does not redistribute the original Towns graphics, audio, or font assets.
+
+Local-only runtime assets should be copied into:
+
+```text
+src/data/graphics/
+src/data/audio/
+src/data/fonts/
+```
+
+These folders are ignored by git.
+
+To let Gradle find and copy assets from an installed Towns release:
 
 ```powershell
-gradle setupDeveloperEnvironment
+.\gradlew.bat setupRuntimeAssets
 ```
 
-This searches common install locations, copies the ignored runtime asset folders, and downloads the Gradle build dependencies.
-
-For only the local runtime asset folders:
+If the install is somewhere custom, pass the install folder or the `data` folder:
 
 ```powershell
-gradle setupRuntimeAssets
+.\gradlew.bat setupRuntimeAssets -Ptowns.assetSource="C:\Path\To\Towns\data"
 ```
 
-To search common Steam library locations for an installed Towns release:
+The asset finder also checks these environment variables:
+
+```text
+TOWNS_ASSET_SOURCE
+TOWNS_INSTALL_DIR
+```
+
+## First-Time Developer Setup
+
+For a new local checkout, the usual setup command is:
 
 ```powershell
-gradle findRuntimeAssets
+.\gradlew.bat setupDeveloperEnvironment
 ```
 
-To copy local-only runtime assets from the first detected install:
+This runs:
 
-```powershell
-gradle copyRuntimeAssets
+```text
+setupRuntimeAssets
+resolveBuildDependencies
 ```
 
-If the install is somewhere custom, pass either the Towns install folder or its `data` folder:
-
-```powershell
-gradle "-Ptowns.assetSource=S:\SteamLibrary\steamapps\common\towns\data" copyRuntimeAssets
-```
+Use it when you want Gradle to copy local runtime assets and preflight Maven dependency resolution in one step.
 
 ## Towns++ Local Overlay
 
-Towns++ compatibility is provided through a local overlay task. The project does not commit or redistribute Towns++ content.
+Towns++ compatibility is provided through a local overlay task. The repository does not commit or redistribute Towns++ content.
 
-Point Gradle at a local checkout or extracted copy of the mod:
+Point Gradle at a local checkout or extracted copy:
 
 ```powershell
-gradle "-PtownsPlusPlusSource=C:\Mods\Towns-plus-plus" checkTownsPlusPlusSource
-gradle "-PtownsPlusPlusSource=C:\Mods\Towns-plus-plus" applyTownsPlusPlus
+.\gradlew.bat checkTownsPlusPlusSource -PtownsPlusPlusSource="C:\Mods\Towns-plus-plus"
+.\gradlew.bat applyTownsPlusPlus -PtownsPlusPlusSource="C:\Mods\Towns-plus-plus"
 ```
 
 The source folder should contain:
@@ -119,21 +163,92 @@ graphics.ini
 towns.ini
 ```
 
-`applyTownsPlusPlus` copies those files into the local `src/` runtime tree. That intentionally dirties the working tree for local playtesting; do not commit the copied mod data or assets unless the mod author grants redistribution permission.
+`applyTownsPlusPlus` copies those files into the local `src/` runtime tree. That intentionally changes local runtime files for playtesting. Do not commit copied Towns++ data or assets unless redistribution permission is granted.
 
-## Runtime Assets
+The task also accepts:
 
-The source tree includes code and XML/INI data, but the original release assets should remain local-only and ignored by git:
+```text
+-Ptowns.plusPlusSource=<path>
+TOWNS_PLUS_PLUS_SOURCE=<path>
+```
 
-- `src/data/graphics/`
-- `src/data/audio/`
-- `src/data/fonts/`
+## Packaging
 
-Copy those folders from an installed Towns release when you want to run the game locally.
+The build has platform-specific packaging tasks for Windows and Linux.
+
+Windows:
+
+```powershell
+.\gradlew.bat packageWindowsAppImage
+.\gradlew.bat zipWindowsAppImage
+```
+
+Linux:
+
+```bash
+./gradlew packageLinuxAppImage
+./gradlew zipLinuxAppImage
+```
+
+Packaging uses:
+
+- `jar` to build the project jar
+- `jlink` to create a minimized Java runtime image
+- `jpackage` to create a portable app image
+
+Windows package output:
+
+```text
+build/package/Towns/
+build/release/TownsForever-<version>-windows-x64.zip
+```
+
+Linux package output:
+
+```text
+build/package/Towns/
+build/release/TownsForever-<version>-linux-x64.tar.gz
+```
+
+The package version defaults to the project version without `-SNAPSHOT`. Override it with:
+
+```powershell
+.\gradlew.bat -Ptowns.packageVersion=0.1.0 zipWindowsAppImage
+```
+
+Release archives intentionally do not include original graphics, audio, fonts, or Steam DLLs. For Steam compatibility testing, overlay legally owned Towns runtime assets into the packaged app folder.
+
+## Useful Diagnostics
+
+Print the current build/runtime configuration:
+
+```powershell
+.\gradlew.bat printRuntimeInfo
+```
+
+Check whether local runtime assets are present:
+
+```powershell
+.\gradlew.bat checkRuntimeAssets
+```
+
+Search common Steam locations for a Towns install:
+
+```powershell
+.\gradlew.bat findRuntimeAssets
+```
+
+Preflight dependency downloads:
+
+```powershell
+.\gradlew.bat resolveBuildDependencies
+```
+
+If dependency resolution fails with `No such host is known (repo.maven.apache.org)`, Gradle cannot reach Maven Central. Check internet, DNS, VPN, firewall, or proxy settings, then rerun the command.
 
 ## Mod Loading Notes
 
-See [`MODDING.md`](MODDING.md) for the current source-level map of mod loading and future tooling ideas.
+See [MODDING.md](../modding/MODDING.md) for the current source-level map of mod loading and future tooling ideas.
 
 The game creates a user folder at:
 
@@ -147,7 +262,7 @@ Mods live under:
 <user home>/.towns/mods/<mod name>/
 ```
 
-Many managers load the base XML first, then load files from active mods. A mod can usually provide matching files under paths such as:
+Many managers load base XML first, then load files from active mods. A mod can usually provide matching files under paths such as:
 
 ```text
 <user home>/.towns/mods/<mod name>/data/items.xml
@@ -155,4 +270,4 @@ Many managers load the base XML first, then load files from active mods. A mod c
 <user home>/.towns/mods/<mod name>/data/menu.xml
 ```
 
-The active mod list is stored in the `MODS` property in `towns.ini`, and the main menu also has a Mods screen for toggling folders it finds there.
+The active mod list is stored in the `MODS` property in `towns.ini`, and the main menu has a Mods screen for toggling folders it finds there.

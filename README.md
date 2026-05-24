@@ -70,6 +70,8 @@ chmod +x gradlew
 
 ## Useful Gradle Tasks
 
+For the full build-system and task reference, see [Building Open-Towns](./docs/getting-started/BUILDING.md) and [Gradle Task Reference](./docs/getting-started/GRADLE_TASKS.md).
+
 ```
 .\gradlew.bat printRuntimeInfo
 .\gradlew.bat checkRuntimeAssets
@@ -203,7 +205,7 @@ If Gradle cannot download dependencies, check DNS, VPN, firewall, or proxy acces
 
 https://repo.maven.apache.org/maven2/
 
-The current dependency set uses LWJGL 3.4.1, JNA 5.18.1, and `pngdecoder` for legacy image loading compatibility. Older LWJGL 2 native-copy troubleshooting no longer applies.
+The current dependency set uses LWJGL 3.4.1, Gradle-managed LWJGL natives, and JNA 5.18.1. Older LWJGL 2 native-copy troubleshooting no longer applies.
 
 Check runtime asset setup:
 
