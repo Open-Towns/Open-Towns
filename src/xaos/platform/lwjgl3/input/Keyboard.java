@@ -161,12 +161,32 @@ public final class Keyboard {
             return KEY_NONE;
         }
         Integer key = namesToKeys.get(name.toUpperCase());
-        return key == null ? KEY_NONE : key;
+        if (key == null){
+            key = parseUnknownKey(name);
+            if (key != KEY_NONE)
+                register(name.toUpperCase(), key);
+        }
+        return key;
     }
 
     public static String getKeyName(int key) {
         String name = keysToNames.get(key);
-        return name == null ? "" : name;
+        if  (name == null) {
+            name ="#" + key;
+            register(name, key);
+        }
+        return name;
+    }
+
+    private static Integer parseUnknownKey(String name){
+        if (name.startsWith("#")){
+            try {
+                return Integer.parseInt(name.substring(1));
+            } catch (NumberFormatException _) {
+
+            }
+        }
+        return KEY_NONE;
     }
 
     private static void register(String name, int key) {
