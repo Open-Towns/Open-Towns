@@ -76,6 +76,15 @@ public class Terrain implements Externalizable {
         this.mineTurns = (short) mineTurns;
     }
 
+    public void mineImmediately(short x, short y, short z, boolean bMineLadder) {
+	if (World.getCell(x, y, z).isMined()) {
+		return;
+	}
+
+	setMineTurns(1);
+	mine(x, y, z, bMineLadder);
+}
+
     /**
      * Mina la celda actual y si ha acabado sacamos el material
      *

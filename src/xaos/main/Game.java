@@ -181,6 +181,21 @@ public final class Game {
 	private static String savegameName;
 
 	private boolean displayFullscreen = false;
+	private static boolean godMode = false;
+
+	public static boolean isGodMode() {
+		return godMode;
+	}
+
+	public static void setGodMode(boolean enabled) {
+		godMode = enabled;
+	}
+
+	public static void toggleGodMode() {
+
+		godMode = !godMode;
+
+	}
 
 	public Game() {
 
@@ -950,13 +965,33 @@ public final class Game {
 		currentTask.setParameter(sParameter);
 	}
 
+	public static void finishCurrentTask() {
+	if (getCurrentTask() == null) {
+		return;
+	}
+
+	getCurrentTask().finishCreation();
+}
+
 	public static void taskCreated() {
-		if (getCurrentTask() != null && getCurrentTask().getTask() == Task.TASK_DIG) {
-			getCurrentTask().setTask(Task.TASK_MINE);
-		}
-		world.getTaskManager().addTask(getCurrentTask());
+	taskCreated(getCurrentTask());
+}
+
+public static void taskCreated(Task task) {
+	if (task == null) {
+		return;
+	}
+
+	if (task.getTask() == Task.TASK_DIG) {
+		task.setTask(Task.TASK_MINE);
+	}
+
+	world.getTaskManager().addTask(task);
+
+	if (task == getCurrentTask()) {
 		setCurrentState(Game.STATE_NO_STATE);
 	}
+}
 
 	public static void deleteCurrentTask() {
 		setCurrentState(STATE_NO_STATE);
@@ -998,11 +1033,6 @@ public final class Game {
 
 	public static void pause(boolean showInfo) {
 		if (isTradePanelActive()) {
-			return;
-		}
-
-		if (!bPaused) {
-			bPaused = true;
 			if (showInfo) {
 				showPauseStatus();
 			}
@@ -1326,6 +1356,9 @@ public final class Game {
 							MainPanel.toggleItemBuildFace();
 						} else if (iFN == UtilsKeyboard.FN_SCREENSHOT) {
 							takeScreenshot = true;
+						} else if (iFN == UtilsKeyboard.FN_TOGGLE_GOD_MODE) {
+							Game.toggleGodMode();
+
 						} else {
 							// if (iFN == UtilsKeyboard.FN_UP || iFN == UtilsKeyboard.FN_DOWN || iFN ==
 							// UtilsKeyboard.FN_LEFT || iFN == UtilsKeyboard.FN_RIGHT) {

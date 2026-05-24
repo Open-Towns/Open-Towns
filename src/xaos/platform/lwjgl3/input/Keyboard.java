@@ -46,8 +46,6 @@ public final class Keyboard {
     public static final int KEY_X = GLFW_KEY_X;
     public static final int KEY_Y = GLFW_KEY_Y;
     public static final int KEY_Z = GLFW_KEY_Z;
-    public static final int KEY_F5 = GLFW_KEY_F5;
-    public static final int KEY_F6 = GLFW_KEY_F6;
     public static final int KEY_BACK = GLFW_KEY_BACKSPACE;
     public static final int KEY_DELETE = GLFW_KEY_DELETE;
     public static final int KEY_DIVIDE = GLFW_KEY_KP_DIVIDE;
@@ -92,8 +90,11 @@ public final class Keyboard {
         register("SLASH", KEY_SLASH);
         register("SPACE", KEY_SPACE);
         register("UP", KEY_UP);
-        register("F5", KEY_F5);
-        register("F6", KEY_F6);
+        final int functionKeyCount = 12;
+        
+        for (int functionKeyNumber = 1; functionKeyNumber <= functionKeyCount; functionKeyNumber++) {
+            register("F" + functionKeyNumber, GLFW_KEY_F1 + functionKeyNumber - 1);
+        }
         for (char c = 'A'; c <= 'Z'; c++) {
             register(String.valueOf(c), GLFW_KEY_A + (c - 'A'));
         }
