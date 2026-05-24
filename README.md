@@ -2,6 +2,8 @@
 
 Modernized Open Source release for Towns.
 
+Website: [open-towns.github.io](https://open-towns.github.io/)
+
 ## Releases
 
 Nothing Here yet. please check back later, Thank you!
@@ -170,9 +172,13 @@ This repository only contains code and/or assets that are safe and legal to redi
 
 # Contributions & Forks
 
-You are welcome to fork the project, experiment, or create your own versions.
+You are welcome to fork the project, experiment, and open pull requests against Open-Towns.
 
-I don't guarantee reviewing pull requests or maintaining the project, but I'd genuinely enjoy seeing what comes out of it.
+Before opening a pull request, please read the [contributor guide](./docs/getting-started/CONTRIBUTING.md). It explains the project's expectations for focused changes, preserving existing behavior, documentation, testing notes, and review standards.
+
+A reusable pull request template is available at [docs/getting-started/PRTemplate.md](./docs/getting-started/PRTemplate.md).
+
+Pull requests are usually reviewed and merged on weekends when maintainers are available. There is not yet a fixed review, squash, or merge schedule, so focused PRs with clear testing notes are the easiest to review.
 
 # Community
 
