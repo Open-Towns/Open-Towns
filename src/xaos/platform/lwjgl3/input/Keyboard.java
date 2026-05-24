@@ -90,8 +90,10 @@ public final class Keyboard {
         register("SLASH", KEY_SLASH);
         register("SPACE", KEY_SPACE);
         register("UP", KEY_UP);
-        for (int fn = 1; fn <= 12; fn++) {
-            register("F" + fn, GLFW_KEY_F1 + fn - 1);
+        final int functionKeyCount = 12;
+        
+        for (int functionKeyNumber = 1; functionKeyNumber <= functionKeyCount; functionKeyNumber++) {
+            register("F" + functionKeyNumber, GLFW_KEY_F1 + functionKeyNumber - 1);
         }
         for (char c = 'A'; c <= 'Z'; c++) {
             register(String.valueOf(c), GLFW_KEY_A + (c - 'A'));
