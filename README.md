@@ -108,6 +108,8 @@ git push origin v0.0.3
 
 The release workflow also accepts plain numeric tags such as `0.1.0`.
 
+Release notes are generated from merged pull requests and grouped by labels. See [Changelog Automation](./docs/getting-started/CHANGELOG_AUTOMATION.md).
+
 GitHub may still show its automatic source-code zip and tarball, but the intended player/developer downloads are the targeted build assets:
 
 - `TownsForever-<version>-windows-x64.zip`

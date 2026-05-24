@@ -43,6 +43,8 @@ If other, explain:
 
 ```
 
+Maintainers: add the matching GitHub label before merge so generated release notes group this PR correctly. Use `skip-changelog` only when the change should not appear in release notes.
+
 ---
 
 # Location
