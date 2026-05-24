@@ -257,7 +257,7 @@ Explains how normal queued tasks work.
 
 ## Pull Request Expectations
 
-Use the reusable pull request template in [docs/getting-started/PRTemplate.md](docs/getting-started/PRTemplate.md).
+Use the reusable pull request template in [docs/pull_request_template.md](pull_request_template.md).
 
 Keep pull requests focused on one purpose. If the work has a related issue, link it. If behavior changes, call that out clearly.
 

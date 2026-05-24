@@ -174,9 +174,9 @@ This repository only contains code and/or assets that are safe and legal to redi
 
 You are welcome to fork the project, experiment, and open pull requests against Open-Towns.
 
-Before opening a pull request, please read the [contributor guide](./docs/getting-started/CONTRIBUTING.md). It explains the project's expectations for focused changes, preserving existing behavior, documentation, testing notes, and review standards.
+Before opening a pull request, please read the [contributor guide](./docs/CONTRIBUTING.md). It explains the project's expectations for focused changes, preserving existing behavior, documentation, testing notes, and review standards.
 
-A reusable pull request template is available at [docs/getting-started/PRTemplate.md](./docs/getting-started/PRTemplate.md).
+A reusable pull request template is available at [docs/pull_request_template.md](./docs/pull_request_template.md).
 
 Pull requests are usually reviewed and merged on weekends when maintainers are available. There is not yet a fixed review, squash, or merge schedule, so focused PRs with clear testing notes are the easiest to review.
 
