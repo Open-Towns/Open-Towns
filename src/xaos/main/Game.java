@@ -74,7 +74,7 @@ import xaos.utils.Messages;
 import xaos.utils.Names;
 import xaos.utils.Point3D;
 import xaos.utils.Point3DShort;
-import xaos.utils.UIScale;
+import xaos.utils.TooltipScale;
 import xaos.utils.Utils;
 import xaos.utils.UtilsAL;
 import xaos.utils.UtilsGL;
@@ -1293,14 +1293,14 @@ public static void taskCreated(Task task) {
 					}
 				} else {
 					if (iKEY == Keyboard.KEY_ADD || iKEY == Keyboard.KEY_EQUALS) {
-						UIScale.set(UIScale.get() + 0.25f);
-						System.out.println("UI scale: " + UIScale.get());
+						TooltipScale.set(TooltipScale.get() + 0.25f);
+						System.out.println("UI scale: " + TooltipScale.get());
 						continue;
 					}
 
 					if (iKEY == Keyboard.KEY_SUBTRACT || iKEY == Keyboard.KEY_MINUS) {
-						UIScale.set(UIScale.get() - 0.25f);
-						System.out.println("UI scale: " + UIScale.get());
+						TooltipScale.set(TooltipScale.get() - 0.25f);
+						System.out.println("UI scale: " + TooltipScale.get());
 						continue;
 					}
 

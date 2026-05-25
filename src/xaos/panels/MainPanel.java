@@ -54,7 +54,7 @@ import xaos.utils.Log;
 import xaos.utils.Messages;
 import xaos.utils.Point3D;
 import xaos.utils.Point3DShort;
-import xaos.utils.UIScale;
+import xaos.utils.TooltipScale;
 import xaos.utils.UtilFont;
 import xaos.utils.Utils;
 import xaos.utils.UtilsGL;
@@ -113,32 +113,74 @@ public final class MainPanel {
 	// LOCKED WALLCONNECTOR
 	private static Tile lockedConnectorTile = new Tile("lockedconnector"); //$NON-NLS-1$
 	private static final float WORLD_ZOOM_MIN = 0.1f;
-private static final float WORLD_ZOOM_MAX = 3.0f;
-private static final float WORLD_ZOOM_STEP = 0.1f;
+	private static final float WORLD_ZOOM_MAX = 3.0f;
+	private static final float WORLD_ZOOM_STEP = 0.1f;
+	private static final float[] WORLD_ZOOM_VALUES = {
+			0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 1.75f, 2.0f
+	};
 
-private static float worldZoom = 1.0f;
+	private static int worldZoomIndex = 2;
+	private static float worldZoom = WORLD_ZOOM_VALUES[worldZoomIndex];
 
-public static float getWorldZoom() {
-	return worldZoom;
-}
+	public static float getWorldZoom() {
+		return worldZoom;
+	}
 
-public static void setWorldZoom(float zoom) {
-	if (zoom < WORLD_ZOOM_MIN) {
-		worldZoom = WORLD_ZOOM_MIN;
-	} else if (zoom > WORLD_ZOOM_MAX) {
-		worldZoom = WORLD_ZOOM_MAX;
-	} else {
-		worldZoom = zoom;
+	public static void setWorldZoom(float zoom) {
+		if (zoom < 0.5f) {
+			worldZoom = 0.5f;
+		} else if (zoom > 2.0f) {
+			worldZoom = 2.0f;
+		} else {
+			worldZoom = zoom;
+		}
+
+		worldZoomIndex = getClosestWorldZoomIndex(worldZoom);
+	}
+
+	public static void zoomWorldIn() {
+	if (worldZoomIndex < WORLD_ZOOM_VALUES.length - 1) {
+		worldZoomIndex++;
+		worldZoom = WORLD_ZOOM_VALUES[worldZoomIndex];
 	}
 }
 
-public static void zoomWorldIn() {
-	setWorldZoom(worldZoom + WORLD_ZOOM_STEP);
+public static void zoomWorldOut() {
+	if (worldZoomIndex > 0) {
+		worldZoomIndex--;
+		worldZoom = WORLD_ZOOM_VALUES[worldZoomIndex];
+	}
 }
 
-public static void zoomWorldOut() {
-	setWorldZoom(worldZoom - WORLD_ZOOM_STEP);
-}
+	public static void cycleWorldZoom() {
+		worldZoomIndex++;
+
+		if (worldZoomIndex >= WORLD_ZOOM_VALUES.length) {
+			worldZoomIndex = 0;
+		}
+
+		worldZoom = WORLD_ZOOM_VALUES[worldZoomIndex];
+	}
+
+	public static String getWorldZoomDisplayText() {
+		return Math.round(worldZoom * 100f) + "%";
+	}
+
+	private static int getClosestWorldZoomIndex(float value) {
+		int closestIndex = 0;
+		float closestDistance = Math.abs(WORLD_ZOOM_VALUES[0] - value);
+
+		for (int i = 1; i < WORLD_ZOOM_VALUES.length; i++) {
+			float distance = Math.abs(WORLD_ZOOM_VALUES[i] - value);
+
+			if (distance < closestDistance) {
+				closestDistance = distance;
+				closestIndex = i;
+			}
+		}
+
+		return closestIndex;
+	}
 
 	public MainPanel() {
 		resize(UtilsGL.getWidth(), UtilsGL.getHeight());
@@ -204,54 +246,54 @@ public static void zoomWorldOut() {
 	}
 
 	public static void render() {
-		
-	int xView = Game.getWorld().getView().x;
-	int yView = Game.getWorld().getView().y;
-	int zView = Game.getWorld().getView().z;
 
-	float zoom = getWorldZoom();
+		int xView = Game.getWorld().getView().x;
+		int yView = Game.getWorld().getView().y;
+		int zView = Game.getWorld().getView().z;
 
-	int visibleTileRange = Math.round(maxTilesWidthHeight / zoom);
+		float zoom = getWorldZoom();
 
-	// Padding prevents visible cut-off at the screen edges
-	visibleTileRange += 8;
+		int visibleTileRange = Math.round(maxTilesWidthHeight / zoom);
 
-	int halfVisibleTileRange = visibleTileRange / 2;
+		// Padding prevents visible cut-off at the screen edges
+		visibleTileRange += 8;
 
-	int cellXMax = xView + halfVisibleTileRange;
+		int halfVisibleTileRange = visibleTileRange / 2;
 
-	if (bMiniBlocksON) {
-		cellXMax++;
-	}
+		int cellXMax = xView + halfVisibleTileRange;
 
-	if (cellXMax >= World.MAP_WIDTH) {
-		cellXMax = World.MAP_WIDTH - 1;
-	}
+		if (bMiniBlocksON) {
+			cellXMax++;
+		}
 
-	int cellXMin = xView - halfVisibleTileRange;
-	cellXMin -= (World.MAP_DEPTH - zView);
+		if (cellXMax >= World.MAP_WIDTH) {
+			cellXMax = World.MAP_WIDTH - 1;
+		}
 
-	int cellYMax = yView + halfVisibleTileRange + 2;
-	cellYMax += (World.MAP_DEPTH - zView);
+		int cellXMin = xView - halfVisibleTileRange;
+		cellXMin -= (World.MAP_DEPTH - zView);
 
-	int cellYMin = ((-halfVisibleTileRange - 1) + yView) - 2;
+		int cellYMax = yView + halfVisibleTileRange + 2;
+		cellYMax += (World.MAP_DEPTH - zView);
 
-	if (cellYMin < 0) {
-		cellYMin = 0;
-	}
+		int cellYMin = ((-halfVisibleTileRange - 1) + yView) - 2;
 
-	int terrainHalfWidth = Math.round((Tile.TERRAIN_ICON_WIDTH / 2f) * zoom);
-	int terrainHalfHeight = Math.round((Tile.TERRAIN_ICON_HEIGHT / 2f) * zoom);
+		if (cellYMin < 0) {
+			cellYMin = 0;
+		}
 
-	int iBaseXGeneral = (-xView) * terrainHalfWidth
-			+ ((-yView) * terrainHalfWidth)
-			+ xCentro;
+		int terrainHalfWidth = Math.round((Tile.TERRAIN_ICON_WIDTH / 2f) * zoom);
+		int terrainHalfHeight = Math.round((Tile.TERRAIN_ICON_HEIGHT / 2f) * zoom);
 
-	int iBaseYGeneral = (-yView) * terrainHalfHeight
-			- ((-xView) * terrainHalfHeight)
-			+ yCentro;
+		int iBaseXGeneral = (-xView) * terrainHalfWidth
+				+ ((-yView) * terrainHalfWidth)
+				+ xCentro;
 
-	// rest of render continues...
+		int iBaseYGeneral = (-yView) * terrainHalfHeight
+				- ((-xView) * terrainHalfHeight)
+				+ yCentro;
+
+		// rest of render continues...
 		Point pointMouse = new Point(Mouse.getX(), renderHeight - Mouse.getY() - 1);
 		Point3D pointTileMouse = getTileMouse(pointMouse.x, pointMouse.y, xView, yView, zView);
 		boolean bMouseInMainArea = UIPanelInputHandler.isMouseOnAPanel(pointMouse.x, pointMouse.y) == MOUSE_NONE;
@@ -472,7 +514,6 @@ public static void zoomWorldOut() {
 
 		return currentTextureID;
 	}
-
 
 	private static void drawWorldTileZ(Tile tile, int x, int y, int depth) {
 		float zoom = getWorldZoom();
@@ -3445,11 +3486,11 @@ public static void zoomWorldOut() {
 			return;
 		}
 
-		int scaledSeparator = UIScale.px(separator);
-		int lineGap = UIScale.px(5);
-		int lineHeight = UIScale.fontHeight() + lineGap;
-		int paddingX = UIScale.px(4);
-		int paddingY = UIScale.px(4);
+		int scaledSeparator = TooltipScale.px(separator);
+		int lineGap = TooltipScale.px(5);
+		int lineHeight = TooltipScale.fontHeight() + lineGap;
+		int paddingX = TooltipScale.px(4);
+		int paddingY = TooltipScale.px(4);
 
 		int width = getMessagesTooltipWidth(messages, paddingX);
 		int height = getMessagesTooltipHeight(messages, lineHeight, lineGap, paddingY);
@@ -3476,7 +3517,7 @@ public static void zoomWorldOut() {
 		int width = 0;
 
 		for (int i = 0; i < messages.size(); i++) {
-			int messageWidth = UIScale.textWidth(messages.get(i));
+			int messageWidth = TooltipScale.textWidth(messages.get(i));
 
 			if (messageWidth > width) {
 				width = messageWidth;

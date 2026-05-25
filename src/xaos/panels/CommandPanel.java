@@ -45,6 +45,8 @@ import xaos.utils.Utils;
 import xaos.utils.UtilsAL;
 import xaos.utils.UtilsGL;
 import xaos.panels.UI.UIPanelState;
+import xaos.panels.UI.UIScaler;
+import xaos.utils.TooltipScale;
 
 public final class CommandPanel {
 
@@ -61,6 +63,9 @@ public final class CommandPanel {
     public static String COMMAND_MM_SWITCH_FX = "SWITCHFX"; //$NON-NLS-1$
     public static String COMMAND_MM_ADD_FX_VOLUME = "ADDFVOL"; //$NON-NLS-1$
     public static String COMMAND_MM_TOGGLE_FULL_SCREEN = "TOGGLEFULLSCREEN"; //$NON-NLS-1$
+    public static String COMMAND_MM_WORLD_ZOOM = "WORLDZOOM"; //$NON-NLS-1$
+    public static String COMMAND_MM_TOOLTIP_SCALE = "TOOLTIPSCALE"; //$NON-NLS-1$
+    public static String COMMAND_MM_UI_SCALE = "UISCALE"; //$NON-NLS-1$
     public static String COMMAND_MM_SWITCH_MOUSE_SCROLL = "SWITCHMOUSESCROLL"; //$NON-NLS-1$
     public static String COMMAND_MM_SWITCH_MOUSE_SCROLL_EARS = "SWITCHMOUSESCROLLEARS"; //$NON-NLS-1$
     public static String COMMAND_MM_SWITCH_MOUSE_2D_CUBES = "SWITCHMOUSE2DCUBES"; //$NON-NLS-1$
@@ -199,7 +204,8 @@ public final class CommandPanel {
     public static final String COMMAND_CLOSE_CONTEXT = "CLOSECONTEXT"; //$NON-NLS-1$
     public static final String COMMAND_SAVE = "SAVE"; //$NON-NLS-1$
     public static final String COMMAND_SAVE_NO_MISSIONDATA = "SAVENOMD"; //$NON-NLS-1$
-//	public static final String COMMAND_SAVE_OPTIONS = "SAVE_OPTIONS"; //$NON-NLS-1$
+    // public static final String COMMAND_SAVE_OPTIONS = "SAVE_OPTIONS";
+    // //$NON-NLS-1$
     public static final String COMMAND_PAUSE = "PAUSE"; //$NON-NLS-1$
     public static final String COMMAND_INCREASE_SPEED = "INC_SPEED"; //$NON-NLS-1$
     public static final String COMMAND_LOWER_SPEED = "LOW_SPEED"; //$NON-NLS-1$
@@ -229,7 +235,8 @@ public final class CommandPanel {
     public int renderWidth;
     public int renderHeight;
 
-    public CommandPanel(int renderX, int renderY, int renderWidth, int renderHeight, String sCampaignID, String sMissionID) {
+    public CommandPanel(int renderX, int renderY, int renderWidth, int renderHeight, String sCampaignID,
+            String sMissionID) {
         resize(renderX, renderY, renderWidth, renderHeight);
         initialize(sCampaignID, sMissionID);
     }
@@ -245,97 +252,140 @@ public final class CommandPanel {
 
     private static SmartMenu createOptionsMenu(SmartMenu mainMenu) {
         // Options
-        SmartMenu menuOptions = new SmartMenu(SmartMenu.TYPE_MENU, Messages.getString("MainMenuPanel.4"), mainMenu, null, null, null, null); //$NON-NLS-1$
+        SmartMenu menuOptions = new SmartMenu(SmartMenu.TYPE_MENU, Messages.getString("MainMenuPanel.4"), mainMenu, //$NON-NLS-1$
+                null, null, null, null);
 
         // Options - Graphics
-        SmartMenu menuOptionsGraphics = new SmartMenu(SmartMenu.TYPE_MENU, Messages.getString("MainMenuPanel.16"), menuOptions, null, null, null, null); //$NON-NLS-1$
-        SmartMenu menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.17"), null, CommandPanel.COMMAND_MM_TOGGLE_FULL_SCREEN, null, null, null); //$NON-NLS-1$
+        SmartMenu menuOptionsGraphics = new SmartMenu(SmartMenu.TYPE_MENU, Messages.getString("MainMenuPanel.16"), //$NON-NLS-1$
+                menuOptions, null, null, null, null);
+        SmartMenu menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.17"), null, //$NON-NLS-1$
+                CommandPanel.COMMAND_MM_TOGGLE_FULL_SCREEN, null, null, null);
         menuAux.setDynamic(true);
+        menuOptionsGraphics.addItem(menuAux);
+        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.83"), null, //$NON-NLS-1$
+                CommandPanel.COMMAND_MM_UI_SCALE, null, null, null);
+      
+        menuOptionsGraphics.addItem(menuAux);
+        // Options - Graphics - Tooltip Scale
+        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.84"), null, //$NON-NLS-1$
+                CommandPanel.COMMAND_MM_TOOLTIP_SCALE, null, null, null);
+      
+        menuOptionsGraphics.addItem(menuAux);
+        // Options - Graphics - World Zoom
+        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.85"), null, //$NON-NLS-1$
+                CommandPanel.COMMAND_MM_WORLD_ZOOM, null, null, null);
+      
         menuOptionsGraphics.addItem(menuAux);
         menuOptionsGraphics.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.7"), null, CommandPanel.COMMAND_BACK, null, null, null); //$NON-NLS-1$
+        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.7"), null, //$NON-NLS-1$
+                CommandPanel.COMMAND_BACK, null, null, null);
         menuOptionsGraphics.addItem(menuAux);
 
+
         // Options - Audio
-        SmartMenu menuOptionsAudio = new SmartMenu(SmartMenu.TYPE_MENU, Messages.getString("MainMenuPanel.13"), menuOptions, null, null, null, null); //$NON-NLS-1$
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.5"), null, CommandPanel.COMMAND_MM_SWITCH_MUSIC, null, null, null); //$NON-NLS-1$
+        SmartMenu menuOptionsAudio = new SmartMenu(SmartMenu.TYPE_MENU, Messages.getString("MainMenuPanel.13"), //$NON-NLS-1$
+                menuOptions, null, null, null, null);
+        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.5"), null, //$NON-NLS-1$
+                CommandPanel.COMMAND_MM_SWITCH_MUSIC, null, null, null);
         menuAux.setDynamic(true);
         menuAux.setMaintainOpen(true);
         menuOptionsAudio.addItem(menuAux);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.56"), null, CommandPanel.COMMAND_MM_ADD_MUSIC_VOLUME, null, null, null); //$NON-NLS-1$
-        menuAux.setDynamic(true);
-        menuAux.setMaintainOpen(true);
-        menuOptionsAudio.addItem(menuAux);
-        menuOptionsAudio.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.6"), null, CommandPanel.COMMAND_MM_SWITCH_FX, null, null, null); //$NON-NLS-1$
-        menuAux.setDynamic(true);
-        menuAux.setMaintainOpen(true);
-        menuOptionsAudio.addItem(menuAux);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.57"), null, CommandPanel.COMMAND_MM_ADD_FX_VOLUME, null, null, null); //$NON-NLS-1$
+        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.56"), null, //$NON-NLS-1$
+                CommandPanel.COMMAND_MM_ADD_MUSIC_VOLUME, null, null, null);
         menuAux.setDynamic(true);
         menuAux.setMaintainOpen(true);
         menuOptionsAudio.addItem(menuAux);
         menuOptionsAudio.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.7"), null, CommandPanel.COMMAND_BACK, null, null, null); //$NON-NLS-1$
+        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.6"), null, //$NON-NLS-1$
+                CommandPanel.COMMAND_MM_SWITCH_FX, null, null, null);
+        menuAux.setDynamic(true);
+        menuAux.setMaintainOpen(true);
+        menuOptionsAudio.addItem(menuAux);
+        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.57"), null, //$NON-NLS-1$
+                CommandPanel.COMMAND_MM_ADD_FX_VOLUME, null, null, null);
+        menuAux.setDynamic(true);
+        menuAux.setMaintainOpen(true);
+        menuOptionsAudio.addItem(menuAux);
+        menuOptionsAudio.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
+        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.7"), null, //$NON-NLS-1$
+                CommandPanel.COMMAND_BACK, null, null, null);
         menuOptionsAudio.addItem(menuAux);
 
         // Options - Game
-        SmartMenu menuOptionsGame = new SmartMenu(SmartMenu.TYPE_MENU, Messages.getString("MainMenuPanel.19"), menuOptions, null, null, null, null); //$NON-NLS-1$
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.20"), null, CommandPanel.COMMAND_MM_SWITCH_MOUSE_SCROLL, null, null, null); //$NON-NLS-1$
+        SmartMenu menuOptionsGame = new SmartMenu(SmartMenu.TYPE_MENU, Messages.getString("MainMenuPanel.19"), //$NON-NLS-1$
+                menuOptions, null, null, null, null);
+        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.20"), null, //$NON-NLS-1$
+                CommandPanel.COMMAND_MM_SWITCH_MOUSE_SCROLL, null, null, null);
         menuAux.setDynamic(true);
         menuAux.setMaintainOpen(true);
         menuOptionsGame.addItem(menuAux);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.33"), null, CommandPanel.COMMAND_MM_SWITCH_MOUSE_SCROLL_EARS, null, null, null); //$NON-NLS-1$
+        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.33"), null, //$NON-NLS-1$
+                CommandPanel.COMMAND_MM_SWITCH_MOUSE_SCROLL_EARS, null, null, null);
         menuAux.setDynamic(true);
         menuAux.setMaintainOpen(true);
         menuOptionsGame.addItem(menuAux);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.72"), null, CommandPanel.COMMAND_MM_SWITCH_MOUSE_2D_CUBES, null, null, null); //$NON-NLS-1$
+        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.72"), null, //$NON-NLS-1$
+                CommandPanel.COMMAND_MM_SWITCH_MOUSE_2D_CUBES, null, null, null);
         menuAux.setDynamic(true);
         menuAux.setMaintainOpen(true);
         menuOptionsGame.addItem(menuAux);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.27"), null, CommandPanel.COMMAND_MM_SWITCH_DISABLE_ITEMS, null, null, null); //$NON-NLS-1$
+        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.27"), null, //$NON-NLS-1$
+                CommandPanel.COMMAND_MM_SWITCH_DISABLE_ITEMS, null, null, null);
         menuAux.setDynamic(true);
         menuAux.setMaintainOpen(true);
         menuOptionsGame.addItem(menuAux);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.77"), null, CommandPanel.COMMAND_MM_SWITCH_DISABLE_GODS, null, null, null); //$NON-NLS-1$
+        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.77"), null, //$NON-NLS-1$
+                CommandPanel.COMMAND_MM_SWITCH_DISABLE_GODS, null, null, null);
         menuAux.setDynamic(true);
         menuAux.setMaintainOpen(true);
         menuOptionsGame.addItem(menuAux);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.28"), null, CommandPanel.COMMAND_MM_SWITCH_PAUSE, null, null, null); //$NON-NLS-1$
+        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.28"), null, //$NON-NLS-1$
+                CommandPanel.COMMAND_MM_SWITCH_PAUSE, null, null, null);
         menuAux.setDynamic(true);
         menuAux.setMaintainOpen(true);
         menuOptionsGame.addItem(menuAux);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.31"), null, CommandPanel.COMMAND_MM_SWITCH_AUTOSAVE_DAYS, null, null, null); //$NON-NLS-1$
+        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.31"), null, //$NON-NLS-1$
+                CommandPanel.COMMAND_MM_SWITCH_AUTOSAVE_DAYS, null, null, null);
         menuAux.setDynamic(true);
         menuAux.setMaintainOpen(true);
         menuOptionsGame.addItem(menuAux);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.32"), null, CommandPanel.COMMAND_MM_SWITCH_SIEGES, null, null, null); //$NON-NLS-1$
+        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.32"), null, //$NON-NLS-1$
+                CommandPanel.COMMAND_MM_SWITCH_SIEGES, null, null, null);
         menuAux.setDynamic(true);
         menuAux.setMaintainOpen(true);
         menuOptionsGame.addItem(menuAux);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.36"), null, CommandPanel.COMMAND_MM_SWITCH_SIEGE_PAUSE, null, null, null); //$NON-NLS-1$
+        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.36"), null, //$NON-NLS-1$
+                CommandPanel.COMMAND_MM_SWITCH_SIEGE_PAUSE, null, null, null);
         menuAux.setDynamic(true);
         menuAux.setMaintainOpen(true);
         menuOptionsGame.addItem(menuAux);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.66"), null, CommandPanel.COMMAND_MM_SWITCH_CARAVAN_PAUSE, null, null, null); //$NON-NLS-1$
+        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.66"), null, //$NON-NLS-1$
+                CommandPanel.COMMAND_MM_SWITCH_CARAVAN_PAUSE, null, null, null);
         menuAux.setDynamic(true);
         menuAux.setMaintainOpen(true);
         menuOptionsGame.addItem(menuAux);
         menuOptionsGame.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.7"), null, CommandPanel.COMMAND_BACK, null, null, null); //$NON-NLS-1$
+        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.7"), null, //$NON-NLS-1$
+                CommandPanel.COMMAND_BACK, null, null, null);
         menuOptionsGame.addItem(menuAux);
 
         // Options - Performance
-        SmartMenu menuOptionsPerformance = new SmartMenu(SmartMenu.TYPE_MENU, Messages.getString("MainMenuPanel.8"), menuOptions, null, null, null, null); //$NON-NLS-1$
-        menuOptionsPerformance.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, Messages.getString("MainMenuPanel.59"), null, null, null, null, null, Color.LIGHT_GRAY)); //$NON-NLS-1$
-        menuOptionsPerformance.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, Messages.getString("MainMenuPanel.64"), null, null, null, null, null, Color.LIGHT_GRAY)); //$NON-NLS-1$
-        menuOptionsPerformance.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, Messages.getString("MainMenuPanel.65"), null, null, null, null, null, Color.LIGHT_GRAY)); //$NON-NLS-1$
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.63"), null, CommandPanel.COMMAND_MM_SWITCH_PATHFINDING_LEVEL, null, null, null); //$NON-NLS-1$
+        SmartMenu menuOptionsPerformance = new SmartMenu(SmartMenu.TYPE_MENU, Messages.getString("MainMenuPanel.8"), //$NON-NLS-1$
+                menuOptions, null, null, null, null);
+        menuOptionsPerformance.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, Messages.getString("MainMenuPanel.59"), null, //$NON-NLS-1$
+                null, null, null, null, Color.LIGHT_GRAY));
+        menuOptionsPerformance.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, Messages.getString("MainMenuPanel.64"), null, //$NON-NLS-1$
+                null, null, null, null, Color.LIGHT_GRAY));
+        menuOptionsPerformance.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, Messages.getString("MainMenuPanel.65"), null, //$NON-NLS-1$
+                null, null, null, null, Color.LIGHT_GRAY));
+        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.63"), null, //$NON-NLS-1$
+                CommandPanel.COMMAND_MM_SWITCH_PATHFINDING_LEVEL, null, null, null);
         menuAux.setDynamic(true);
         menuAux.setMaintainOpen(true);
         menuOptionsPerformance.addItem(menuAux);
         menuOptionsPerformance.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.7"), null, CommandPanel.COMMAND_BACK, null, null, null); //$NON-NLS-1$
+        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.7"), null, //$NON-NLS-1$
+                CommandPanel.COMMAND_BACK, null, null, null);
         menuOptionsPerformance.addItem(menuAux);
 
         menuOptions.addItem(menuOptionsGraphics);
@@ -346,7 +396,8 @@ public final class CommandPanel {
         menuOptions.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
         menuOptions.addItem(menuOptionsPerformance);
         menuOptions.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.7"), null, CommandPanel.COMMAND_BACK, null, null, null); //$NON-NLS-1$
+        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.7"), null, //$NON-NLS-1$
+                CommandPanel.COMMAND_BACK, null, null, null);
         menuOptions.addItem(menuAux);
 
         return menuOptions;
@@ -357,7 +408,8 @@ public final class CommandPanel {
      *
      * @param sCommand command code
      */
-    public static void executeCommand(String sCommand, String sParameter, String sParameter2, Point3D p3dDirect, Tile tile, int iconType) {
+    public static void executeCommand(String sCommand, String sParameter, String sParameter2, Point3D p3dDirect,
+            Tile tile, int iconType) {
         if (sCommand != null) {
             if (sCommand.equals(COMMAND_BACK)) {
                 if (currentMenu.getParent() != null) {
@@ -544,43 +596,44 @@ public final class CommandPanel {
             } else if (sCommand.equals(COMMAND_STOCKPILE_COPY_TO_ALL)) {
                 Stockpile pileSource = Stockpile.getStockpile(sParameter);
                 if (pileSource != null) {
-                	Type typeSource = pileSource.getType ();
+                    Type typeSource = pileSource.getType();
 
-                	// Check all piles until we find the ones with the same type
+                    // Check all piles until we find the ones with the same type
                     ArrayList<Stockpile> alStockpiles = Game.getWorld().getStockpiles();
                     Stockpile pileDest;
                     boolean bSomethingRemoved = false;
-                    for (int i = 0; i < alStockpiles.size (); i++) {
-                    	pileDest = alStockpiles.get (i);
-                    	if (pileDest.getID () != pileSource.getID ()) {
-                    		if (pileDest.getType ().getID ().equals (typeSource.getID ()) && !pileDest.isLockedToCopy ()) {
-                    			// Bingo!
-                    			// Let's copy the type
+                    for (int i = 0; i < alStockpiles.size(); i++) {
+                        pileDest = alStockpiles.get(i);
+                        if (pileDest.getID() != pileSource.getID()) {
+                            if (pileDest.getType().getID().equals(typeSource.getID()) && !pileDest.isLockedToCopy()) {
+                                // Bingo!
+                                // Let's copy the type
 
-                    			// First lets remove the elements FROM the destination
-                    			Type typeDestination = pileDest.getType ();
-                    			for (int j = (typeDestination.getElements ().size () - 1); j >= 0 ; j--) {
-                    				if (!typeSource.contains (typeDestination.getElements ().get (j))) {
-                    					typeDestination.removeElement (typeDestination.getElements ().get (j));
-                    					bSomethingRemoved = true;
-                    				}
-                    			}
+                                // First lets remove the elements FROM the destination
+                                Type typeDestination = pileDest.getType();
+                                for (int j = (typeDestination.getElements().size() - 1); j >= 0; j--) {
+                                    if (!typeSource.contains(typeDestination.getElements().get(j))) {
+                                        typeDestination.removeElement(typeDestination.getElements().get(j));
+                                        bSomethingRemoved = true;
+                                    }
+                                }
 
-                    			// Now lets add the elements TO the destination
-                    			for (int j = (typeSource.getElements ().size () - 1); j >= 0 ; j--) {
-                    				if (!typeDestination.contains (typeSource.getElements ().get (j))) {
-                    					typeDestination.addElement (typeSource.getElements ().get (j), typeSource.getElementNames ().get (j));
-                    				}
-                    			}
-                    		}
-                    	}
+                                // Now lets add the elements TO the destination
+                                for (int j = (typeSource.getElements().size() - 1); j >= 0; j--) {
+                                    if (!typeDestination.contains(typeSource.getElements().get(j))) {
+                                        typeDestination.addElement(typeSource.getElements().get(j),
+                                                typeSource.getElementNames().get(j));
+                                    }
+                                }
+                            }
+                        }
 
-    					// Set items to be hauled (if applies)
-                    	if (bSomethingRemoved) {
+                        // Set items to be hauled (if applies)
+                        if (bSomethingRemoved) {
                             for (int h = 0; h < pileDest.getPoints().size(); h++) {
                                 Game.getWorld().addItemToBeHauled(World.getCell(pileDest.getPoints().get(h)).getItem());
                             }
-                    	}
+                        }
                     }
                 }
             } else if (sCommand.equals(COMMAND_CONTAINER_ENABLE_ALL)) {
@@ -604,44 +657,46 @@ public final class CommandPanel {
                     container.disableItem(sParameter2);
                 }
             } else if (sCommand.equals(COMMAND_CONTAINER_COPY_TO_ALL)) {
-                Container containerSource = Game.getWorld().getContainer (Integer.parseInt(sParameter));
+                Container containerSource = Game.getWorld().getContainer(Integer.parseInt(sParameter));
                 if (containerSource != null) {
-                	Type typeSource = containerSource.getType ();
+                    Type typeSource = containerSource.getType();
 
-                	// Check all piles until we find the ones with the same type
-                    ArrayList<Container> alContainers = Game.getWorld().getContainers ();
+                    // Check all piles until we find the ones with the same type
+                    ArrayList<Container> alContainers = Game.getWorld().getContainers();
                     Container containerDest;
-                    
+
                     boolean bSomethingRemoved = false;
-                    for (int i = 0; i < alContainers.size (); i++) {
-                    	containerDest = alContainers.get (i);
-                    	if (containerDest.getItemID () != containerSource.getItemID ()) {
-                    		if (containerDest.getType ().getID ().equals (typeSource.getID ()) && !containerDest.isLockedToCopy ()) {
-                    			// Bingo!
-                    			// Let's copy the type
+                    for (int i = 0; i < alContainers.size(); i++) {
+                        containerDest = alContainers.get(i);
+                        if (containerDest.getItemID() != containerSource.getItemID()) {
+                            if (containerDest.getType().getID().equals(typeSource.getID())
+                                    && !containerDest.isLockedToCopy()) {
+                                // Bingo!
+                                // Let's copy the type
 
-                    			// First lets remove the elements FROM the destination
-                    			Type typeDestination = containerDest.getType ();
-                    			for (int j = (typeDestination.getElements ().size () - 1); j >= 0 ; j--) {
-                    				if (!typeSource.contains (typeDestination.getElements ().get (j))) {
-                    					typeDestination.removeElement (typeDestination.getElements ().get (j));
-                    					bSomethingRemoved = true;
-                    				}
-                    			}
+                                // First lets remove the elements FROM the destination
+                                Type typeDestination = containerDest.getType();
+                                for (int j = (typeDestination.getElements().size() - 1); j >= 0; j--) {
+                                    if (!typeSource.contains(typeDestination.getElements().get(j))) {
+                                        typeDestination.removeElement(typeDestination.getElements().get(j));
+                                        bSomethingRemoved = true;
+                                    }
+                                }
 
-                    			// Now lets add the elements TO the destination
-                    			for (int j = (typeSource.getElements ().size () - 1); j >= 0 ; j--) {
-                    				if (!typeDestination.contains (typeSource.getElements ().get (j))) {
-                    					typeDestination.addElement (typeSource.getElements ().get (j), typeSource.getElementNames ().get (j));
-                    				}
-                    			}
-                    		}
-                    	}
+                                // Now lets add the elements TO the destination
+                                for (int j = (typeSource.getElements().size() - 1); j >= 0; j--) {
+                                    if (!typeDestination.contains(typeSource.getElements().get(j))) {
+                                        typeDestination.addElement(typeSource.getElements().get(j),
+                                                typeSource.getElementNames().get(j));
+                                    }
+                                }
+                            }
+                        }
 
-    					// Set items to be removed from the container (if applies)
-                    	if (bSomethingRemoved) {
-                    		containerDest.setWrongItemsInside (true);
-                    	}
+                        // Set items to be removed from the container (if applies)
+                        if (bSomethingRemoved) {
+                            containerDest.setWrongItemsInside(true);
+                        }
                     }
                 }
             } else if (sCommand.equals(COMMAND_PROFESSIONS_ENABLE_ALL)) {
@@ -788,7 +843,7 @@ public final class CommandPanel {
                         }
 
                         // Tutorial flow
-                        Game.updateTutorialFlow (TutorialTrigger.TYPE_INT_CIV2GROUP, (iNewGRoupID + 1), null);
+                        Game.updateTutorialFlow(TutorialTrigger.TYPE_INT_CIV2GROUP, (iNewGRoupID + 1), null);
                     }
                 }
             } else if (sCommand.equals(COMMAND_CREATE_ZONE)) {
@@ -817,7 +872,8 @@ public final class CommandPanel {
                 task.setPointIni(p3dDirect);
                 Game.getWorld().getTaskManager().addTask(task);
             } else if (sCommand.equals(COMMAND_CUSTOM_ACTION_DIRECT_LIVING)) {
-				// Como esto es en diferido, quizá el usuario hace botón derecho, deja pasar el tiempo y luego clica
+                // Como esto es en diferido, quizá el usuario hace botón derecho, deja pasar el
+                // tiempo y luego clica
                 // Así que buscamos las coordenadas actuales de la living
                 LivingEntity le = World.getLivingEntityByID(Integer.parseInt(sParameter2));
                 if (le != null) {
@@ -829,7 +885,8 @@ public final class CommandPanel {
                     Game.getCurrentTask().setPoint(le.getCoordinates().toPoint3D());
                 }
             } else if (sCommand.equals(COMMAND_CUSTOM_ACTION_DIRECT_ITEM)) {
-				// Como esto es en diferido, quizá el usuario hace botón derecho, deja pasar el tiempo y luego clica
+                // Como esto es en diferido, quizá el usuario hace botón derecho, deja pasar el
+                // tiempo y luego clica
                 // Así que buscamos las coordenadas actuales de la living
                 Item it = Item.getItemByID(Integer.parseInt(sParameter2));
                 if (it != null) {
@@ -847,16 +904,18 @@ public final class CommandPanel {
                         Game.getWorld().setView(view.x, view.y, view.z + 1);
 
                         // Tutorial flow
-                        Game.updateTutorialFlow (TutorialTrigger.TYPE_INT_LAYERUPDOWN, TutorialTrigger.LAYER_DOWN, null);
-            			Game.updateTutorialFlow (TutorialTrigger.TYPE_INT_ICONHIT, TutorialTrigger.ICON_INT_LEVELDOWN, null);
+                        Game.updateTutorialFlow(TutorialTrigger.TYPE_INT_LAYERUPDOWN, TutorialTrigger.LAYER_DOWN, null);
+                        Game.updateTutorialFlow(TutorialTrigger.TYPE_INT_ICONHIT, TutorialTrigger.ICON_INT_LEVELDOWN,
+                                null);
                     }
                 } else {
                     if (view.z < (Game.getWorld().getNumFloorsDiscovered() - 1) && view.z < (World.MAP_DEPTH - 1)) {
                         Game.getWorld().setView(view.x, view.y, view.z + 1);
 
                         // Tutorial flow
-                        Game.updateTutorialFlow (TutorialTrigger.TYPE_INT_LAYERUPDOWN, TutorialTrigger.LAYER_DOWN, null);
-            			Game.updateTutorialFlow (TutorialTrigger.TYPE_INT_ICONHIT, TutorialTrigger.ICON_INT_LEVELDOWN, null);
+                        Game.updateTutorialFlow(TutorialTrigger.TYPE_INT_LAYERUPDOWN, TutorialTrigger.LAYER_DOWN, null);
+                        Game.updateTutorialFlow(TutorialTrigger.TYPE_INT_ICONHIT, TutorialTrigger.ICON_INT_LEVELDOWN,
+                                null);
                     }
                 }
             } else if (sCommand.equals(COMMAND_LEVEL_UP)) {
@@ -865,8 +924,8 @@ public final class CommandPanel {
                     Game.getWorld().setView(view.x, view.y, view.z - 1);
 
                     // Tutorial flow
-                    Game.updateTutorialFlow (TutorialTrigger.TYPE_INT_LAYERUPDOWN, TutorialTrigger.LAYER_UP, null);
-        			Game.updateTutorialFlow (TutorialTrigger.TYPE_INT_ICONHIT, TutorialTrigger.ICON_INT_LEVELUP, null);
+                    Game.updateTutorialFlow(TutorialTrigger.TYPE_INT_LAYERUPDOWN, TutorialTrigger.LAYER_UP, null);
+                    Game.updateTutorialFlow(TutorialTrigger.TYPE_INT_ICONHIT, TutorialTrigger.ICON_INT_LEVELUP, null);
                 }
             } else if (sCommand.equals(COMMAND_TERRAIN_CHANGE)) {
                 Task task = new Task(Task.TASK_TERRAIN_CHANGE);
@@ -888,19 +947,21 @@ public final class CommandPanel {
                 Game.getWorld().getTaskManager().addTask(task);
             } else if (sCommand.equals(COMMAND_PAUSE)) {
                 Game.togglePause(true);
-    			Game.updateTutorialFlow (TutorialTrigger.TYPE_INT_ICONHIT, TutorialTrigger.ICON_INT_PAUSE, null);
+                Game.updateTutorialFlow(TutorialTrigger.TYPE_INT_ICONHIT, TutorialTrigger.ICON_INT_PAUSE, null);
             } else if (sCommand.equals(COMMAND_INCREASE_SPEED)) {
                 World.addTurnsPerSecond();
-                MessagesPanel.addMessage(MessagesPanel.TYPE_SYSTEM, Messages.getString("Game.6") + World.SPEED, ColorGL.YELLOW); //$NON-NLS-1$
+                MessagesPanel.addMessage(MessagesPanel.TYPE_SYSTEM, Messages.getString("Game.6") + World.SPEED, //$NON-NLS-1$
+                        ColorGL.YELLOW);
 
                 // Tutorial flow
-				Game.updateTutorialFlow (TutorialTrigger.TYPE_INT_ICONHIT, TutorialTrigger.ICON_INT_SPEEDUP, null);
+                Game.updateTutorialFlow(TutorialTrigger.TYPE_INT_ICONHIT, TutorialTrigger.ICON_INT_SPEEDUP, null);
             } else if (sCommand.equals(COMMAND_LOWER_SPEED)) {
                 World.removeTurnsPerSecond();
-                MessagesPanel.addMessage(MessagesPanel.TYPE_SYSTEM, Messages.getString("Game.6") + World.SPEED, ColorGL.YELLOW); //$NON-NLS-1$
+                MessagesPanel.addMessage(MessagesPanel.TYPE_SYSTEM, Messages.getString("Game.6") + World.SPEED, //$NON-NLS-1$
+                        ColorGL.YELLOW);
 
                 // Tutorial flow
-				Game.updateTutorialFlow (TutorialTrigger.TYPE_INT_ICONHIT, TutorialTrigger.ICON_INT_SPEEDDOWN, null);
+                Game.updateTutorialFlow(TutorialTrigger.TYPE_INT_ICONHIT, TutorialTrigger.ICON_INT_SPEEDDOWN, null);
             } else if (sCommand.equals(COMMAND_NEXT_CITIZEN)) {
                 if (Game.getWorld().setNextIndexViewCitizen()) {
                     Game.getWorld().setViewOnCitizen();
@@ -931,21 +992,27 @@ public final class CommandPanel {
                 UIPanelState.setTradePanelActive(true);
             } else if (sCommand.equals(COMMAND_SAVE)) {
                 try {
-                    Utils.save (true);
+                    Utils.save(true);
                 } catch (Exception ex) {
-                    Log.log(Log.LEVEL_ERROR, Messages.getString("CommandPanel.38") + ex.toString() + "]", "CommandPanel"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                    MessagesPanel.addMessage(MessagesPanel.TYPE_SYSTEM, Messages.getString("CommandPanel.38") + ex.toString() + "]", ColorGL.RED); //$NON-NLS-1$ //$NON-NLS-2$
+                    Log.log(Log.LEVEL_ERROR, Messages.getString("CommandPanel.38") + ex.toString() + "]", //$NON-NLS-1$ //$NON-NLS-2$
+                            "CommandPanel"); //$NON-NLS-1$
+                    MessagesPanel.addMessage(MessagesPanel.TYPE_SYSTEM,
+                            Messages.getString("CommandPanel.38") + ex.toString() + "]", ColorGL.RED); //$NON-NLS-1$ //$NON-NLS-2$
                 }
             } else if (sCommand.equals(COMMAND_SAVE_NO_MISSIONDATA)) {
                 try {
-                    Utils.save (false);
+                    Utils.save(false);
                 } catch (Exception ex) {
-                    Log.log(Log.LEVEL_ERROR, Messages.getString("CommandPanel.38") + ex.toString() + "]", "CommandPanel"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                    MessagesPanel.addMessage(MessagesPanel.TYPE_SYSTEM, Messages.getString("CommandPanel.38") + ex.toString() + "]", ColorGL.RED); //$NON-NLS-1$ //$NON-NLS-2$
+                    Log.log(Log.LEVEL_ERROR, Messages.getString("CommandPanel.38") + ex.toString() + "]", //$NON-NLS-1$ //$NON-NLS-2$
+                            "CommandPanel"); //$NON-NLS-1$
+                    MessagesPanel.addMessage(MessagesPanel.TYPE_SYSTEM,
+                            Messages.getString("CommandPanel.38") + ex.toString() + "]", ColorGL.RED); //$NON-NLS-1$ //$NON-NLS-2$
                 }
             } else if (sCommand.equals(COMMAND_ITEM_TEXT_ADD)) {
                 if (UIPanelState.typingPanel == null) {
-                    UIPanelState.typingPanel = new TypingPanel(UIPanelState.renderWidth, UIPanelState.renderHeight, Messages.getString("CommandPanel.14"), "", TypingPanel.TYPE_ADD_TEXT_TO_ITEM, Integer.valueOf(sParameter)); //$NON-NLS-1$ //$NON-NLS-2$
+                    UIPanelState.typingPanel = new TypingPanel(UIPanelState.renderWidth, UIPanelState.renderHeight,
+                            Messages.getString("CommandPanel.14"), "", TypingPanel.TYPE_ADD_TEXT_TO_ITEM, //$NON-NLS-1$ //$NON-NLS-2$
+                            Integer.valueOf(sParameter));
                 }
             } else if (sCommand.equals(COMMAND_ITEM_TEXT_DELETE)) {
                 World.getItemsText().remove(Integer.valueOf(sParameter));
@@ -975,8 +1042,10 @@ public final class CommandPanel {
                     Utils.saveBury();
                     MessagesPanel.addMessage(MessagesPanel.TYPE_SYSTEM, Messages.getString("CommandPanel.9")); //$NON-NLS-1$
                 } catch (Exception ex) {
-                    Log.log(Log.LEVEL_ERROR, Messages.getString("CommandPanel.8") + " [" + ex.toString() + "]", "CommandPanel"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-                    MessagesPanel.addMessage(MessagesPanel.TYPE_SYSTEM, Messages.getString("CommandPanel.8") + " [" + ex.toString() + "]", ColorGL.RED); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    Log.log(Log.LEVEL_ERROR, Messages.getString("CommandPanel.8") + " [" + ex.toString() + "]", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                            "CommandPanel"); //$NON-NLS-1$
+                    MessagesPanel.addMessage(MessagesPanel.TYPE_SYSTEM,
+                            Messages.getString("CommandPanel.8") + " [" + ex.toString() + "]", ColorGL.RED); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 }
             } else if (sCommand.equals(COMMAND_EXIT_GAME)) {
                 Game.exit();
@@ -987,33 +1056,41 @@ public final class CommandPanel {
                 ContextMenu menuExit = new ContextMenu();
                 SmartMenu smExit = new SmartMenu();
                 if (TownsProperties.DEBUG_MODE) {
-                    smExit.addItem(new SmartMenu(SmartMenu.TYPE_ITEM, "Admin save, no mission", null, COMMAND_SAVE_NO_MISSIONDATA, null)); //$NON-NLS-1$
+                    smExit.addItem(new SmartMenu(SmartMenu.TYPE_ITEM, "Admin save, no mission", null, //$NON-NLS-1$
+                            COMMAND_SAVE_NO_MISSIONDATA, null));
                     smExit.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
                 }
-                smExit.addItem(new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("CommandPanel.4"), null, COMMAND_SAVE, null)); //$NON-NLS-1$
+                smExit.addItem(new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("CommandPanel.4"), null, //$NON-NLS-1$
+                        COMMAND_SAVE, null));
                 smExit.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-                smExit.addItem(new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("CommandPanel.0"), null, COMMAND_EXIT_TO_MAIN_MENU_SAVE, null)); //$NON-NLS-1$
+                smExit.addItem(new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("CommandPanel.0"), null, //$NON-NLS-1$
+                        COMMAND_EXIT_TO_MAIN_MENU_SAVE, null));
                 smExit.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-                SmartMenu smSure = new SmartMenu(SmartMenu.TYPE_MENU, Messages.getString("CommandPanel.1"), smExit, null, null); //$NON-NLS-1$
-                smSure.addItem(new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("CommandPanel.3"), null, COMMAND_EXIT_TO_MAIN_MENU_NOSAVE, null)); //$NON-NLS-1$
+                SmartMenu smSure = new SmartMenu(SmartMenu.TYPE_MENU, Messages.getString("CommandPanel.1"), smExit, //$NON-NLS-1$
+                        null, null);
+                smSure.addItem(new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("CommandPanel.3"), null, //$NON-NLS-1$
+                        COMMAND_EXIT_TO_MAIN_MENU_NOSAVE, null));
                 smSure.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-                smExit.addItem(new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("CommandPanel.7"), null, COMMAND_BURY, null)); //$NON-NLS-1$
+                smExit.addItem(new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("CommandPanel.7"), null, //$NON-NLS-1$
+                        COMMAND_BURY, null));
                 smExit.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-                smSure.addItem(new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("CommandPanel.5"), null, COMMAND_BACK, null)); //$NON-NLS-1$
+                smSure.addItem(new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("CommandPanel.5"), null, //$NON-NLS-1$
+                        COMMAND_BACK, null));
 
                 smExit.addItem(smSure);
 
                 smExit.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
                 smExit.addItem(createOptionsMenu(smExit));
                 smExit.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-                smExit.addItem(new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("CommandPanel.2"), null, COMMAND_CLOSE_CONTEXT, null)); //$NON-NLS-1$
+                smExit.addItem(new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("CommandPanel.2"), null, //$NON-NLS-1$
+                        COMMAND_CLOSE_CONTEXT, null));
                 menuExit.setSmartMenu(smExit);
                 menuExit.setX(UtilsGL.getWidth() / 2 - menuExit.getWidth() / 2);
                 menuExit.setY(UtilsGL.getHeight() / 2 - menuExit.getHeight() / 2);
                 Game.setContextMenu(menuExit);
 
                 // Tutorial flow
-                Game.updateTutorialFlow (TutorialTrigger.TYPE_INT_ICONHIT, TutorialTrigger.ICON_INT_SETTINGS, null);
+                Game.updateTutorialFlow(TutorialTrigger.TYPE_INT_ICONHIT, TutorialTrigger.ICON_INT_SETTINGS, null);
             } else if (sCommand.equals(COMMAND_EXIT_TO_MAIN_MENU_SAVE)) {
                 executeCommand(COMMAND_SAVE, null, null, null, null, 0);
                 executeCommand(COMMAND_EXIT_TO_MAIN_MENU_NOSAVE, null, null, null, null, 0);
@@ -1022,8 +1099,8 @@ public final class CommandPanel {
                 UtilsAL.stopFX();
                 UtilsAL.play(UtilsAL.SOURCE_MUSIC_MAINMENU);
                 Game.exitToMainMenu();
-//			} else if (sCommand.equals (COMMAND_SAVE_OPTIONS)) {
-//				Utils.saveOptions ();
+                // } else if (sCommand.equals (COMMAND_SAVE_OPTIONS)) {
+                // Utils.saveOptions ();
             } else if (sCommand.equals(COMMAND_MM_NEWGAME_SET_SAVE_NAME)) {
                 MainMenuPanel.useBuryTemporary = true;
                 // Si tiene el parámetro del point, ahí indica el número de servidor a usar
@@ -1037,18 +1114,21 @@ public final class CommandPanel {
                 executeCommand(COMMAND_MM_NEWGAME_SET_SAVE_NAME, sParameter, sParameter2, p3dDirect, tile, iconType);
                 MainMenuPanel.useBuryTemporary = false;
             } else if (sCommand.equals(COMMAND_MM_NEWGAME)) {
-            	// If the campaign/mission folder contains a "save.zip", then we will just load that one and set the missionData on campaigns.xml
-            	ArrayList<String> alPaths = Utils.getPathToFile ("save.zip", sParameter, sParameter2); //$NON-NLS-1$
-            	if (alPaths.size () > 0) {
-            		executeCommand (COMMAND_MM_CONTINUEGAME, "save.zip", sParameter + "," + sParameter2 + "," + alPaths.get (0), null, null, 0); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            	} else {
+                // If the campaign/mission folder contains a "save.zip", then we will just load
+                // that one and set the missionData on campaigns.xml
+                ArrayList<String> alPaths = Utils.getPathToFile("save.zip", sParameter, sParameter2); //$NON-NLS-1$
+                if (alPaths.size() > 0) {
+                    executeCommand(COMMAND_MM_CONTINUEGAME, "save.zip", //$NON-NLS-1$
+                            sParameter + "," + sParameter2 + "," + alPaths.get(0), null, null, 0); //$NON-NLS-1$ //$NON-NLS-2$
+                } else {
                     MainMenuPanel.loadingGame = true;
                     Game.getPanelMainMenu().render();
                     Display.update();
                     Display.sync(Game.FPS_MAINMENU); // Para "capear" a 30 fps
-                    GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_ACCUM_BUFFER_BIT | GL11.GL_STENCIL_BUFFER_BIT);
+                    GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_ACCUM_BUFFER_BIT
+                            | GL11.GL_STENCIL_BUFFER_BIT);
                     Game.startGame(sParameter, sParameter2);
-            	}
+                }
             } else if (sCommand.equals(COMMAND_MM_CONTINUEGAME)) {
                 MainMenuPanel.loadingGame = true;
                 Game.getPanelMainMenu().render();
@@ -1103,6 +1183,17 @@ public final class CommandPanel {
                 Game.getPanelMainMenu().createMenu();
             } else if (sCommand.equals(COMMAND_MM_TOGGLE_FULL_SCREEN)) {
                 UtilsGL.toggleFullScreen();
+                Utils.saveOptions();
+            } else if (sCommand.equals(COMMAND_MM_UI_SCALE)) {
+                UIScaler.cycleUIScale();
+                Utils.saveOptions();
+
+            } else if (sCommand.equals(COMMAND_MM_WORLD_ZOOM)) {
+                MainPanel.cycleWorldZoom();
+                Utils.saveOptions();
+
+            } else if (sCommand.equals(COMMAND_MM_TOOLTIP_SCALE)) {
+                TooltipScale.cycleTooltipScale();
                 Utils.saveOptions();
             } else if (sCommand.equals(COMMAND_MM_SWITCH_MOUSE_SCROLL)) {
                 Game.setMouseScrollON(!Game.isMouseScrollON());
@@ -1187,32 +1278,38 @@ public final class CommandPanel {
                     if (sCommand.equals(COMMAND_TEST)) {
                         // New citizen
                         World.addNewLiving(null, LivingEntity.TYPE_CITIZEN, true, 0, 0, 0, true);
-//						World.addNewLiving ("sips", LivingEntity.TYPE_HERO, true, 0, 0, 0, true);
+                        // World.addNewLiving ("sips", LivingEntity.TYPE_HERO, true, 0, 0, 0, true);
                     } else if (sCommand.equals(COMMAND_TEST2)) {
                         // Fulfill them
                         for (int i = 0; i < World.getCitizenIDs().size(); i++) {
-                            ((Citizen) World.getLivingEntityByID(World.getCitizenIDs().get(i))).getCitizenData().setHungry(5000);
+                            ((Citizen) World.getLivingEntityByID(World.getCitizenIDs().get(i))).getCitizenData()
+                                    .setHungry(5000);
                         }
                         for (int i = 0; i < World.getSoldierIDs().size(); i++) {
-                            ((Citizen) World.getLivingEntityByID(World.getSoldierIDs().get(i))).getCitizenData().setHungry(5000);
+                            ((Citizen) World.getLivingEntityByID(World.getSoldierIDs().get(i))).getCitizenData()
+                                    .setHungry(5000);
                         }
                         for (int i = 0; i < World.getHeroIDs().size(); i++) {
-                            ((Hero) World.getLivingEntityByID(World.getHeroIDs().get(i))).getCitizenData().setHungry(5000);
+                            ((Hero) World.getLivingEntityByID(World.getHeroIDs().get(i))).getCitizenData()
+                                    .setHungry(5000);
                         }
 
                         // Delete messages
-                        MessagesPanel.clear ();
-                        MessagesPanel.addMessage (MessagesPanel.TYPE_SYSTEM, TownsProperties.GAME_NAME + " " + TownsProperties.GAME_VERSION_FULL); //$NON-NLS-1$
+                        MessagesPanel.clear();
+                        MessagesPanel.addMessage(MessagesPanel.TYPE_SYSTEM,
+                                TownsProperties.GAME_NAME + " " + TownsProperties.GAME_VERSION_FULL); //$NON-NLS-1$
                     } else if (sCommand.equals(COMMAND_TEST3)) {
                         // Siege!!
                         Game.getWorld().spawnSiege();
                     } else if (sCommand.equals(COMMAND_TEST4)) {
                         // Sleep time
                         for (int i = 0; i < World.getCitizenIDs().size(); i++) {
-                            ((Citizen) World.getLivingEntityByID(World.getCitizenIDs().get(i))).getCitizenData().setSleep(0);
+                            ((Citizen) World.getLivingEntityByID(World.getCitizenIDs().get(i))).getCitizenData()
+                                    .setSleep(0);
                         }
                         for (int i = 0; i < World.getSoldierIDs().size(); i++) {
-                            ((Citizen) World.getLivingEntityByID(World.getSoldierIDs().get(i))).getCitizenData().setSleep(0);
+                            ((Citizen) World.getLivingEntityByID(World.getSoldierIDs().get(i))).getCitizenData()
+                                    .setSleep(0);
                         }
                         for (int i = 0; i < World.getHeroIDs().size(); i++) {
                             ((Hero) World.getLivingEntityByID(World.getHeroIDs().get(i))).getCitizenData().setSleep(0);
@@ -1244,29 +1341,35 @@ public final class CommandPanel {
                     } else if (sCommand.equals(COMMAND_ADD_LIVING)) {
                         Cell cell = World.getCell(p3dDirect);
                         LivingEntityManagerItem lemi = LivingEntityManager.getItem(sParameter);
-                        World.addNewLiving(sParameter, lemi.getType(), cell.isDiscovered(), p3dDirect.x, p3dDirect.y, p3dDirect.z, true);
+                        World.addNewLiving(sParameter, lemi.getType(), cell.isDiscovered(), p3dDirect.x, p3dDirect.y,
+                                p3dDirect.z, true);
                     } else if (sCommand.equals(COMMAND_ADD_EVENT)) {
                         EventManagerItem emi = EventManager.getItem(sParameter);
                         Game.getWorld().addEvent(emi);
                     } else if (sCommand.equals(COMMAND_GOD_STATUS_LOWER_5)) {
-//						for (int i = 0; i < Game.getWorld ().getGods ().size (); i++) {
-//							if (Game.getWorld ().getGods ().get (i).getGodID ().equals (sParameter)) {
-//								Game.getWorld ().getGods ().get (i).setStatus (Game.getWorld ().getGods ().get (i).getStatus () - 5);
-//								break;
-//							}
-//						}
+                        // for (int i = 0; i < Game.getWorld ().getGods ().size (); i++) {
+                        // if (Game.getWorld ().getGods ().get (i).getGodID ().equals (sParameter)) {
+                        // Game.getWorld ().getGods ().get (i).setStatus (Game.getWorld ().getGods
+                        // ().get (i).getStatus () - 5);
+                        // break;
+                        // }
+                        // }
                     } else if (sCommand.equals(COMMAND_GOD_STATUS_RAISE_5)) {
-//						for (int i = 0; i < Game.getWorld ().getGods ().size (); i++) {
-//							if (Game.getWorld ().getGods ().get (i).getGodID ().equals (sParameter)) {
-//								Game.getWorld ().getGods ().get (i).setStatus (Game.getWorld ().getGods ().get (i).getStatus () + 5);
-//								break;
-//							}
-//						}
+                        // for (int i = 0; i < Game.getWorld ().getGods ().size (); i++) {
+                        // if (Game.getWorld ().getGods ().get (i).getGodID ().equals (sParameter)) {
+                        // Game.getWorld ().getGods ().get (i).setStatus (Game.getWorld ().getGods
+                        // ().get (i).getStatus () + 5);
+                        // break;
+                        // }
+                        // }
                     } else {
-                        Log.log(Log.LEVEL_ERROR, Messages.getString("CommandPanel.6") + sCommand + "] [" + sParameter + "]", "CommandPannel"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                        Log.log(Log.LEVEL_ERROR,
+                                Messages.getString("CommandPanel.6") + sCommand + "] [" + sParameter + "]", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                                "CommandPannel"); //$NON-NLS-1$
                     }
                 } else {
-                    Log.log(Log.LEVEL_ERROR, Messages.getString("CommandPanel.6") + sCommand + "] [" + sParameter + "]", "CommandPannel"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                    Log.log(Log.LEVEL_ERROR, Messages.getString("CommandPanel.6") + sCommand + "] [" + sParameter + "]", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                            "CommandPannel"); //$NON-NLS-1$
                 }
             }
         }
