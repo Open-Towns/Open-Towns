@@ -85,7 +85,7 @@ jobs:
                 echo "Historic Towns patch notes and release changes."
                 return
                 ;;
-              docs/getting-started/PRTemplate.md)
+              docs/pull_request_template.md)
                 echo "Reusable pull request template for contributors."
                 return
                 ;;

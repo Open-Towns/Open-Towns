@@ -125,7 +125,11 @@ jobs:
 
       - name: Write release notes
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: |
+          tag="${GITHUB_REF_NAME}"
           cat > release-notes.md <<'NOTES'
           Targeted builds for this release:
 
@@ -136,6 +140,11 @@ jobs:
 
           Release archives intentionally do not include original Towns art/audio/font assets or Steam DLLs. For local Steam testing, overlay your legally owned original install data/lib folders into the package root.
           NOTES
+
+          gh api "repos/${GH_REPO}/releases/generate-notes" \
+            -f tag_name="${tag}" \
+            -f target_commitish="${GITHUB_SHA}" \
+            --jq '.body' >> release-notes.md
 
       - name: Create or update GitHub release
         shell: bash

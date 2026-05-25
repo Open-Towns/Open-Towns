@@ -1,3 +1,30 @@
+# Open-Towns Changelog
+
+Open-Towns uses this file for high-level project history and notable compatibility notes.
+
+Detailed per-release notes are generated from merged pull requests when a version tag is pushed. See [Changelog Automation](getting-started/CHANGELOG_AUTOMATION.md) for the label and release-note workflow.
+
+## Unreleased
+
+- Build: Modernized the Gradle build around Java 25, LWJGL 3.4.1, Gradle-managed LWJGL natives, and JNA 5.18.1.
+- Build: Added setup tasks for resolving dependencies, finding/copying original Towns runtime assets, and preparing a local developer environment.
+- Build: Added Windows and Linux app-image packaging tasks with targeted release archives.
+- CI: Added targeted release builds for Windows x64 and Linux x64.
+- CI: Added repository documentation publishing/indexing support.
+- CI: Added generated GitHub Release notes grouped by pull request labels.
+- Documentation: Added contributor guidelines, a GitHub-detected pull request template, build-system documentation, and Gradle task reference documentation.
+- Documentation: Organized technical documentation under `docs/` and documented the documentation publishing system.
+- Fix: Registered F1 through F12 key names so configured function-key shortcuts can load correctly.
+- Fix: Corrected fullscreen-to-windowed transition behavior.
+- Fix: Corrected inverted vertical mouse cursor behavior.
+- Refactor: Split task-system responsibilities into focused helper classes.
+- Refactor: Improved UI tooltip scaling and extracted tooltip rendering support.
+- Refactor: Improved caravan loading and pricing documentation/structure.
+
+# Historic Towns Patch Notes
+
+The original Towns patch notes are preserved below for reference.
+
 Towns patch notes
 =====
 

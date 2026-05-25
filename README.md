@@ -2,6 +2,8 @@
 
 Modernized Open Source release for Towns.
 
+Website: [open-towns.github.io](https://open-towns.github.io/)
+
 ## Releases
 
 Nothing Here yet. please check back later, Thank you!
@@ -68,6 +70,8 @@ chmod +x gradlew
 
 ## Useful Gradle Tasks
 
+For the full build-system and task reference, see [Building Open-Towns](./docs/getting-started/BUILDING.md) and [Gradle Task Reference](./docs/getting-started/GRADLE_TASKS.md).
+
 ```
 .\gradlew.bat printRuntimeInfo
 .\gradlew.bat checkRuntimeAssets
@@ -103,6 +107,8 @@ git push origin v0.0.3
 ```
 
 The release workflow also accepts plain numeric tags such as `0.1.0`.
+
+Release notes are generated from merged pull requests and grouped by labels. See [Changelog Automation](./docs/getting-started/CHANGELOG_AUTOMATION.md).
 
 GitHub may still show its automatic source-code zip and tarball, but the intended player/developer downloads are the targeted build assets:
 
@@ -170,9 +176,13 @@ This repository only contains code and/or assets that are safe and legal to redi
 
 # Contributions & Forks
 
-You are welcome to fork the project, experiment, or create your own versions.
+You are welcome to fork the project, experiment, and open pull requests against Open-Towns.
 
-I don't guarantee reviewing pull requests or maintaining the project, but I'd genuinely enjoy seeing what comes out of it.
+Before opening a pull request, please read the [contributor guide](./docs/CONTRIBUTING.md). It explains the project's expectations for focused changes, preserving existing behavior, documentation, testing notes, and review standards.
+
+A reusable pull request template is available at [docs/pull_request_template.md](./docs/pull_request_template.md).
+
+Pull requests are usually reviewed and merged on weekends when maintainers are available. There is not yet a fixed review, squash, or merge schedule, so focused PRs with clear testing notes are the easiest to review.
 
 # Community
 
@@ -197,7 +207,7 @@ If Gradle cannot download dependencies, check DNS, VPN, firewall, or proxy acces
 
 https://repo.maven.apache.org/maven2/
 
-The current dependency set uses LWJGL 3.4.1, JNA 5.18.1, and `pngdecoder` for legacy image loading compatibility. Older LWJGL 2 native-copy troubleshooting no longer applies.
+The current dependency set uses LWJGL 3.4.1, Gradle-managed LWJGL natives, and JNA 5.18.1. Older LWJGL 2 native-copy troubleshooting no longer applies.
 
 Check runtime asset setup:
 

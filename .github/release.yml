@@ -1,0 +1,26 @@
+# GitHub generated release notes configuration.
+#
+# The release workflow calls GitHub's generate-notes API. GitHub uses this file
+# to group merged pull requests by label.
+changelog:
+  exclude:
+    labels:
+      - skip-changelog
+      - duplicate
+      - invalid
+      - wontfix
+    authors:
+      - github-actions[bot]
+  categories:
+    - title: Bug Fixes
+      labels:
+        - bug
+    - title: Features
+      labels:
+        - enhancement
+    - title: Documentation
+      labels:
+        - documentation
+    - title: Other Changes
+      labels:
+        - "*"
