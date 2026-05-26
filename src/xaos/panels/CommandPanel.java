@@ -1,6 +1,5 @@
 package xaos.panels;
 
-import java.awt.Color;
 import java.awt.Desktop;
 import java.io.File;
 import java.util.ArrayList;
@@ -21,8 +20,8 @@ import xaos.events.EventManager;
 import xaos.events.EventManagerItem;
 import xaos.main.Game;
 import xaos.main.World;
-import xaos.panels.UI.UIPanel;
 import xaos.panels.menus.ContextMenu;
+import xaos.panels.menus.IngameOptionsMenu;
 import xaos.panels.menus.SmartMenu;
 import xaos.stockpiles.Stockpile;
 import xaos.tasks.Task;
@@ -248,159 +247,6 @@ public final class CommandPanel {
     private static void loadMenu(String sCampaignID, String sMissionID) {
         currentMenu = new SmartMenu();
         SmartMenu.readXMLMenu(currentMenu, "menu.xml", sCampaignID, sMissionID); //$NON-NLS-1$
-    }
-
-    private static SmartMenu createOptionsMenu(SmartMenu mainMenu) {
-        // Options
-        SmartMenu menuOptions = new SmartMenu(SmartMenu.TYPE_MENU, Messages.getString("MainMenuPanel.4"), mainMenu, //$NON-NLS-1$
-                null, null, null, null);
-
-        // Options - Graphics
-        SmartMenu menuOptionsGraphics = new SmartMenu(SmartMenu.TYPE_MENU, Messages.getString("MainMenuPanel.16"), //$NON-NLS-1$
-                menuOptions, null, null, null, null);
-        SmartMenu menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.17"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_TOGGLE_FULL_SCREEN, null, null, null);
-        menuAux.setDynamic(true);
-        menuOptionsGraphics.addItem(menuAux);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.83"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_UI_SCALE, null, null, null);
-      
-        menuOptionsGraphics.addItem(menuAux);
-        // Options - Graphics - Tooltip Scale
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.84"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_TOOLTIP_SCALE, null, null, null);
-      
-        menuOptionsGraphics.addItem(menuAux);
-        // Options - Graphics - World Zoom
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.85"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_WORLD_ZOOM, null, null, null);
-      
-        menuOptionsGraphics.addItem(menuAux);
-        menuOptionsGraphics.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.7"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_BACK, null, null, null);
-        menuOptionsGraphics.addItem(menuAux);
-
-
-        // Options - Audio
-        SmartMenu menuOptionsAudio = new SmartMenu(SmartMenu.TYPE_MENU, Messages.getString("MainMenuPanel.13"), //$NON-NLS-1$
-                menuOptions, null, null, null, null);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.5"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_SWITCH_MUSIC, null, null, null);
-        menuAux.setDynamic(true);
-        menuAux.setMaintainOpen(true);
-        menuOptionsAudio.addItem(menuAux);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.56"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_ADD_MUSIC_VOLUME, null, null, null);
-        menuAux.setDynamic(true);
-        menuAux.setMaintainOpen(true);
-        menuOptionsAudio.addItem(menuAux);
-        menuOptionsAudio.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.6"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_SWITCH_FX, null, null, null);
-        menuAux.setDynamic(true);
-        menuAux.setMaintainOpen(true);
-        menuOptionsAudio.addItem(menuAux);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.57"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_ADD_FX_VOLUME, null, null, null);
-        menuAux.setDynamic(true);
-        menuAux.setMaintainOpen(true);
-        menuOptionsAudio.addItem(menuAux);
-        menuOptionsAudio.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.7"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_BACK, null, null, null);
-        menuOptionsAudio.addItem(menuAux);
-
-        // Options - Game
-        SmartMenu menuOptionsGame = new SmartMenu(SmartMenu.TYPE_MENU, Messages.getString("MainMenuPanel.19"), //$NON-NLS-1$
-                menuOptions, null, null, null, null);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.20"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_SWITCH_MOUSE_SCROLL, null, null, null);
-        menuAux.setDynamic(true);
-        menuAux.setMaintainOpen(true);
-        menuOptionsGame.addItem(menuAux);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.33"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_SWITCH_MOUSE_SCROLL_EARS, null, null, null);
-        menuAux.setDynamic(true);
-        menuAux.setMaintainOpen(true);
-        menuOptionsGame.addItem(menuAux);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.72"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_SWITCH_MOUSE_2D_CUBES, null, null, null);
-        menuAux.setDynamic(true);
-        menuAux.setMaintainOpen(true);
-        menuOptionsGame.addItem(menuAux);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.27"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_SWITCH_DISABLE_ITEMS, null, null, null);
-        menuAux.setDynamic(true);
-        menuAux.setMaintainOpen(true);
-        menuOptionsGame.addItem(menuAux);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.77"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_SWITCH_DISABLE_GODS, null, null, null);
-        menuAux.setDynamic(true);
-        menuAux.setMaintainOpen(true);
-        menuOptionsGame.addItem(menuAux);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.28"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_SWITCH_PAUSE, null, null, null);
-        menuAux.setDynamic(true);
-        menuAux.setMaintainOpen(true);
-        menuOptionsGame.addItem(menuAux);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.31"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_SWITCH_AUTOSAVE_DAYS, null, null, null);
-        menuAux.setDynamic(true);
-        menuAux.setMaintainOpen(true);
-        menuOptionsGame.addItem(menuAux);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.32"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_SWITCH_SIEGES, null, null, null);
-        menuAux.setDynamic(true);
-        menuAux.setMaintainOpen(true);
-        menuOptionsGame.addItem(menuAux);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.36"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_SWITCH_SIEGE_PAUSE, null, null, null);
-        menuAux.setDynamic(true);
-        menuAux.setMaintainOpen(true);
-        menuOptionsGame.addItem(menuAux);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.66"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_SWITCH_CARAVAN_PAUSE, null, null, null);
-        menuAux.setDynamic(true);
-        menuAux.setMaintainOpen(true);
-        menuOptionsGame.addItem(menuAux);
-        menuOptionsGame.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.7"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_BACK, null, null, null);
-        menuOptionsGame.addItem(menuAux);
-
-        // Options - Performance
-        SmartMenu menuOptionsPerformance = new SmartMenu(SmartMenu.TYPE_MENU, Messages.getString("MainMenuPanel.8"), //$NON-NLS-1$
-                menuOptions, null, null, null, null);
-        menuOptionsPerformance.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, Messages.getString("MainMenuPanel.59"), null, //$NON-NLS-1$
-                null, null, null, null, Color.LIGHT_GRAY));
-        menuOptionsPerformance.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, Messages.getString("MainMenuPanel.64"), null, //$NON-NLS-1$
-                null, null, null, null, Color.LIGHT_GRAY));
-        menuOptionsPerformance.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, Messages.getString("MainMenuPanel.65"), null, //$NON-NLS-1$
-                null, null, null, null, Color.LIGHT_GRAY));
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.63"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_SWITCH_PATHFINDING_LEVEL, null, null, null);
-        menuAux.setDynamic(true);
-        menuAux.setMaintainOpen(true);
-        menuOptionsPerformance.addItem(menuAux);
-        menuOptionsPerformance.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.7"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_BACK, null, null, null);
-        menuOptionsPerformance.addItem(menuAux);
-
-        menuOptions.addItem(menuOptionsGraphics);
-        menuOptions.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-        menuOptions.addItem(menuOptionsAudio);
-        menuOptions.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-        menuOptions.addItem(menuOptionsGame);
-        menuOptions.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-        menuOptions.addItem(menuOptionsPerformance);
-        menuOptions.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.7"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_BACK, null, null, null);
-        menuOptions.addItem(menuAux);
-
-        return menuOptions;
     }
 
     /**
@@ -1080,7 +926,7 @@ public final class CommandPanel {
                 smExit.addItem(smSure);
 
                 smExit.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-                smExit.addItem(createOptionsMenu(smExit));
+                smExit.addItem(IngameOptionsMenu.createOptionsMenu(smExit));
                 smExit.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
                 smExit.addItem(new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("CommandPanel.2"), null, //$NON-NLS-1$
                         COMMAND_CLOSE_CONTEXT, null));
