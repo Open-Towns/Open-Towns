@@ -139,18 +139,18 @@ public final class MainPanel {
 	}
 
 	public static void zoomWorldIn() {
-	if (worldZoomIndex < WORLD_ZOOM_VALUES.length - 1) {
-		worldZoomIndex++;
-		worldZoom = WORLD_ZOOM_VALUES[worldZoomIndex];
+		if (worldZoomIndex < WORLD_ZOOM_VALUES.length - 1) {
+			worldZoomIndex++;
+			worldZoom = WORLD_ZOOM_VALUES[worldZoomIndex];
+		}
 	}
-}
 
-public static void zoomWorldOut() {
-	if (worldZoomIndex > 0) {
-		worldZoomIndex--;
-		worldZoom = WORLD_ZOOM_VALUES[worldZoomIndex];
+	public static void zoomWorldOut() {
+		if (worldZoomIndex > 0) {
+			worldZoomIndex--;
+			worldZoom = WORLD_ZOOM_VALUES[worldZoomIndex];
+		}
 	}
-}
 
 	public static void cycleWorldZoom() {
 		worldZoomIndex++;
@@ -338,18 +338,23 @@ public static void zoomWorldOut() {
 		if (bMouseInMainArea && pointTileMouse != null && (typingPanel == null)) {
 			if (Game.getCurrentState() != Game.STATE_SHOWING_CONTEXT_MENU) {
 				if (!bHideUION) {
+
+					int terrainHeight = Math.round(Tile.TERRAIN_ICON_HEIGHT * zoom);
+
 					int iXGeneral = iBaseXGeneral
-							+ (pointTileMouse.x + pointTileMouse.y) * (Tile.TERRAIN_ICON_WIDTH / 2);
+							+ (pointTileMouse.x + pointTileMouse.y) * terrainHalfWidth;
+
 					int iYGeneral = iBaseYGeneral
-							- (pointTileMouse.x - pointTileMouse.y) * (Tile.TERRAIN_ICON_HEIGHT / 2);
+							- (pointTileMouse.x - pointTileMouse.y) * terrainHalfHeight;
 
 					if (zView != pointTileMouse.z) {
 						if (zView > pointTileMouse.z) {
-							iYGeneral += ((zView - pointTileMouse.z) * Tile.TERRAIN_ICON_HEIGHT);
+							iYGeneral += ((zView - pointTileMouse.z) * terrainHeight);
 						} else {
-							iYGeneral += ((pointTileMouse.z - zView) * Tile.TERRAIN_ICON_HEIGHT);
+							iYGeneral += ((pointTileMouse.z - zView) * terrainHeight);
 						}
 					}
+
 					renderTooltip(iXGeneral, iYGeneral, pointTileMouse);
 				}
 			}
