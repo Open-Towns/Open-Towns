@@ -785,15 +785,15 @@ public final class UIPanel {
 		if (TownsProperties.DEBUG_MODE) {
 			// Global events
 			GlobalEventData ged = Game.getWorld().getGlobalEvents();
-			UtilsGL.drawStringWithBorder("Shadows " + ged.isShadows(), 2, 3 * UtilFont.MAX_HEIGHT, ColorGL.WHITE, //$NON-NLS-1$
+			UtilsGL.drawStringWithBorder("Shadows " + ged.isShadows(), 2, 4 * UtilFont.MAX_HEIGHT, ColorGL.WHITE, //$NON-NLS-1$
 					ColorGL.BLACK);
-			UtilsGL.drawStringWithBorder("Half shadows " + ged.isHalfShadows(), 2, 4 * UtilFont.MAX_HEIGHT, //$NON-NLS-1$
+			UtilsGL.drawStringWithBorder("Half shadows " + ged.isHalfShadows(), 2, 5 * UtilFont.MAX_HEIGHT, //$NON-NLS-1$
 					ColorGL.WHITE, ColorGL.BLACK);
 			UtilsGL.drawStringWithBorder("RGB " + ged.getRed() + "," + ged.getGreen() + "," + ged.getBlue(), 2, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					5 * UtilFont.MAX_HEIGHT, ColorGL.WHITE, ColorGL.BLACK);
-			UtilsGL.drawStringWithBorder("waitPCT " + ged.getWaitPCT(), 2, 6 * UtilFont.MAX_HEIGHT, ColorGL.WHITE, //$NON-NLS-1$
+					6 * UtilFont.MAX_HEIGHT, ColorGL.WHITE, ColorGL.BLACK);
+			UtilsGL.drawStringWithBorder("waitPCT " + ged.getWaitPCT(), 2, 7 * UtilFont.MAX_HEIGHT, ColorGL.WHITE, //$NON-NLS-1$
 					ColorGL.BLACK);
-			UtilsGL.drawStringWithBorder("walkSpeedPCT " + ged.getWalkSpeedPCT(), 2, 7 * UtilFont.MAX_HEIGHT, //$NON-NLS-1$
+			UtilsGL.drawStringWithBorder("walkSpeedPCT " + ged.getWalkSpeedPCT(), 2, 8 * UtilFont.MAX_HEIGHT, //$NON-NLS-1$
 					ColorGL.WHITE, ColorGL.BLACK);
 
 			// Events
