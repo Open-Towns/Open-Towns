@@ -21,7 +21,6 @@ import xaos.data.Type;
 import xaos.effects.EffectManager;
 import xaos.main.Game;
 import xaos.main.World;
-import xaos.panels.UI.UIPanel;
 import xaos.panels.UI.UIPanelInputHandler;
 import xaos.panels.menus.ContextMenu;
 import xaos.panels.menus.SmartMenu;
@@ -65,8 +64,6 @@ import xaos.zones.ZoneManager;
 import xaos.zones.ZoneManagerItem;
 import xaos.zones.ZonePersonal;
 import static xaos.panels.UI.UIPanelState.*;
-import static xaos.panels.UI.UIPanelInputHandler.*;
-import static xaos.panels.UI.UIPanel.*;
 import xaos.panels.UI.TooltipRenderer;
 
 public final class MainPanel {

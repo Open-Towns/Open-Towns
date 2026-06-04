@@ -70,7 +70,18 @@ public class BottomMenuPanel {
 
 		int bottomPanelLeftScrollX = bottomPanelX;
 		int bottomPanelRightScrollX = bottomPanelX + bottomPanelWidth - bottomScrollWidth;
+		// Panel itself
+		iCurrentTexture = UtilsGL.setTexture(UIPanelState.tileBottomPanel, iCurrentTexture);
 
+		UtilsGL.drawTexture(
+				bottomPanelX,
+				bottomPanelY,
+				bottomPanelX + bottomPanelWidth,
+				bottomPanelY + bottomPanelHeight,
+				UIPanelState.tileBottomPanel.getTileSetTexX0(),
+				UIPanelState.tileBottomPanel.getTileSetTexY0(),
+				UIPanelState.tileBottomPanel.getTileSetTexX1(),
+				UIPanelState.tileBottomPanel.getTileSetTexY1());
 		// Left scroll
 		if (mousePanel == UIPanelState.MOUSE_BOTTOM_LEFT_SCROLL && UIPanelState.bottomPanelItemIndex > 0) {
 			UtilsGL.drawTexture(
@@ -120,19 +131,6 @@ public class BottomMenuPanel {
 					UIPanelState.tileBottomScrollRight.getTileSetTexX1(),
 					UIPanelState.tileBottomScrollRight.getTileSetTexY1());
 		}
-
-		// Panel itself
-		iCurrentTexture = UtilsGL.setTexture(UIPanelState.tileBottomPanel, iCurrentTexture);
-
-		UtilsGL.drawTexture(
-				bottomPanelX,
-				bottomPanelY,
-				bottomPanelX + bottomPanelWidth,
-				bottomPanelY + bottomPanelHeight,
-				UIPanelState.tileBottomPanel.getTileSetTexX0(),
-				UIPanelState.tileBottomPanel.getTileSetTexY0(),
-				UIPanelState.tileBottomPanel.getTileSetTexX1(),
-				UIPanelState.tileBottomPanel.getTileSetTexY1());
 
 		// BOTTOM PANEL Items
 		int iItemBottomPanel;
