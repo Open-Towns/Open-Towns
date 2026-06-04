@@ -7,14 +7,10 @@ import xaos.utils.UtilsGL;
 
 import java.awt.Point;
 
-public class BottomMenuPanel {
+public class BottomPanel {
 
 	private static int ui(int value) {
 		return UIScaler.ui(value);
-	}
-
-	private static Point insetPoint(Point point, int inset) {
-		return new Point(point.x + inset, point.y + inset);
 	}
 
 	private static void drawScaledButton(Tile tile, Point point, int width, int height) {

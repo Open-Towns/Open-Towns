@@ -431,7 +431,7 @@ public final class UIPanel {
 		checkBlinkBottom = (blinkTurns >= MAX_BLINK_TURNS / 2)
 				&& TutorialFlow.isBlinkBottom();
 		if (UIPanel.isBottomMenuPanelActive()) {
-			iCurrentTexture = BottomMenuPanel.renderPanel(mouseX, mouseY, mousePanel, iCurrentTexture);
+			iCurrentTexture = BottomPanel.renderPanel(mouseX, mouseY, mousePanel, iCurrentTexture);
 		}
 
 		// Rendereamos el botoncito para hacer visible/invisible el bottom panel
