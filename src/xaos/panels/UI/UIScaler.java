@@ -2,7 +2,7 @@ package xaos.panels.UI;
 
 public class UIScaler {
 	private static final float[] UI_SCALE_VALUES = {
-			0.75f, 1.0f, 1.25f, 1.5f, 1.75f, 2.0f
+			0.75f, 1.0f, 1.25f, 1.5f
 	};
 
 	private static int uiScaleIndex = 1;
