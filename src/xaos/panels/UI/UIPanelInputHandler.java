@@ -39,7 +39,43 @@ import xaos.utils.Messages;
 import java.awt.Color;
 
 public class UIPanelInputHandler {
-    public static void mousePressed(int x, int y, int mouseButton) {
+
+	private static int ui(int value) {
+		return UIScaler.ui(value);
+	}
+
+	private static int getScaledBottomPanelWidth() {
+		return ui(UIPanelState.BOTTOM_PANEL_WIDTH);
+	}
+
+	private static int getScaledBottomPanelHeight() {
+		return ui(UIPanelState.BOTTOM_PANEL_HEIGHT);
+	}
+
+	private static int getScaledBottomPanelX() {
+		int originalPanelCenterX = UIPanelState.bottomPanelX + (UIPanelState.BOTTOM_PANEL_WIDTH / 2);
+		return originalPanelCenterX - (getScaledBottomPanelWidth() / 2);
+	}
+
+	private static int getScaledBottomPanelY() {
+		return UIPanelState.bottomPanelY - (getScaledBottomPanelHeight() - UIPanelState.BOTTOM_PANEL_HEIGHT);
+	}
+
+	private static Point getScaledBottomItemPoint(int itemIndex) {
+		int bottomPanelX = getScaledBottomPanelX();
+		int bottomPanelY = getScaledBottomPanelY();
+
+		Point originalPoint = UIPanelState.bottomPanelItemsPosition.get(itemIndex);
+
+		int originalOffsetX = originalPoint.x - UIPanelState.bottomPanelX;
+		int originalOffsetY = originalPoint.y - UIPanelState.bottomPanelY;
+
+		return new Point(
+				bottomPanelX + ui(originalOffsetX),
+				bottomPanelY + ui(originalOffsetY));
+	}
+
+	public static void mousePressed(int x, int y, int mouseButton) {
 		int iPanel = isMouseOnAPanel(x, y);
 
 		if (iPanel == MOUSE_NONE) {
@@ -1148,7 +1184,7 @@ public class UIPanelInputHandler {
 		 */
 		if (iPanel == MOUSE_PRODUCTION_OPENCLOSE) {
 			setProductionPanelLocked(!isProductionPanelLocked());
-			//  setProductionPanelActive (!isProductionPanelActive ());
+			// setProductionPanelActive (!isProductionPanelActive ());
 			UtilsAL.play(UtilsAL.SOURCE_FX_CLICK);
 			return;
 		}
@@ -1742,7 +1778,8 @@ public class UIPanelInputHandler {
 			return;
 		}
 	}
-public static boolean keyPressed(int tecla) {
+
+	public static boolean keyPressed(int tecla) {
 		if (tecla == Keyboard.KEY_ESCAPE) {
 			if (imagesPanel != null && ImagesPanel.isVisible()) {
 				ImagesPanel.setVisible(false);
@@ -1774,7 +1811,8 @@ public static boolean keyPressed(int tecla) {
 
 		return false;
 	}
-public static int isMouseOnAPanel(int x, int y) {
+
+	public static int isMouseOnAPanel(int x, int y) {
 		return isMouseOnAPanel(x, y, false);
 	}
 
@@ -1969,7 +2007,7 @@ public static int isMouseOnAPanel(int x, int y) {
 		 * PRODUCTION PANEL
 		 */
 		if (isProductionPanelActive()) {
-			
+
 			if (isMouseOnAnIcon(x, y, tileOpenCloseProductionPanelPoint, tileOpenProductionPanelON,
 					tileOpenProductionPanelONAlpha)) {
 				if (doEdgeMenusStuff) {
@@ -2004,7 +2042,7 @@ public static int isMouseOnAPanel(int x, int y) {
 			}
 		} else {
 			if (doEdgeMenusStuff) {
-				
+
 				if (isMouseOnAnIcon(x, y, tileOpenCloseProductionPanelPoint, tileOpenProductionPanel,
 						tileOpenProductionPanelAlpha)) {
 					setProductionPanelActive(true);
@@ -2321,95 +2359,127 @@ public static int isMouseOnAPanel(int x, int y) {
 	}
 
 	public static boolean isMouseOnBottomPanel(int x, int y) {
-		if (y >= bottomPanelY && y < (bottomPanelY + BOTTOM_PANEL_HEIGHT)) {
-			// Dentro del panel "virtual", miramos los paneles internos con sus
-			// transparencias
+		int panelX = getScaledBottomPanelX();
+		int panelY = getScaledBottomPanelY();
+		int panelWidth = getScaledBottomPanelWidth();
+		int panelHeight = getScaledBottomPanelHeight();
 
-			if (x >= bottomPanelX && x < (bottomPanelX + BOTTOM_PANEL_WIDTH)) {
-				return (!tileBottomPanelAlpha[x - bottomPanelX][y - bottomPanelY]);
-			}
-		}
-
-		return false;
+		return x >= panelX
+				&& x < panelX + panelWidth
+				&& y >= panelY
+				&& y < panelY + panelHeight;
 	}
 
 	public static boolean isMouseOnBottomLeftScroll(int x, int y) {
-		if ((y >= bottomPanelY && y < (bottomPanelY + BOTTOM_PANEL_HEIGHT))
-				&& (x >= bottomPanelLeftScrollX && x < (bottomPanelLeftScrollX + BOTTOM_PANEL_SCROLL_WIDTH))) {
-			return !tileBottomScrollLeftAlpha[x - bottomPanelLeftScrollX][y - bottomPanelY];
-		}
+		int panelX = getScaledBottomPanelX();
+		int panelY = getScaledBottomPanelY();
+		int panelHeight = getScaledBottomPanelHeight();
+		int scrollWidth = ui(UIPanelState.BOTTOM_PANEL_SCROLL_WIDTH);
 
-		return false;
+		return x >= panelX
+				&& x < panelX + scrollWidth
+				&& y >= panelY
+				&& y < panelY + panelHeight;
 	}
 
 	public static boolean isMouseOnBottomRightScroll(int x, int y) {
-		if ((y >= bottomPanelY && y < (bottomPanelY + BOTTOM_PANEL_HEIGHT))
-				&& (x >= bottomPanelRightScrollX && x < (bottomPanelRightScrollX + BOTTOM_PANEL_SCROLL_WIDTH))) {
-			return !tileBottomScrollRightAlpha[x - bottomPanelRightScrollX][y - bottomPanelY];
-		}
+		int panelX = getScaledBottomPanelX();
+		int panelY = getScaledBottomPanelY();
+		int panelWidth = getScaledBottomPanelWidth();
+		int panelHeight = getScaledBottomPanelHeight();
+		int scrollWidth = ui(UIPanelState.BOTTOM_PANEL_SCROLL_WIDTH);
 
-		return false;
+		int rightScrollX = panelX + panelWidth - scrollWidth;
+
+		return x >= rightScrollX
+				&& x < rightScrollX + scrollWidth
+				&& y >= panelY
+				&& y < panelY + panelHeight;
 	}
 
-	/**
-	 * Indica si el mouse está en un item, devuelve el número del mismo o -1 en caso
-	 * de no estar
-	 * 
-	 * @param x
-	 * @param y
-	 * @return devuelve el número del item o -1 en caso de no estar
-	 */
 	public static int isMouseOnBottomItems(int x, int y) {
-		if (y >= bottomPanelY && y < (bottomPanelY + BOTTOM_PANEL_HEIGHT)) {
-			Point point;
-			for (int i = 0; i < BOTTOM_PANEL_NUM_ITEMS; i++) {
-				point = bottomPanelItemsPosition.get(i);
-				if (x >= point.x && x < (point.x + BOTTOM_ITEM_WIDTH)) {
-					if (!tileBottomItemAlpha[x - point.x][y - point.y]) {
-						return i;
-					}
-				}
+		int itemWidth = ui(UIPanelState.BOTTOM_ITEM_WIDTH);
+		int itemHeight = ui(UIPanelState.BOTTOM_ITEM_HEIGHT);
+
+		for (int i = 0; i < UIPanelState.BOTTOM_PANEL_NUM_ITEMS; i++) {
+			if (i >= UIPanelState.bottomPanelItemsPosition.size()) {
+				break;
+			}
+
+			Point point = getScaledBottomItemPoint(i);
+
+			if (x >= point.x
+					&& x < point.x + itemWidth
+					&& y >= point.y
+					&& y < point.y + itemHeight) {
+				return i;
 			}
 		}
 
 		return -1;
 	}
 
-	public static boolean isMouseOnBottomSubPanel(int x, int y) {
-		if (x >= bottomSubPanelPoint.x && x < (bottomSubPanelPoint.x + BOTTOM_SUBPANEL_WIDTH)
-				&& y >= bottomSubPanelPoint.y && y < (bottomSubPanelPoint.y + BOTTOM_SUBPANEL_HEIGHT)) {
-			return true;
-		}
+	private static Point getScaledBottomSubPanelPoint() {
+		int bottomPanelX = getScaledBottomPanelX();
+		int bottomPanelY = getScaledBottomPanelY();
 
-		return false;
+		int originalOffsetX = UIPanelState.bottomSubPanelPoint.x - UIPanelState.bottomPanelX;
+		int originalOffsetY = UIPanelState.bottomSubPanelPoint.y - UIPanelState.bottomPanelY;
+
+		return new Point(
+				bottomPanelX + ui(originalOffsetX),
+				bottomPanelY + ui(originalOffsetY));
 	}
 
-	/**
-	 * Indica si el mouse está en un item del submenu de abajo, devuelve el número
-	 * del mismo o -1 en caso de no estar
-	 * 
-	 * @param x
-	 * @param y
-	 * @return devuelve el número del item o -1 en caso de no estar
-	 */
+	private static Point getScaledBottomSubPanelItemPoint(int itemIndex) {
+		Point bottomSubPanelPoint = getScaledBottomSubPanelPoint();
+
+		int originalOffsetX = UIPanelState.bottomSubPanelItemsPosition.get(itemIndex).x
+				- UIPanelState.bottomSubPanelPoint.x;
+
+		int originalOffsetY = UIPanelState.bottomSubPanelItemsPosition.get(itemIndex).y
+				- UIPanelState.bottomSubPanelPoint.y;
+
+		return new Point(
+				bottomSubPanelPoint.x + ui(originalOffsetX),
+				bottomSubPanelPoint.y + ui(originalOffsetY));
+	}
+
+	public static boolean isMouseOnBottomSubPanel(int x, int y) {
+		Point point = getScaledBottomSubPanelPoint();
+
+		int width = ui(UIPanelState.BOTTOM_SUBPANEL_WIDTH);
+		int height = ui(UIPanelState.BOTTOM_SUBPANEL_HEIGHT);
+
+		return x >= point.x
+				&& x < point.x + width
+				&& y >= point.y
+				&& y < point.y + height;
+	}
+
 	public static int isMouseOnBottomSubItems(int x, int y) {
-		if (bottomSubPanelMenu != null && y >= bottomSubPanelPoint.y
-				&& y < (bottomSubPanelPoint.y + BOTTOM_SUBPANEL_HEIGHT) && x >= bottomSubPanelPoint.x
-				&& x < (bottomSubPanelPoint.x + BOTTOM_SUBPANEL_WIDTH)) {
-			Point point;
-			bucle1: for (int y1 = 0; y1 < BOTTOM_SUBPANEL_NUM_ITEMS_Y; y1++) {
-				for (int x1 = 0; x1 < BOTTOM_SUBPANEL_NUM_ITEMS_X; x1++) {
-					int i = (y1 * BOTTOM_SUBPANEL_NUM_ITEMS_X) + x1;
-					if (i >= bottomSubPanelMenu.getItems().size()) {
-						break bucle1;
-					}
-					point = bottomSubPanelItemsPosition.get(i);
-					if (x >= point.x && x < (point.x + BOTTOM_SUBITEM_WIDTH) && y >= point.y
-							&& y < (point.y + BOTTOM_SUBITEM_HEIGHT)) {
-						if (!tileBottomSubItemAlpha[x - point.x][y - point.y]) {
-							return i;
-						}
-					}
+		if (UIPanelState.bottomSubPanelMenu == null) {
+			return -1;
+		}
+
+		int itemWidth = ui(UIPanelState.BOTTOM_SUBITEM_WIDTH);
+		int itemHeight = ui(UIPanelState.BOTTOM_SUBITEM_HEIGHT);
+
+		bucle1: for (int y1 = 0; y1 < UIPanelState.BOTTOM_SUBPANEL_NUM_ITEMS_Y; y1++) {
+			for (int x1 = 0; x1 < UIPanelState.BOTTOM_SUBPANEL_NUM_ITEMS_X; x1++) {
+				int i = (y1 * UIPanelState.BOTTOM_SUBPANEL_NUM_ITEMS_X) + x1;
+
+				if (i >= UIPanelState.bottomSubPanelMenu.getItems().size()) {
+					break bucle1;
+				}
+
+				Point point = getScaledBottomSubPanelItemPoint(i);
+
+				if (x >= point.x
+						&& x < point.x + itemWidth
+						&& y >= point.y
+						&& y < point.y + itemHeight) {
+					return i;
 				}
 			}
 		}
@@ -2507,7 +2577,7 @@ public static int isMouseOnAPanel(int x, int y) {
 		return false;
 	}
 
-	public static  int isMouseOnMenuItems(int x, int y) {
+	public static int isMouseOnMenuItems(int x, int y) {
 		if (y >= menuPanelPoint.y && y < (menuPanelPoint.y + MENU_PANEL_HEIGHT) && x >= menuPanelPoint.x
 				&& x < (menuPanelPoint.x + MENU_PANEL_WIDTH)) {
 			Point point;
@@ -2539,7 +2609,7 @@ public static int isMouseOnAPanel(int x, int y) {
 	 * @return Un punto, X es el MOUSE_ID y Y indica la posición del item en el
 	 *         array correspondiente
 	 */
-	public static  Point isMouseOnProductionItems(int x, int y) {
+	public static Point isMouseOnProductionItems(int x, int y) {
 		if (y >= productionPanelPoint.y && y < (productionPanelPoint.y + PRODUCTION_PANEL_HEIGHT)
 				&& x >= productionPanelPoint.x && x < (productionPanelPoint.x + PRODUCTION_PANEL_WIDTH)) {
 			Point point;

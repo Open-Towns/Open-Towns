@@ -13,6 +13,50 @@ public class BottomMenuPanel {
 		return UIScaler.ui(value);
 	}
 
+	private static Point insetPoint(Point point, int inset) {
+		return new Point(point.x + inset, point.y + inset);
+	}
+
+	private static void drawScaledButton(Tile tile, Point point, int width, int height) {
+		UtilsGL.drawTexture(
+				point.x,
+				point.y,
+				point.x + width,
+				point.y + height,
+				tile.getTileSetTexX0(),
+				tile.getTileSetTexY0(),
+				tile.getTileSetTexX1(),
+				tile.getTileSetTexY1());
+	}
+
+	private static void drawScaledIcon(Tile tile, Point buttonPoint, int buttonWidth, int buttonHeight,
+			boolean highlighted) {
+		int iconInset = ui(6);
+
+		int iconX = buttonPoint.x + iconInset;
+		int iconY = buttonPoint.y + iconInset;
+		int iconWidth = buttonWidth - (iconInset * 2);
+		int iconHeight = buttonHeight - (iconInset * 2);
+
+		if (iconWidth < 1) {
+			iconWidth = 1;
+		}
+
+		if (iconHeight < 1) {
+			iconHeight = 1;
+		}
+
+		UtilsGL.drawTexture(
+				iconX,
+				iconY,
+				iconX + iconWidth,
+				iconY + iconHeight,
+				tile.getTileSetTexX0(),
+				tile.getTileSetTexY0(),
+				tile.getTileSetTexX1(),
+				tile.getTileSetTexY1());
+	}
+
 	private static Point getScaledBottomItemPoint(int itemIndex, int bottomPanelX, int bottomPanelY) {
 		Point originalPoint = UIPanelState.bottomPanelItemsPosition.get(itemIndex);
 
@@ -160,20 +204,18 @@ public class BottomMenuPanel {
 				if (UIPanelState.checkBlinkBottom
 						&& TutorialFlow.currentBlinkBottom(UIPanelState.currentMenu.getItems().get(i).getID())) {
 					UtilsGL.setColorRed();
-					UIPanel.drawTile(
+					drawScaledButton(
 							UIPanelState.tileBottomItemSM,
 							point,
 							bottomItemWidth,
-							bottomItemHeight,
-							iItemBottomPanel == visibleIndex);
+							bottomItemHeight);
 					UtilsGL.unsetColor();
 				} else {
-					UIPanel.drawTile(
+					drawScaledButton(
 							UIPanelState.tileBottomItemSM,
 							point,
 							bottomItemWidth,
-							bottomItemHeight,
-							iItemBottomPanel == visibleIndex);
+							bottomItemHeight);
 				}
 			} else {
 				iCurrentTexture = UtilsGL.setTexture(UIPanelState.tileBottomItem, iCurrentTexture);
@@ -181,20 +223,18 @@ public class BottomMenuPanel {
 				if (UIPanelState.checkBlinkBottom
 						&& TutorialFlow.currentBlinkBottom(UIPanelState.currentMenu.getItems().get(i).getID())) {
 					UtilsGL.setColorRed();
-					UIPanel.drawTile(
+					drawScaledButton(
 							UIPanelState.tileBottomItem,
 							point,
 							bottomItemWidth,
-							bottomItemHeight,
-							iItemBottomPanel == visibleIndex);
+							bottomItemHeight);
 					UtilsGL.unsetColor();
 				} else {
-					UIPanel.drawTile(
+					drawScaledButton(
 							UIPanelState.tileBottomItem,
 							point,
 							bottomItemWidth,
-							bottomItemHeight,
-							iItemBottomPanel == visibleIndex);
+							bottomItemHeight);
 				}
 			}
 
@@ -204,7 +244,7 @@ public class BottomMenuPanel {
 			if (tile != null && UIPanelState.currentMenu.getItems().get(i).getIconType() == SmartMenu.ICON_TYPE_UI) {
 				iCurrentTexture = UtilsGL.setTexture(tile, iCurrentTexture);
 
-				UIPanel.drawTile(
+				drawScaledIcon(
 						tile,
 						point,
 						bottomItemWidth,
@@ -260,20 +300,18 @@ public class BottomMenuPanel {
 								&& TutorialFlow.currentBlinkBottom(
 										UIPanelState.bottomSubPanelMenu.getItems().get(iMenu).getID())) {
 							UtilsGL.setColorRed();
-							UIPanel.drawTile(
+							drawScaledButton(
 									UIPanelState.tileBottomItemSM,
 									point,
 									bottomItemWidth,
-									bottomItemHeight,
-									iItemBottomSubPanel == iMenu);
+									bottomItemHeight);
 							UtilsGL.unsetColor();
 						} else {
-							UIPanel.drawTile(
+							drawScaledButton(
 									UIPanelState.tileBottomItemSM,
 									point,
 									bottomItemWidth,
-									bottomItemHeight,
-									iItemBottomSubPanel == iMenu);
+									bottomItemHeight);
 						}
 					} else {
 						iCurrentTexture = UtilsGL.setTexture(UIPanelState.tileBottomItem, iCurrentTexture);
@@ -282,20 +320,18 @@ public class BottomMenuPanel {
 								&& TutorialFlow.currentBlinkBottom(
 										UIPanelState.bottomSubPanelMenu.getItems().get(iMenu).getID())) {
 							UtilsGL.setColorRed();
-							UIPanel.drawTile(
+							drawScaledButton(
 									UIPanelState.tileBottomItem,
 									point,
 									bottomItemWidth,
-									bottomItemHeight,
-									iItemBottomSubPanel == iMenu);
+									bottomItemHeight);
 							UtilsGL.unsetColor();
 						} else {
-							UIPanel.drawTile(
+							drawScaledButton(
 									UIPanelState.tileBottomItem,
 									point,
 									bottomItemWidth,
-									bottomItemHeight,
-									iItemBottomSubPanel == iMenu);
+									bottomItemHeight);
 						}
 					}
 
@@ -307,7 +343,7 @@ public class BottomMenuPanel {
 									.getIconType() == SmartMenu.ICON_TYPE_UI) {
 						iCurrentTexture = UtilsGL.setTexture(tile, iCurrentTexture);
 
-						UIPanel.drawTile(
+						drawScaledIcon(
 								tile,
 								point,
 								bottomItemWidth,
@@ -338,7 +374,7 @@ public class BottomMenuPanel {
 			if (tile != null && UIPanelState.currentMenu.getItems().get(i).getIconType() == SmartMenu.ICON_TYPE_ITEM) {
 				iCurrentTexture = UtilsGL.setTexture(tile, iCurrentTexture);
 
-				UIPanel.drawTile(
+				drawScaledIcon(
 						tile,
 						point,
 						bottomItemWidth,
@@ -370,8 +406,7 @@ public class BottomMenuPanel {
 							&& UIPanelState.bottomSubPanelMenu.getItems().get(iMenu)
 									.getIconType() == SmartMenu.ICON_TYPE_ITEM) {
 						iCurrentTexture = UtilsGL.setTexture(tile, iCurrentTexture);
-
-						UIPanel.drawTile(
+						drawScaledIcon(
 								tile,
 								point,
 								bottomItemWidth,
@@ -379,9 +414,10 @@ public class BottomMenuPanel {
 								iItemBottomSubPanel == iMenu);
 					}
 				}
-			}
-		}
 
+			}
+
+		}
 		return iCurrentTexture;
 	}
 }
