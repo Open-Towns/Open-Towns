@@ -1294,13 +1294,13 @@ public static void taskCreated(Task task) {
 				} else {
 					if (iKEY == Keyboard.KEY_ADD || iKEY == Keyboard.KEY_EQUALS) {
 						TooltipScale.set(TooltipScale.get() + 0.25f);
-						System.out.println("UI scale: " + TooltipScale.get());
+						
 						continue;
 					}
 
 					if (iKEY == Keyboard.KEY_SUBTRACT || iKEY == Keyboard.KEY_MINUS) {
 						TooltipScale.set(TooltipScale.get() - 0.25f);
-						System.out.println("UI scale: " + TooltipScale.get());
+					
 						continue;
 					}
 
