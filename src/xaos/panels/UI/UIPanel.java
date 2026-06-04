@@ -48,6 +48,7 @@ import xaos.utils.UtilsGL;
 import xaos.utils.UtilsIniHeaders;
 import static xaos.panels.UI.UIPanelState.*;
 import static xaos.panels.UI.UIPanelInputHandler.*;
+import static xaos.panels.UI.UIPanelScaler.*;
 
 
 public final class UIPanel {
@@ -435,22 +436,39 @@ public final class UIPanel {
 			iCurrentTexture = BottomPanel.renderPanel(mouseX, mouseY, mousePanel, iCurrentTexture);
 		}
 
-		// Rendereamos el botoncito para hacer visible/invisible el bottom panel
-		if (UIPanel.isBottomMenuPanelLocked()) {
-			iCurrentTexture = UtilsGL.setTexture(tileOpenBottomMenuON, iCurrentTexture);
-			drawTile(tileOpenBottomMenuON, tileOpenCloseBottomMenuPoint, tileOpenBottomMenuON.getTileWidth(),
-					tileOpenBottomMenuON.getTileHeight(), mousePanel == MOUSE_BOTTOM_OPENCLOSE);
-		} else {
-			iCurrentTexture = UtilsGL.setTexture(tileOpenBottomMenu, iCurrentTexture);
-			if (checkBlinkBottom) {
-				UtilsGL.setColorRed();
-			}
-			drawTile(tileOpenBottomMenu, tileOpenCloseBottomMenuPoint, tileOpenBottomMenu.getTileWidth(),
-					tileOpenBottomMenu.getTileHeight(), mousePanel == MOUSE_BOTTOM_OPENCLOSE);
-			if (checkBlinkBottom) {
-				UtilsGL.unsetColor();
-			}
-		}
+	// Rendereamos el botoncito para hacer visible/invisible el bottom panel
+Point scaledBottomOpenClosePoint = anchorFromCentreXAndBottom(
+		tileOpenCloseBottomMenuPoint,
+		tileOpenBottomMenu.getTileWidth(),
+		tileOpenBottomMenu.getTileHeight(),
+		ui(tileOpenBottomMenu.getTileWidth()),
+		ui(tileOpenBottomMenu.getTileHeight()));
+
+if (UIPanel.isBottomMenuPanelLocked()) {
+	iCurrentTexture = UtilsGL.setTexture(tileOpenBottomMenuON, iCurrentTexture);
+
+	drawScaledTile(
+			tileOpenBottomMenuON,
+			scaledBottomOpenClosePoint,
+			ui(tileOpenBottomMenuON.getTileWidth()),
+			ui(tileOpenBottomMenuON.getTileHeight()));
+} else {
+	iCurrentTexture = UtilsGL.setTexture(tileOpenBottomMenu, iCurrentTexture);
+
+	if (checkBlinkBottom) {
+		UtilsGL.setColorRed();
+	}
+
+	drawScaledTile(
+			tileOpenBottomMenu,
+			scaledBottomOpenClosePoint,
+			ui(tileOpenBottomMenu.getTileWidth()),
+			ui(tileOpenBottomMenu.getTileHeight()));
+
+	if (checkBlinkBottom) {
+		UtilsGL.unsetColor();
+	}
+}
 
 		/*
 		 * MINIMAP (textures)
@@ -878,65 +896,132 @@ public final class UIPanel {
 
 
 
-	/**
-	 * Renderiza el background con los 8 tiles de los lados y esquinas 0: background
-	 * 1: N 2: S 3: E 4: W 5: NE 6: NW 7: SE 8: SW
-	 * 
-	 * @param tiles
-	 */
-	public static void renderBackground(Tile[] tiles, Point point, int width, int height) {
-		int iEdgeWidth = tiles[6].getTileWidth();
-		int iEdgeHeight = tiles[6].getTileHeight();
+/**
+ * Renderiza el background con los 8 tiles de los lados y esquinas
+ * 0: background
+ * 1: N
+ * 2: S
+ * 3: E
+ * 4: W
+ * 5: NE
+ * 6: NW
+ * 7: SE
+ * 8: SW
+ *
+ * @param tiles
+ */
+public static void renderBackground(Tile[] tiles, Point point, int width, int height) {
+	int iEdgeWidth = ui(tiles[6].getTileWidth());
+	int iEdgeHeight = ui(tiles[6].getTileHeight());
 
-		// Background
-		Tile tile = tiles[0];
-		UtilsGL.drawTexture(point.x + iEdgeWidth, point.y + iEdgeHeight, point.x + width - iEdgeWidth,
-				point.y + height - iEdgeHeight, tile.getTileSetTexX0(), tile.getTileSetTexY0(), tile.getTileSetTexX1(),
-				tile.getTileSetTexY1());
+	// Background
+	Tile tile = tiles[0];
+	UtilsGL.drawTexture(
+			point.x + iEdgeWidth,
+			point.y + iEdgeHeight,
+			point.x + width - iEdgeWidth,
+			point.y + height - iEdgeHeight,
+			tile.getTileSetTexX0(),
+			tile.getTileSetTexY0(),
+			tile.getTileSetTexX1(),
+			tile.getTileSetTexY1());
 
-		// N
-		tile = tiles[1];
-		UtilsGL.drawTexture(point.x + iEdgeWidth, point.y, point.x + width - iEdgeWidth, point.y + iEdgeHeight,
-				tile.getTileSetTexX0(), tile.getTileSetTexY0(), tile.getTileSetTexX1(), tile.getTileSetTexY1());
+	// N
+	tile = tiles[1];
+	UtilsGL.drawTexture(
+			point.x + iEdgeWidth,
+			point.y,
+			point.x + width - iEdgeWidth,
+			point.y + iEdgeHeight,
+			tile.getTileSetTexX0(),
+			tile.getTileSetTexY0(),
+			tile.getTileSetTexX1(),
+			tile.getTileSetTexY1());
 
-		// S
-		tile = tiles[2];
-		UtilsGL.drawTexture(point.x + iEdgeWidth, point.y + height - iEdgeHeight, point.x + width - iEdgeWidth,
-				point.y + height, tile.getTileSetTexX0(), tile.getTileSetTexY0(), tile.getTileSetTexX1(),
-				tile.getTileSetTexY1());
+	// S
+	tile = tiles[2];
+	UtilsGL.drawTexture(
+			point.x + iEdgeWidth,
+			point.y + height - iEdgeHeight,
+			point.x + width - iEdgeWidth,
+			point.y + height,
+			tile.getTileSetTexX0(),
+			tile.getTileSetTexY0(),
+			tile.getTileSetTexX1(),
+			tile.getTileSetTexY1());
 
-		// E
-		tile = tiles[3];
-		UtilsGL.drawTexture(point.x + width - iEdgeWidth, point.y + iEdgeHeight, point.x + width,
-				point.y + height - iEdgeHeight, tile.getTileSetTexX0(), tile.getTileSetTexY0(), tile.getTileSetTexX1(),
-				tile.getTileSetTexY1());
+	// E
+	tile = tiles[3];
+	UtilsGL.drawTexture(
+			point.x + width - iEdgeWidth,
+			point.y + iEdgeHeight,
+			point.x + width,
+			point.y + height - iEdgeHeight,
+			tile.getTileSetTexX0(),
+			tile.getTileSetTexY0(),
+			tile.getTileSetTexX1(),
+			tile.getTileSetTexY1());
 
-		// W
-		tile = tiles[4];
-		UtilsGL.drawTexture(point.x, point.y + iEdgeHeight, point.x + iEdgeWidth, point.y + height - iEdgeHeight,
-				tile.getTileSetTexX0(), tile.getTileSetTexY0(), tile.getTileSetTexX1(), tile.getTileSetTexY1());
+	// W
+	tile = tiles[4];
+	UtilsGL.drawTexture(
+			point.x,
+			point.y + iEdgeHeight,
+			point.x + iEdgeWidth,
+			point.y + height - iEdgeHeight,
+			tile.getTileSetTexX0(),
+			tile.getTileSetTexY0(),
+			tile.getTileSetTexX1(),
+			tile.getTileSetTexY1());
 
-		// NE
-		tile = tiles[5];
-		UtilsGL.drawTexture(point.x + width - iEdgeWidth, point.y, point.x + width, point.y + iEdgeHeight,
-				tile.getTileSetTexX0(), tile.getTileSetTexY0(), tile.getTileSetTexX1(), tile.getTileSetTexY1());
+	// NE
+	tile = tiles[5];
+	UtilsGL.drawTexture(
+			point.x + width - iEdgeWidth,
+			point.y,
+			point.x + width,
+			point.y + iEdgeHeight,
+			tile.getTileSetTexX0(),
+			tile.getTileSetTexY0(),
+			tile.getTileSetTexX1(),
+			tile.getTileSetTexY1());
 
-		// NW
-		tile = tiles[6];
-		UtilsGL.drawTexture(point.x, point.y, point.x + iEdgeWidth, point.y + iEdgeHeight, tile.getTileSetTexX0(),
-				tile.getTileSetTexY0(), tile.getTileSetTexX1(), tile.getTileSetTexY1());
+	// NW
+	tile = tiles[6];
+	UtilsGL.drawTexture(
+			point.x,
+			point.y,
+			point.x + iEdgeWidth,
+			point.y + iEdgeHeight,
+			tile.getTileSetTexX0(),
+			tile.getTileSetTexY0(),
+			tile.getTileSetTexX1(),
+			tile.getTileSetTexY1());
 
-		// SE
-		tile = tiles[7];
-		UtilsGL.drawTexture(point.x + width - iEdgeWidth, point.y + height - iEdgeHeight, point.x + width,
-				point.y + height, tile.getTileSetTexX0(), tile.getTileSetTexY0(), tile.getTileSetTexX1(),
-				tile.getTileSetTexY1());
+	// SE
+	tile = tiles[7];
+	UtilsGL.drawTexture(
+			point.x + width - iEdgeWidth,
+			point.y + height - iEdgeHeight,
+			point.x + width,
+			point.y + height,
+			tile.getTileSetTexX0(),
+			tile.getTileSetTexY0(),
+			tile.getTileSetTexX1(),
+			tile.getTileSetTexY1());
 
-		// SW
-		tile = tiles[8];
-		UtilsGL.drawTexture(point.x, point.y + height - iEdgeHeight, point.x + iEdgeWidth, point.y + height,
-				tile.getTileSetTexX0(), tile.getTileSetTexY0(), tile.getTileSetTexX1(), tile.getTileSetTexY1());
-	}
+	// SW
+	tile = tiles[8];
+	UtilsGL.drawTexture(
+			point.x,
+			point.y + height - iEdgeHeight,
+			point.x + iEdgeWidth,
+			point.y + height,
+			tile.getTileSetTexX0(),
+			tile.getTileSetTexY0(),
+			tile.getTileSetTexX1(),
+			tile.getTileSetTexY1());
+}
 
 	public void renderTradePanel(int mouseX, int mouseY, int mousePanel) {
 		Point pItem = isMouseOnTradeButtons(mouseX, mouseY);
