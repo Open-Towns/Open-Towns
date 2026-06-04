@@ -49,6 +49,7 @@ import xaos.utils.UtilsIniHeaders;
 import static xaos.panels.UI.UIPanelState.*;
 import static xaos.panels.UI.UIPanelInputHandler.*;
 
+
 public final class UIPanel {
 
 	public UIPanel() {
@@ -469,7 +470,7 @@ public final class UIPanel {
 		/*
 		 * MENU (right)
 		 */
-		renderMenuPanel(mouseX, mouseY, mousePanel);
+		RightPanel.renderMenuPanel(mouseX, mouseY, mousePanel);
 
 		// Possible mini icon blinks?
 		// Blink
@@ -873,128 +874,7 @@ public final class UIPanel {
 		TooltipRenderer.renderTooltips(mouseX, mouseY, mousePanel);
 	}
 
-	public void renderMenuPanel(int mouseX, int mouseY, int mousePanel) {
-		checkBlinkRight = (blinkTurns >= MAX_BLINK_TURNS / 2) && TutorialFlow.isBlinkRight();
-
-		if (isMenuPanelActive()) {
-
-			// XAVI GL11.glColor4f (1, 1, 1, 1);
-			int iCurrentTexture = tileMenuPanel[0].getTextureID();
-			GL11.glBindTexture(GL11.GL_TEXTURE_2D, iCurrentTexture);
-			GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
-			UtilsGL.glBegin(GL11.GL_QUADS);
-			renderBackground(tileMenuPanel, menuPanelPoint, MENU_PANEL_WIDTH, MENU_PANEL_HEIGHT);
-
-			int iItemMenu;
-			if (mousePanel == MOUSE_MENU_PANEL_ITEMS) {
-				iItemMenu = isMouseOnMenuItems(mouseX, mouseY);
-			} else {
-				iItemMenu = -1;
-			}
-
-			// Items
-			if (menuPanelMenu != null) {
-				int iMenu;
-				Point point;
-				bucle1: for (int y = 0; y < MENU_PANEL_NUM_ITEMS_Y; y++) {
-					for (int x = 0; x < MENU_PANEL_NUM_ITEMS_X; x++) {
-						iMenu = (y * MENU_PANEL_NUM_ITEMS_X) + x;
-						if (iMenu >= menuPanelMenu.getItems().size()) {
-							break bucle1;
-						}
-						point = menuPanelItemsPosition.get(iMenu);
-
-						// Round button
-						if (menuPanelMenu.getItems().get(iMenu).getType() == SmartMenu.TYPE_MENU) {
-							iCurrentTexture = UtilsGL.setTexture(tileBottomItemSM, iCurrentTexture);
-							if (checkBlinkRight
-									&& TutorialFlow.currentBlinkRight(menuPanelMenu.getItems().get(iMenu).getID())) {
-								UtilsGL.setColorRed();
-								drawTile(tileBottomItemSM, point, BOTTOM_ITEM_WIDTH, BOTTOM_ITEM_HEIGHT,
-										(iItemMenu == iMenu));
-								UtilsGL.unsetColor();
-							} else {
-								drawTile(tileBottomItemSM, point, BOTTOM_ITEM_WIDTH, BOTTOM_ITEM_HEIGHT,
-										(iItemMenu == iMenu));
-							}
-						} else {
-							iCurrentTexture = UtilsGL.setTexture(tileBottomItem, iCurrentTexture);
-
-							if (checkBlinkRight
-									&& TutorialFlow.currentBlinkRight(menuPanelMenu.getItems().get(iMenu).getID())) {
-								UtilsGL.setColorRed();
-								drawTile(tileBottomItem, point, BOTTOM_ITEM_WIDTH, BOTTOM_ITEM_HEIGHT,
-										(iItemMenu == iMenu));
-								UtilsGL.unsetColor();
-							} else {
-								drawTile(tileBottomItem, point, BOTTOM_ITEM_WIDTH, BOTTOM_ITEM_HEIGHT,
-										(iItemMenu == iMenu));
-							}
-						}
-
-						// Icono
-						Tile tile = menuPanelMenu.getItems().get(iMenu).getIcon();
-						if (tile != null
-								&& menuPanelMenu.getItems().get(iMenu).getIconType() == SmartMenu.ICON_TYPE_UI) { // MENU
-							iCurrentTexture = UtilsGL.setTexture(tile, iCurrentTexture);
-							drawTile(tile, point, BOTTOM_ITEM_WIDTH, BOTTOM_ITEM_HEIGHT, (iItemMenu == iMenu));
-						}
-					}
-				}
-			}
-
-			// MENU
-			if (menuPanelMenu != null) {
-				int iMenu;
-				Tile tile;
-				Point point;
-				bucle1: for (int y = 0; y < MENU_PANEL_NUM_ITEMS_Y; y++) {
-					for (int x = 0; x < MENU_PANEL_NUM_ITEMS_X; x++) {
-						iMenu = (y * MENU_PANEL_NUM_ITEMS_X) + x;
-						if (iMenu >= menuPanelMenu.getItems().size()) {
-							break bucle1;
-						}
-						point = menuPanelItemsPosition.get(iMenu);
-						// Icono
-						tile = menuPanelMenu.getItems().get(iMenu).getIcon();
-						if (tile != null
-								&& menuPanelMenu.getItems().get(iMenu).getIconType() == SmartMenu.ICON_TYPE_ITEM) { // ICONO
-							iCurrentTexture = UtilsGL.setTexture(tile, iCurrentTexture);
-							drawTile(tile, point, BOTTOM_ITEM_WIDTH, BOTTOM_ITEM_HEIGHT, (iItemMenu == iMenu));
-						}
-					}
-				}
-			}
-
-			UtilsGL.glEnd();
-		}
-
-		// Botoncito open/close
-		if (isMenuPanelLocked()) {
-			// Close menu icon
-			// XAVI GL11.glColor4f (1, 1, 1, 1);
-			GL11.glBindTexture(GL11.GL_TEXTURE_2D, tileOpenRightMenuON.getTextureID());
-			GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
-			UtilsGL.glBegin(GL11.GL_QUADS);
-			drawTile(tileOpenRightMenuON, tileOpenCloseRightMenuPoint, tileOpenRightMenuON.getTileWidth(),
-					tileOpenRightMenuON.getTileHeight(), mousePanel == MOUSE_MENU_OPENCLOSE);
-			UtilsGL.glEnd();
-		} else {
-			// XAVI GL11.glColor4f (1, 1, 1, 1);
-			GL11.glBindTexture(GL11.GL_TEXTURE_2D, tileOpenRightMenu.getTextureID());
-			GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
-			UtilsGL.glBegin(GL11.GL_QUADS);
-			if (checkBlinkRight) {
-				UtilsGL.setColorRed();
-			}
-			drawTile(tileOpenRightMenu, tileOpenCloseRightMenuPoint, tileOpenRightMenu.getTileWidth(),
-					tileOpenRightMenu.getTileHeight(), mousePanel == MOUSE_MENU_OPENCLOSE);
-			if (checkBlinkRight) {
-				UtilsGL.unsetColor();
-			}
-			UtilsGL.glEnd();
-		}
-	}
+	
 
 	public void renderProductionPanel(int mouseX, int mouseY, int mousePanel) {
 		checkBlinkProduction = (blinkTurns >= MAX_BLINK_TURNS / 2) && TutorialFlow.isBlinkProduction();

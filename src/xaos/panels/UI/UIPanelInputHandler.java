@@ -38,11 +38,32 @@ import static xaos.panels.UI.UIPanel.*;
 import xaos.utils.Messages;
 import java.awt.Color;
 
+
 public class UIPanelInputHandler {
 
 	private static int ui(int value) {
 		return UIScaler.ui(value);
 	}
+	private static Point getScaledMenuPanelPoint() {
+	return UIPanelScaler.anchorFromRight(
+			UIPanelState.menuPanelPoint,
+			UIPanelState.MENU_PANEL_WIDTH,
+			UIPanelScaler.ui(UIPanelState.MENU_PANEL_WIDTH));
+}
+
+private static Point getScaledMenuItemPoint(int itemIndex) {
+	return UIPanelScaler.scalePointFromAnchor(
+			UIPanelState.menuPanelItemsPosition.get(itemIndex),
+			UIPanelState.menuPanelPoint,
+			getScaledMenuPanelPoint());
+}
+
+private static Point getScaledRightMenuOpenClosePoint() {
+	return UIPanelScaler.scalePointFromAnchor(
+			UIPanelState.tileOpenCloseRightMenuPoint,
+			UIPanelState.menuPanelPoint,
+			getScaledMenuPanelPoint());
+}
 
 	private static int getScaledBottomPanelWidth() {
 		return ui(UIPanelState.BOTTOM_PANEL_WIDTH);
@@ -2140,55 +2161,55 @@ public class UIPanelInputHandler {
 				}
 			}
 		}
+// MENU (right)
+if (isMenuPanelActive()) {
+	if (isMouseOnMenuItems(x, y) != -1) {
+		if (doEdgeMenusStuff) {
+			// Cerramos los menús no locked
+			closeNonLockedMenus(true, false, true);
+			delayTime = 0;
+		}
+		return MOUSE_MENU_PANEL_ITEMS;
+	}
 
-		// MENU (right)
-		if (isMenuPanelActive()) {
-			if (isMouseOnMenuItems(x, y) != -1) {
-				if (doEdgeMenusStuff) {
-					// Cerramos los menús no locked
-					closeNonLockedMenus(true, false, true);
-					delayTime = 0;
-				}
-				return MOUSE_MENU_PANEL_ITEMS;
-			}
-			if (isMouseOnMenuPanel(x, y)) {
-				if (doEdgeMenusStuff) {
-					// Cerramos los menús no locked
-					closeNonLockedMenus(true, false, true);
-					delayTime = 0;
-				}
-				return MOUSE_MENU_PANEL;
-			}
-			if (isMouseOnAnIcon(x, y, tileOpenCloseRightMenuPoint, tileOpenRightMenuON, tileOpenRightMenuONAlpha)) {
-				if (doEdgeMenusStuff) {
-					// Cerramos los menús no locked
-					closeNonLockedMenus(true, false, true);
-					delayTime = 0;
-				}
-				return MOUSE_MENU_OPENCLOSE;
-			}
+	if (isMouseOnMenuPanel(x, y)) {
+		if (doEdgeMenusStuff) {
+			// Cerramos los menús no locked
+			closeNonLockedMenus(true, false, true);
+			delayTime = 0;
+		}
+		return MOUSE_MENU_PANEL;
+	}
 
-			if (doEdgeMenusStuff) {
-				if (delayTime > (Game.FPS_INGAME / 8) * 6) {
-					if (!isMenuPanelLocked() && !isMouseOnAnIcon(x, y, tileOpenCloseRightMenuPoint, tileOpenRightMenu,
-							tileOpenRightMenuAlpha)) {
-						delayTime = 0;
-						setMenuPanelActive(false);
-					}
-				}
-			}
-		} else {
-			if (doEdgeMenusStuff) {
-				if (isMouseOnAnIcon(x, y, tileOpenCloseRightMenuPoint, tileOpenRightMenu, tileOpenRightMenuAlpha)) {
-					setMenuPanelActive(true);
+	if (isMouseOnRightMenuOpenClose(x, y, tileOpenRightMenuON)) {
+		if (doEdgeMenusStuff) {
+			// Cerramos los menús no locked
+			closeNonLockedMenus(true, false, true);
+			delayTime = 0;
+		}
+		return MOUSE_MENU_OPENCLOSE;
+	}
 
-					// Cerramos los menús no locked
-					closeNonLockedMenus(true, false, true);
-					delayTime = 0;
-					return MOUSE_MENU_OPENCLOSE;
-				}
+	if (doEdgeMenusStuff) {
+		if (delayTime > (Game.FPS_INGAME / 8) * 6) {
+			if (!isMenuPanelLocked() && !isMouseOnRightMenuOpenClose(x, y, tileOpenRightMenu)) {
+				delayTime = 0;
+				setMenuPanelActive(false);
 			}
 		}
+	}
+} else {
+	if (doEdgeMenusStuff) {
+		if (isMouseOnRightMenuOpenClose(x, y, tileOpenRightMenu)) {
+			setMenuPanelActive(true);
+
+			// Cerramos los menús no locked
+			closeNonLockedMenus(true, false, true);
+			delayTime = 0;
+			return MOUSE_MENU_OPENCLOSE;
+		}
+	}
+}
 
 		// MINI ICONS
 		if (isMouseOnAnIcon(x, y, iconLevelUpPoint, tileIconLevelUp, tileIconLevelUpAlpha)) {
@@ -2569,37 +2590,62 @@ public class UIPanelInputHandler {
 	}
 
 	public static boolean isMouseOnMenuPanel(int x, int y) {
-		if (x >= menuPanelPoint.x && x < (menuPanelPoint.x + MENU_PANEL_WIDTH) && y >= menuPanelPoint.y
-				&& y < (menuPanelPoint.y + MENU_PANEL_HEIGHT)) {
-			return true;
-		}
+	Point panelPoint = getScaledMenuPanelPoint();
 
-		return false;
-	}
+	int width = UIPanelScaler.ui(UIPanelState.MENU_PANEL_WIDTH);
+	int height = UIPanelScaler.ui(UIPanelState.MENU_PANEL_HEIGHT);
+
+	return x >= panelPoint.x
+			&& x < panelPoint.x + width
+			&& y >= panelPoint.y
+			&& y < panelPoint.y + height;
+}
 
 	public static int isMouseOnMenuItems(int x, int y) {
-		if (y >= menuPanelPoint.y && y < (menuPanelPoint.y + MENU_PANEL_HEIGHT) && x >= menuPanelPoint.x
-				&& x < (menuPanelPoint.x + MENU_PANEL_WIDTH)) {
-			Point point;
-			bucle1: for (int y1 = 0; y1 < MENU_PANEL_NUM_ITEMS_Y; y1++) {
-				for (int x1 = 0; x1 < MENU_PANEL_NUM_ITEMS_X; x1++) {
-					int i = (y1 * MENU_PANEL_NUM_ITEMS_X) + x1;
-					if (i >= menuPanelMenu.getItems().size()) {
-						break bucle1;
-					}
-					point = menuPanelItemsPosition.get(i);
-					if (x >= point.x && x < (point.x + MENU_ITEM_WIDTH) && y >= point.y
-							&& y < (point.y + MENU_ITEM_HEIGHT)) {
-						if (!tileBottomItemAlpha[x - point.x][y - point.y]) {
-							return i;
-						}
-					}
+	Point panelPoint = getScaledMenuPanelPoint();
+
+	int panelWidth = UIPanelScaler.ui(UIPanelState.MENU_PANEL_WIDTH);
+	int panelHeight = UIPanelScaler.ui(UIPanelState.MENU_PANEL_HEIGHT);
+
+	if (y >= panelPoint.y && y < panelPoint.y + panelHeight
+			&& x >= panelPoint.x && x < panelPoint.x + panelWidth) {
+
+		int itemWidth = UIPanelScaler.ui(UIPanelState.BOTTOM_ITEM_WIDTH);
+int itemHeight = UIPanelScaler.ui(UIPanelState.BOTTOM_ITEM_HEIGHT);
+
+		bucle1: for (int y1 = 0; y1 < UIPanelState.MENU_PANEL_NUM_ITEMS_Y; y1++) {
+			for (int x1 = 0; x1 < UIPanelState.MENU_PANEL_NUM_ITEMS_X; x1++) {
+				int i = (y1 * UIPanelState.MENU_PANEL_NUM_ITEMS_X) + x1;
+
+				if (i >= UIPanelState.menuPanelMenu.getItems().size()) {
+					break bucle1;
+				}
+
+				Point point = getScaledMenuItemPoint(i);
+
+				if (x >= point.x
+						&& x < point.x + itemWidth
+						&& y >= point.y
+						&& y < point.y + itemHeight) {
+					return i;
 				}
 			}
 		}
-
-		return -1;
 	}
+
+	return -1;
+}
+public static boolean isMouseOnRightMenuOpenClose(int x, int y, Tile tile) {
+	Point point = getScaledRightMenuOpenClosePoint();
+
+	int width = UIPanelScaler.ui(tile.getTileWidth());
+	int height = UIPanelScaler.ui(tile.getTileHeight());
+
+	return x >= point.x
+			&& x < point.x + width
+			&& y >= point.y
+			&& y < point.y + height;
+}
 
 	/**
 	 * Indica si el mouse está en un item (o en los +/-) del panel de producción

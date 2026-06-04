@@ -1,5 +1,7 @@
 package xaos.panels.UI;
 
+import static xaos.panels.UI.UIPanelScaler.*;
+
 import xaos.campaign.TutorialFlow;
 import xaos.panels.menus.SmartMenu;
 import xaos.tiles.Tile;
@@ -9,85 +11,29 @@ import java.awt.Point;
 
 public class BottomPanel {
 
-	private static int ui(int value) {
-		return UIScaler.ui(value);
+	private static Point getOriginalBottomPanelPoint() {
+		return new Point(UIPanelState.bottomPanelX, UIPanelState.bottomPanelY);
 	}
 
-	private static void drawScaledButton(Tile tile, Point point, int width, int height) {
-		UtilsGL.drawTexture(
-				point.x,
-				point.y,
-				point.x + width,
-				point.y + height,
-				tile.getTileSetTexX0(),
-				tile.getTileSetTexY0(),
-				tile.getTileSetTexX1(),
-				tile.getTileSetTexY1());
+	private static Point getScaledBottomItemPoint(int itemIndex, Point bottomPanelPoint) {
+		return scalePointFromAnchor(
+				UIPanelState.bottomPanelItemsPosition.get(itemIndex),
+				getOriginalBottomPanelPoint(),
+				bottomPanelPoint);
 	}
 
-	private static void drawScaledIcon(Tile tile, Point buttonPoint, int buttonWidth, int buttonHeight,
-			boolean highlighted) {
-		int iconInset = ui(6);
-
-		int iconX = buttonPoint.x + iconInset;
-		int iconY = buttonPoint.y + iconInset;
-		int iconWidth = buttonWidth - (iconInset * 2);
-		int iconHeight = buttonHeight - (iconInset * 2);
-
-		if (iconWidth < 1) {
-			iconWidth = 1;
-		}
-
-		if (iconHeight < 1) {
-			iconHeight = 1;
-		}
-
-		UtilsGL.drawTexture(
-				iconX,
-				iconY,
-				iconX + iconWidth,
-				iconY + iconHeight,
-				tile.getTileSetTexX0(),
-				tile.getTileSetTexY0(),
-				tile.getTileSetTexX1(),
-				tile.getTileSetTexY1());
-	}
-
-	private static Point getScaledBottomItemPoint(int itemIndex, int bottomPanelX, int bottomPanelY) {
-		Point originalPoint = UIPanelState.bottomPanelItemsPosition.get(itemIndex);
-
-		int originalOffsetX = originalPoint.x - UIPanelState.bottomPanelX;
-		int originalOffsetY = originalPoint.y - UIPanelState.bottomPanelY;
-
-		return new Point(
-				bottomPanelX + ui(originalOffsetX),
-				bottomPanelY + ui(originalOffsetY));
-	}
-
-	private static Point getScaledBottomSubPanelPoint(int bottomPanelX, int bottomPanelY) {
-		/*
-		 * Keep the subpanel anchored relative to the bottom panel instead of scaling
-		 * its
-		 * absolute screen position.
-		 */
-		int originalOffsetX = UIPanelState.bottomSubPanelPoint.x - UIPanelState.bottomPanelX;
-		int originalOffsetY = UIPanelState.bottomSubPanelPoint.y - UIPanelState.bottomPanelY;
-
-		return new Point(
-				bottomPanelX + ui(originalOffsetX),
-				bottomPanelY + ui(originalOffsetY));
+	private static Point getScaledBottomSubPanelPoint(Point bottomPanelPoint) {
+		return scalePointFromAnchor(
+				UIPanelState.bottomSubPanelPoint,
+				getOriginalBottomPanelPoint(),
+				bottomPanelPoint);
 	}
 
 	private static Point getScaledBottomSubPanelItemPoint(int itemIndex, Point bottomSubPanelPoint) {
-		int originalOffsetX = UIPanelState.bottomSubPanelItemsPosition.get(itemIndex).x
-				- UIPanelState.bottomSubPanelPoint.x;
-
-		int originalOffsetY = UIPanelState.bottomSubPanelItemsPosition.get(itemIndex).y
-				- UIPanelState.bottomSubPanelPoint.y;
-
-		return new Point(
-				bottomSubPanelPoint.x + ui(originalOffsetX),
-				bottomSubPanelPoint.y + ui(originalOffsetY));
+		return scalePointFromAnchor(
+				UIPanelState.bottomSubPanelItemsPosition.get(itemIndex),
+				UIPanelState.bottomSubPanelPoint,
+				bottomSubPanelPoint);
 	}
 
 	public static int renderPanel(int mouseX, int mouseY, int mousePanel, int iCurrentTexture) {
@@ -102,77 +48,69 @@ public class BottomPanel {
 		int bottomItemWidth = ui(UIPanelState.BOTTOM_ITEM_WIDTH);
 		int bottomItemHeight = ui(UIPanelState.BOTTOM_ITEM_HEIGHT);
 
-		// Scale from the original centre, not from the original left edge.
-		int originalPanelCenterX = UIPanelState.bottomPanelX + (UIPanelState.BOTTOM_PANEL_WIDTH / 2);
+		Point bottomPanelPoint = anchorFromCentreXAndBottom(
+				getOriginalBottomPanelPoint(),
+				UIPanelState.BOTTOM_PANEL_WIDTH,
+				UIPanelState.BOTTOM_PANEL_HEIGHT,
+				bottomPanelWidth,
+				bottomPanelHeight);
 
-		int bottomPanelX = originalPanelCenterX - (bottomPanelWidth / 2);
-		int bottomPanelY = UIPanelState.bottomPanelY - (bottomPanelHeight - UIPanelState.BOTTOM_PANEL_HEIGHT);
+		int bottomPanelX = bottomPanelPoint.x;
+		int bottomPanelY = bottomPanelPoint.y;
 
 		int bottomPanelLeftScrollX = bottomPanelX;
 		int bottomPanelRightScrollX = bottomPanelX + bottomPanelWidth - bottomScrollWidth;
+
 		// Panel itself
 		iCurrentTexture = UtilsGL.setTexture(UIPanelState.tileBottomPanel, iCurrentTexture);
 
-		UtilsGL.drawTexture(
-				bottomPanelX,
-				bottomPanelY,
-				bottomPanelX + bottomPanelWidth,
-				bottomPanelY + bottomPanelHeight,
-				UIPanelState.tileBottomPanel.getTileSetTexX0(),
-				UIPanelState.tileBottomPanel.getTileSetTexY0(),
-				UIPanelState.tileBottomPanel.getTileSetTexX1(),
-				UIPanelState.tileBottomPanel.getTileSetTexY1());
+		drawScaledTile(
+				UIPanelState.tileBottomPanel,
+				bottomPanelPoint,
+				bottomPanelWidth,
+				bottomPanelHeight);
+
 		// Left scroll
 		if (mousePanel == UIPanelState.MOUSE_BOTTOM_LEFT_SCROLL && UIPanelState.bottomPanelItemIndex > 0) {
-			UtilsGL.drawTexture(
-					bottomPanelLeftScrollX,
-					bottomPanelY,
-					bottomPanelLeftScrollX + bottomScrollWidth,
-					bottomPanelY + bottomPanelHeight,
-					UIPanelState.tileBottomScrollLeftON.getTileSetTexX0(),
-					UIPanelState.tileBottomScrollLeftON.getTileSetTexY0(),
-					UIPanelState.tileBottomScrollLeftON.getTileSetTexX1(),
-					UIPanelState.tileBottomScrollLeftON.getTileSetTexY1());
+			iCurrentTexture = UtilsGL.setTexture(UIPanelState.tileBottomScrollLeftON, iCurrentTexture);
+
+			drawScaledTile(
+					UIPanelState.tileBottomScrollLeftON,
+					new Point(bottomPanelLeftScrollX, bottomPanelY),
+					bottomScrollWidth,
+					bottomPanelHeight);
 		} else {
-			UtilsGL.drawTexture(
-					bottomPanelLeftScrollX,
-					bottomPanelY,
-					bottomPanelLeftScrollX + bottomScrollWidth,
-					bottomPanelY + bottomPanelHeight,
-					UIPanelState.tileBottomScrollLeft.getTileSetTexX0(),
-					UIPanelState.tileBottomScrollLeft.getTileSetTexY0(),
-					UIPanelState.tileBottomScrollLeft.getTileSetTexX1(),
-					UIPanelState.tileBottomScrollLeft.getTileSetTexY1());
+			iCurrentTexture = UtilsGL.setTexture(UIPanelState.tileBottomScrollLeft, iCurrentTexture);
+
+			drawScaledTile(
+					UIPanelState.tileBottomScrollLeft,
+					new Point(bottomPanelLeftScrollX, bottomPanelY),
+					bottomScrollWidth,
+					bottomPanelHeight);
 		}
 
 		// Right scroll
-		iCurrentTexture = UtilsGL.setTexture(UIPanelState.tileBottomScrollRight, iCurrentTexture);
-
 		if (mousePanel == UIPanelState.MOUSE_BOTTOM_RIGHT_SCROLL
 				&& (UIPanelState.bottomPanelItemIndex + UIPanelState.BOTTOM_PANEL_NUM_ITEMS) < UIPanelState.currentMenu
 						.getItems().size()) {
-			UtilsGL.drawTexture(
-					bottomPanelRightScrollX,
-					bottomPanelY,
-					bottomPanelRightScrollX + bottomScrollWidth,
-					bottomPanelY + bottomPanelHeight,
-					UIPanelState.tileBottomScrollRightON.getTileSetTexX0(),
-					UIPanelState.tileBottomScrollRightON.getTileSetTexY0(),
-					UIPanelState.tileBottomScrollRightON.getTileSetTexX1(),
-					UIPanelState.tileBottomScrollRightON.getTileSetTexY1());
+			iCurrentTexture = UtilsGL.setTexture(UIPanelState.tileBottomScrollRightON, iCurrentTexture);
+
+			drawScaledTile(
+					UIPanelState.tileBottomScrollRightON,
+					new Point(bottomPanelRightScrollX, bottomPanelY),
+					bottomScrollWidth,
+					bottomPanelHeight);
 		} else {
-			UtilsGL.drawTexture(
-					bottomPanelRightScrollX,
-					bottomPanelY,
-					bottomPanelRightScrollX + bottomScrollWidth,
-					bottomPanelY + bottomPanelHeight,
-					UIPanelState.tileBottomScrollRight.getTileSetTexX0(),
-					UIPanelState.tileBottomScrollRight.getTileSetTexY0(),
-					UIPanelState.tileBottomScrollRight.getTileSetTexX1(),
-					UIPanelState.tileBottomScrollRight.getTileSetTexY1());
+			iCurrentTexture = UtilsGL.setTexture(UIPanelState.tileBottomScrollRight, iCurrentTexture);
+
+			drawScaledTile(
+					UIPanelState.tileBottomScrollRight,
+					new Point(bottomPanelRightScrollX, bottomPanelY),
+					bottomScrollWidth,
+					bottomPanelHeight);
 		}
 
-		// BOTTOM PANEL Items
+		// BOTTOM PANEL items
 		int iItemBottomPanel;
 
 		if (mousePanel == UIPanelState.MOUSE_BOTTOM_ITEMS) {
@@ -183,15 +121,16 @@ public class BottomPanel {
 
 		Point point;
 
-		for (int i = UIPanelState.bottomPanelItemIndex; i < UIPanelState.bottomPanelItemIndex
-				+ UIPanelState.BOTTOM_PANEL_NUM_ITEMS; i++) {
+		for (int i = UIPanelState.bottomPanelItemIndex;
+				i < UIPanelState.bottomPanelItemIndex + UIPanelState.BOTTOM_PANEL_NUM_ITEMS;
+				i++) {
 
 			if (i >= UIPanelState.currentMenu.getItems().size()) {
 				break;
 			}
 
 			int visibleIndex = i - UIPanelState.bottomPanelItemIndex;
-			point = getScaledBottomItemPoint(visibleIndex, bottomPanelX, bottomPanelY);
+			point = getScaledBottomItemPoint(visibleIndex, bottomPanelPoint);
 
 			// Round button
 			if (UIPanelState.currentMenu.getItems().get(i).getType() == SmartMenu.TYPE_MENU) {
@@ -200,14 +139,16 @@ public class BottomPanel {
 				if (UIPanelState.checkBlinkBottom
 						&& TutorialFlow.currentBlinkBottom(UIPanelState.currentMenu.getItems().get(i).getID())) {
 					UtilsGL.setColorRed();
-					drawScaledButton(
+
+					drawScaledTile(
 							UIPanelState.tileBottomItemSM,
 							point,
 							bottomItemWidth,
 							bottomItemHeight);
+
 					UtilsGL.unsetColor();
 				} else {
-					drawScaledButton(
+					drawScaledTile(
 							UIPanelState.tileBottomItemSM,
 							point,
 							bottomItemWidth,
@@ -219,14 +160,16 @@ public class BottomPanel {
 				if (UIPanelState.checkBlinkBottom
 						&& TutorialFlow.currentBlinkBottom(UIPanelState.currentMenu.getItems().get(i).getID())) {
 					UtilsGL.setColorRed();
-					drawScaledButton(
+
+					drawScaledTile(
 							UIPanelState.tileBottomItem,
 							point,
 							bottomItemWidth,
 							bottomItemHeight);
+
 					UtilsGL.unsetColor();
 				} else {
-					drawScaledButton(
+					drawScaledTile(
 							UIPanelState.tileBottomItem,
 							point,
 							bottomItemWidth,
@@ -244,8 +187,7 @@ public class BottomPanel {
 						tile,
 						point,
 						bottomItemWidth,
-						bottomItemHeight,
-						iItemBottomPanel == visibleIndex);
+						bottomItemHeight);
 			}
 		}
 
@@ -264,9 +206,9 @@ public class BottomPanel {
 		if (UIPanelState.bottomSubPanelMenu != null) {
 			int bottomSubPanelWidth = ui(UIPanelState.BOTTOM_SUBPANEL_WIDTH);
 			int bottomSubPanelHeight = ui(UIPanelState.BOTTOM_SUBPANEL_HEIGHT);
-			Point bottomSubPanelPoint = getScaledBottomSubPanelPoint(bottomPanelX, bottomPanelY);
+			Point bottomSubPanelPoint = getScaledBottomSubPanelPoint(bottomPanelPoint);
 
-			// Pintamos el panel
+			// Paint subpanel background
 			iCurrentTexture = UtilsGL.setTexture(UIPanelState.tileBottomSubPanel[0], iCurrentTexture);
 
 			UIPanel.renderBackground(
@@ -275,7 +217,7 @@ public class BottomPanel {
 					bottomSubPanelWidth,
 					bottomSubPanelHeight);
 
-			// Pintamos los items
+			// Paint subpanel item buttons
 			int iMenu;
 
 			bucle1: for (int y = 0; y < UIPanelState.BOTTOM_SUBPANEL_NUM_ITEMS_Y; y++) {
@@ -296,14 +238,16 @@ public class BottomPanel {
 								&& TutorialFlow.currentBlinkBottom(
 										UIPanelState.bottomSubPanelMenu.getItems().get(iMenu).getID())) {
 							UtilsGL.setColorRed();
-							drawScaledButton(
+
+							drawScaledTile(
 									UIPanelState.tileBottomItemSM,
 									point,
 									bottomItemWidth,
 									bottomItemHeight);
+
 							UtilsGL.unsetColor();
 						} else {
-							drawScaledButton(
+							drawScaledTile(
 									UIPanelState.tileBottomItemSM,
 									point,
 									bottomItemWidth,
@@ -316,14 +260,16 @@ public class BottomPanel {
 								&& TutorialFlow.currentBlinkBottom(
 										UIPanelState.bottomSubPanelMenu.getItems().get(iMenu).getID())) {
 							UtilsGL.setColorRed();
-							drawScaledButton(
+
+							drawScaledTile(
 									UIPanelState.tileBottomItem,
 									point,
 									bottomItemWidth,
 									bottomItemHeight);
+
 							UtilsGL.unsetColor();
 						} else {
-							drawScaledButton(
+							drawScaledTile(
 									UIPanelState.tileBottomItem,
 									point,
 									bottomItemWidth,
@@ -343,8 +289,7 @@ public class BottomPanel {
 								tile,
 								point,
 								bottomItemWidth,
-								bottomItemHeight,
-								iItemBottomSubPanel == iMenu);
+								bottomItemHeight);
 					}
 				}
 			}
@@ -355,15 +300,16 @@ public class BottomPanel {
 		 */
 
 		// BOTTOM PANEL item icons
-		for (int i = UIPanelState.bottomPanelItemIndex; i < UIPanelState.bottomPanelItemIndex
-				+ UIPanelState.BOTTOM_PANEL_NUM_ITEMS; i++) {
+		for (int i = UIPanelState.bottomPanelItemIndex;
+				i < UIPanelState.bottomPanelItemIndex + UIPanelState.BOTTOM_PANEL_NUM_ITEMS;
+				i++) {
 
 			if (i >= UIPanelState.currentMenu.getItems().size()) {
 				break;
 			}
 
 			int visibleIndex = i - UIPanelState.bottomPanelItemIndex;
-			point = getScaledBottomItemPoint(visibleIndex, bottomPanelX, bottomPanelY);
+			point = getScaledBottomItemPoint(visibleIndex, bottomPanelPoint);
 
 			Tile tile = UIPanelState.currentMenu.getItems().get(i).getIcon();
 
@@ -374,14 +320,13 @@ public class BottomPanel {
 						tile,
 						point,
 						bottomItemWidth,
-						bottomItemHeight,
-						iItemBottomPanel == visibleIndex);
+						bottomItemHeight);
 			}
 		}
 
 		// BOTTOM SUBPANEL item icons
 		if (UIPanelState.bottomSubPanelMenu != null) {
-			Point bottomSubPanelPoint = getScaledBottomSubPanelPoint(bottomPanelX, bottomPanelY);
+			Point bottomSubPanelPoint = getScaledBottomSubPanelPoint(bottomPanelPoint);
 
 			int iMenu;
 			Tile tile;
@@ -402,18 +347,17 @@ public class BottomPanel {
 							&& UIPanelState.bottomSubPanelMenu.getItems().get(iMenu)
 									.getIconType() == SmartMenu.ICON_TYPE_ITEM) {
 						iCurrentTexture = UtilsGL.setTexture(tile, iCurrentTexture);
+
 						drawScaledIcon(
 								tile,
 								point,
 								bottomItemWidth,
-								bottomItemHeight,
-								iItemBottomSubPanel == iMenu);
+								bottomItemHeight);
 					}
 				}
-
 			}
-
 		}
+
 		return iCurrentTexture;
 	}
 }
