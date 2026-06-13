@@ -19,6 +19,7 @@ import xaos.main.Game;
 import xaos.panels.UI.UIPanel;
 import xaos.panels.menus.ContextMenu;
 import xaos.panels.menus.SmartMenu;
+import xaos.panels.menus.mainmenu.MainMenuOptions;
 import xaos.utils.ColorGL;
 import xaos.utils.LanguageData;
 import xaos.utils.Log;
@@ -59,6 +60,10 @@ public final class MainMenuPanel implements Runnable {
     public final ColorGL COLORGL_BLACK = new ColorGL(Color.BLACK);
     public final ColorGL COLORGL_WHITE = new ColorGL(Color.WHITE);
     public final ColorGL COLORGL_RED = new ColorGL(Color.RED);
+
+   public static Color textColor = Color.WHITE;
+     public static Color creditsColor = Color.YELLOW;
+      public static ColorGL borderColor = new ColorGL(Color.BLACK);
 
     public static float startingGame = 80f;
     public static boolean deleteLogoTexture = false;
@@ -146,9 +151,7 @@ public final class MainMenuPanel implements Runnable {
         SmartMenu menuAux;
         menu = new ContextMenu();
         menu.setHeight(MainFrame.MIN_HEIGHT - UtilFont.MAX_HEIGHT * 8);
-        Color textColor = Color.WHITE;
-        Color creditsColor = Color.YELLOW;
-        ColorGL borderColor = new ColorGL(Color.BLACK);
+        
         SmartMenu mainMenu = new SmartMenu();
         mainMenu.setTrasparency(true);
 
@@ -465,333 +468,8 @@ public final class MainMenuPanel implements Runnable {
         mainMenu.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
 
         // Options
-        SmartMenu menuOptions = new SmartMenu(SmartMenu.TYPE_MENU, Messages.getString("MainMenuPanel.4"), mainMenu, //$NON-NLS-1$
-                null, null, null, null, textColor);
-        menuOptions.setTrasparency(mainMenu.isTrasparency());
-        menuOptions.setBorderColor(borderColor);
-
-        menuOptions.addItem(
-                new SmartMenu(SmartMenu.TYPE_TEXT, Messages.getString("MainMenuPanel.4"), null, null, null, null)); //$NON-NLS-1$
-        menuOptions.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null, null));
-
-        // Options - Graphics
-        SmartMenu menuOptionsGraphics = new SmartMenu(SmartMenu.TYPE_MENU, Messages.getString("MainMenuPanel.16"), //$NON-NLS-1$
-                menuOptions, null, null, null, null, textColor);
-        menuOptionsGraphics.setTrasparency(mainMenu.isTrasparency());
-        menuOptionsGraphics.setBorderColor(borderColor);
-        menuOptionsGraphics.addItem(
-                new SmartMenu(SmartMenu.TYPE_TEXT, Messages.getString("MainMenuPanel.16"), null, null, null, null)); //$NON-NLS-1$
-        menuOptionsGraphics.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null, null));
-
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.17"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_TOGGLE_FULL_SCREEN, null, null, null, textColor);
-        menuAux.setDynamic(true);
-        menuAux.setBorderColor(borderColor);
-        menuOptionsGraphics.addItem(menuAux);
-
-        // MainMenuPanel.83=UI Scale
-        // MainMenuPanel.84=Tooltip scale
-        // MainMenuPanel.85=World Zoom - Can be changed with CTRL + mouse wheel in game
-        // Options - Graphics - UI Scale
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.83"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_UI_SCALE, null, null, null, textColor);
-        menuAux.setBorderColor(borderColor);
-        menuOptionsGraphics.addItem(menuAux);
-        // Options - Graphics - Tooltip Scale
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.84"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_TOOLTIP_SCALE, null, null, null, textColor);
-        menuAux.setBorderColor(borderColor);
-        menuOptionsGraphics.addItem(menuAux);
-        // Options - Graphics - World Zoom
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.85"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_WORLD_ZOOM, null, null, null, textColor);
-        menuAux.setBorderColor(borderColor);
-        menuOptionsGraphics.addItem(menuAux);
-        menuOptionsGraphics.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.7"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_BACK, null, null, null, textColor);
-        menuAux.setBorderColor(borderColor);
-        menuOptionsGraphics.addItem(menuAux);
-
-        // Options - Audio
-        SmartMenu menuOptionsAudio = new SmartMenu(SmartMenu.TYPE_MENU, Messages.getString("MainMenuPanel.13"), //$NON-NLS-1$
-                menuOptions, null, null, null, null, textColor);
-        menuOptionsAudio.setTrasparency(mainMenu.isTrasparency());
-        menuOptionsAudio.setBorderColor(borderColor);
-        menuOptionsAudio.addItem(
-                new SmartMenu(SmartMenu.TYPE_TEXT, Messages.getString("MainMenuPanel.13"), null, null, null, null)); //$NON-NLS-1$
-        menuOptionsAudio.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null, null));
-
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.5"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_SWITCH_MUSIC, null, null, null, textColor);
-        menuAux.setDynamic(true);
-        menuAux.setBorderColor(borderColor);
-        menuOptionsAudio.addItem(menuAux);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.56"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_ADD_MUSIC_VOLUME, null, null, null, textColor);
-        menuAux.setDynamic(true);
-        menuAux.setBorderColor(borderColor);
-        menuOptionsAudio.addItem(menuAux);
-        menuOptionsAudio.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.6"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_SWITCH_FX, null, null, null, textColor);
-        menuAux.setDynamic(true);
-        menuAux.setBorderColor(borderColor);
-        menuOptionsAudio.addItem(menuAux);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.57"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_ADD_FX_VOLUME, null, null, null, textColor);
-        menuAux.setDynamic(true);
-        menuAux.setBorderColor(borderColor);
-        menuOptionsAudio.addItem(menuAux);
-        menuOptionsAudio.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.7"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_BACK, null, null, null, textColor);
-        menuAux.setBorderColor(borderColor);
-        menuOptionsAudio.addItem(menuAux);
-
-        // Options - Game
-        SmartMenu menuOptionsGame = new SmartMenu(SmartMenu.TYPE_MENU, Messages.getString("MainMenuPanel.19"), //$NON-NLS-1$
-                menuOptions, null, null, null, null, textColor);
-        menuOptionsGame.setTrasparency(mainMenu.isTrasparency());
-        menuOptionsGame.setBorderColor(borderColor);
-        menuOptionsGame.addItem(
-                new SmartMenu(SmartMenu.TYPE_TEXT, Messages.getString("MainMenuPanel.19"), null, null, null, null)); //$NON-NLS-1$
-        menuOptionsGame.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null, null));
-
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.20"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_SWITCH_MOUSE_SCROLL, null, null, null, textColor);
-        menuAux.setDynamic(true);
-        menuAux.setBorderColor(borderColor);
-        menuOptionsGame.addItem(menuAux);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.33"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_SWITCH_MOUSE_SCROLL_EARS, null, null, null, textColor);
-        menuAux.setDynamic(true);
-        menuAux.setBorderColor(borderColor);
-        menuOptionsGame.addItem(menuAux);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.72"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_SWITCH_MOUSE_2D_CUBES, null, null, null, textColor);
-        menuAux.setDynamic(true);
-        menuAux.setBorderColor(borderColor);
-        menuOptionsGame.addItem(menuAux);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.27"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_SWITCH_DISABLE_ITEMS, null, null, null, textColor);
-        menuAux.setDynamic(true);
-        menuAux.setBorderColor(borderColor);
-        menuOptionsGame.addItem(menuAux);
-
-        if (TownsProperties.GODS_ACTIVATED) {
-            menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.77"), null, //$NON-NLS-1$
-                    CommandPanel.COMMAND_MM_SWITCH_DISABLE_GODS, null, null, null, textColor);
-            menuAux.setDynamic(true);
-            menuAux.setBorderColor(borderColor);
-            menuOptionsGame.addItem(menuAux);
-        }
-
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.28"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_SWITCH_PAUSE, null, null, null, textColor);
-        menuAux.setDynamic(true);
-        menuAux.setBorderColor(borderColor);
-        menuOptionsGame.addItem(menuAux);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.31"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_SWITCH_AUTOSAVE_DAYS, null, null, null, textColor);
-        menuAux.setDynamic(true);
-        menuAux.setBorderColor(borderColor);
-        menuOptionsGame.addItem(menuAux);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.32"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_SWITCH_SIEGES, null, null, null, textColor);
-        menuAux.setDynamic(true);
-        menuAux.setBorderColor(borderColor);
-        menuOptionsGame.addItem(menuAux);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.36"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_SWITCH_SIEGE_PAUSE, null, null, null, textColor);
-        menuAux.setDynamic(true);
-        menuAux.setBorderColor(borderColor);
-        menuOptionsGame.addItem(menuAux);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.66"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_SWITCH_CARAVAN_PAUSE, null, null, null, textColor);
-        menuAux.setDynamic(true);
-        menuAux.setBorderColor(borderColor);
-        menuOptionsGame.addItem(menuAux);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.62"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_SWITCH_BURY, null, null, null, textColor);
-        menuAux.setDynamic(true);
-        menuAux.setBorderColor(borderColor);
-        menuOptionsGame.addItem(menuAux);
-        menuOptionsGame.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.7"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_BACK, null, null, null, textColor);
-        menuAux.setBorderColor(borderColor);
-        menuOptionsGame.addItem(menuAux);
-
-        // Options - Controls
-        SmartMenu menuOptionsControls = new SmartMenu(SmartMenu.TYPE_MENU, Messages.getString("MainMenuPanel.41"), //$NON-NLS-1$
-                menuOptions, null, null, null, null, textColor);
-        menuOptionsControls.setTrasparency(mainMenu.isTrasparency());
-        menuOptionsControls.setBorderColor(borderColor);
-        menuOptionsControls.addItem(
-                new SmartMenu(SmartMenu.TYPE_TEXT, Messages.getString("MainMenuPanel.41"), null, null, null, null)); //$NON-NLS-1$
-        menuOptionsControls.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null, null));
-
-        menuOptionsControls.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, Messages.getString("MainMenuPanel.43"), null, //$NON-NLS-1$
-                null, null, null, null, creditsColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_UP, textColor, borderColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_DOWN, textColor, borderColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_LEFT, textColor, borderColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_RIGHT, textColor, borderColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_LEVEL_UP, textColor, borderColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_LEVEL_DOWN, textColor, borderColor));
-        menuOptionsControls.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null, null));
-        menuOptionsControls.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, Messages.getString("MainMenuPanel.44"), null, //$NON-NLS-1$
-                null, null, null, null, creditsColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_SHOW_MISSION, textColor, borderColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_SHOW_STOCK, textColor, borderColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_SHOW_PRIORITIES, textColor, borderColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_SHOW_TRADE, textColor, borderColor));
-        menuOptionsControls.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null, null));
-        menuOptionsControls.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, Messages.getString("MainMenuPanel.45"), null, //$NON-NLS-1$
-                null, null, null, null, creditsColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_NEXT_CITIZEN, textColor, borderColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_PREVIOUS_CITIZEN, textColor, borderColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_NEXT_SOLDIER, textColor, borderColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_PREVIOUS_SOLDIER, textColor, borderColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_NEXT_HERO, textColor, borderColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_PREVIOUS_HERO, textColor, borderColor));
-        menuOptionsControls.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null, null));
-        menuOptionsControls.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, Messages.getString("MainMenuPanel.46"), null, //$NON-NLS-1$
-                null, null, null, null, creditsColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_TOGGLE_FULLSCREEN, textColor, borderColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_TOGGLE_FLAT_MOUSE, textColor, borderColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_TOGGLE_3D_MOUSE, textColor, borderColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_TOGGLE_GRID, textColor, borderColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_TOGGLE_MINIBLOCKS, textColor, borderColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_TOGGLE_HIDE_UI, textColor, borderColor));
-        menuOptionsControls
-                .addItem(createKeyboardMenu(UtilsKeyboard.FN_TOGGLE_ITEM_BUILD_FACE, textColor, borderColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_PAUSE, textColor, borderColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_SPEED_UP, textColor, borderColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_SPEED_DOWN, textColor, borderColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_SCREENSHOT, textColor, borderColor));
-        menuOptionsControls.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null, null));
-        menuOptionsControls.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, Messages.getString("MainMenuPanel.61"), null, //$NON-NLS-1$
-                null, null, null, null, creditsColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_BOT_1, textColor, borderColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_BOT_2, textColor, borderColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_BOT_3, textColor, borderColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_BOT_4, textColor, borderColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_BOT_5, textColor, borderColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_BOT_6, textColor, borderColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_BOT_7, textColor, borderColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_BOT_8, textColor, borderColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_BOT_9, textColor, borderColor));
-        menuOptionsControls.addItem(createKeyboardMenu(UtilsKeyboard.FN_BOT_10, textColor, borderColor));
-
-        menuOptionsControls.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.7"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_BACK, null, null, null, textColor);
-        menuAux.setBorderColor(borderColor);
-        menuOptionsControls.addItem(menuAux);
-
-        // Options - Performance
-        SmartMenu menuOptionsPerformance = new SmartMenu(SmartMenu.TYPE_MENU, Messages.getString("MainMenuPanel.8"), //$NON-NLS-1$
-                menuOptions, null, null, null, null, textColor);
-        menuOptionsPerformance.setTrasparency(mainMenu.isTrasparency());
-        menuOptionsPerformance.setBorderColor(borderColor);
-        menuOptionsPerformance.addItem(
-                new SmartMenu(SmartMenu.TYPE_TEXT, Messages.getString("MainMenuPanel.8"), null, null, null, null)); //$NON-NLS-1$
-        menuOptionsPerformance.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null, null));
-
-        menuOptionsPerformance.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, Messages.getString("MainMenuPanel.59"), null, //$NON-NLS-1$
-                null, null, null, null, Color.LIGHT_GRAY));
-        menuOptionsPerformance.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, Messages.getString("MainMenuPanel.64"), null, //$NON-NLS-1$
-                null, null, null, null, Color.LIGHT_GRAY));
-        menuOptionsPerformance.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, Messages.getString("MainMenuPanel.65"), null, //$NON-NLS-1$
-                null, null, null, null, Color.LIGHT_GRAY));
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.63"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_MM_SWITCH_PATHFINDING_LEVEL, null, null, null, textColor);
-        menuAux.setDynamic(true);
-        menuAux.setBorderColor(borderColor);
-        menuOptionsPerformance.addItem(menuAux);
-        menuOptionsPerformance.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.7"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_BACK, null, null, null, textColor);
-        menuAux.setBorderColor(borderColor);
-        menuOptionsPerformance.addItem(menuAux);
-
-        // Options - Language
-        ArrayList<LanguageData> alLanguages = Utils.getLanguages();
-        SmartMenu menuOptionsLanguage = null;
-        if (alLanguages != null && alLanguages.size() > 1) {
-            menuOptionsLanguage = new SmartMenu(SmartMenu.TYPE_MENU, Messages.getString("MainMenuPanel.14"), //$NON-NLS-1$
-                    menuOptions, null, null, null, null, textColor);
-            menuOptionsLanguage.setTrasparency(mainMenu.isTrasparency());
-            menuOptionsLanguage.setBorderColor(borderColor);
-            menuOptionsLanguage.addItem(
-                    new SmartMenu(SmartMenu.TYPE_TEXT, Messages.getString("MainMenuPanel.14"), null, null, null, null)); //$NON-NLS-1$
-            menuOptionsLanguage.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null, null));
-
-            // Languages
-            for (int l = 0; l < alLanguages.size(); l++) {
-                LanguageData ld = alLanguages.get(l);
-                if (ld.mod == null || Game.getModsLoaded() == null) {
-                    menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, ld.name, null, CommandPanel.COMMAND_CHANGE_LANGUAGE,
-                            ld.language, ld.country, null, textColor);
-                } else {
-                    // Buscamos el índice del mod
-                    int iModIndex = -1;
-                    for (int m = 0; m < Game.getModsLoaded().size(); m++) {
-                        if (Game.getModsLoaded().get(m).equals(ld.mod)) {
-                            iModIndex = m;
-                            break;
-                        }
-                    }
-                    if (iModIndex != -1) {
-                        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, ld.name, null,
-                                CommandPanel.COMMAND_CHANGE_LANGUAGE, ld.language, ld.country,
-                                new Point3D(iModIndex, 0, 0), textColor);
-                    } else {
-                        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, ld.name, null,
-                                CommandPanel.COMMAND_CHANGE_LANGUAGE, ld.language, ld.country, null, textColor);
-                    }
-                }
-                menuAux.setDynamic(true);
-                menuAux.setBorderColor(borderColor);
-                menuOptionsLanguage.addItem(menuAux);
-            }
-
-            // Back
-            menuOptionsLanguage.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-            menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.7"), null, //$NON-NLS-1$
-                    CommandPanel.COMMAND_BACK, null, null, null, textColor);
-            menuAux.setBorderColor(borderColor);
-            menuOptionsLanguage.addItem(menuAux);
-        }
-
-        menuOptions.addItem(menuOptionsGraphics);
-        menuOptions.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-        menuOptions.addItem(menuOptionsAudio);
-        menuOptions.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-        menuOptions.addItem(menuOptionsGame);
-        menuOptions.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-        menuOptions.addItem(menuOptionsPerformance);
-        menuOptions.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-        menuOptions.addItem(menuOptionsControls);
-        if (menuOptionsLanguage != null) {
-            menuOptions.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-            menuOptions.addItem(menuOptionsLanguage);
-        }
-        menuOptions.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-        menuOptions.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-        // menuAux = new SmartMenu (SmartMenu.TYPE_ITEM,
-        // Messages.getString("MainMenuPanel.26"), null,
-        // CommandPanel.COMMAND_SAVE_OPTIONS, null, null, null, textColor);
-        // //$NON-NLS-1$
-        // menuAux.setBorderColor (borderColor);
-        // menuOptions.addItem (menuAux);
-        menuAux = new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.7"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_BACK, null, null, null, textColor);
-        menuAux.setBorderColor(borderColor);
-        menuOptions.addItem(menuAux);
-
+        
+SmartMenu menuOptions = MainMenuOptions.createMenu( mainMenu);
         mainMenu.addItem(menuOptions);
 
         // Blank
@@ -876,7 +554,7 @@ public final class MainMenuPanel implements Runnable {
         menu.setY(yMenu);
     }
 
-    public SmartMenu createKeyboardMenu(int iFN, Color textColor, ColorGL borderColor) {
+    public static SmartMenu createKeyboardMenu(int iFN, Color textColor, ColorGL borderColor) {
         SmartMenu menuAux = new SmartMenu(SmartMenu.TYPE_ITEM,
                 UtilsKeyboard.getFNHumanString(iFN) + UtilsKeyboard.getTooltip(iFN), null,
                 CommandPanel.COMMAND_CHANGE_HOTKEY, Integer.toString(iFN), null, null, textColor);

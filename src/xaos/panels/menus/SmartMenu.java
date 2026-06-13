@@ -58,6 +58,8 @@ public class SmartMenu implements Externalizable {
     public final static int TYPE_TEXT = 0;
     public final static int TYPE_MENU = 1;
     public final static int TYPE_ITEM = 2;
+    public final static int TYPE_SLIDER = 3;
+    public final static int TYPE_TOGGLE = 4;
 
     public final static int ICON_TYPE_UI = 0;
     public final static int ICON_TYPE_ITEM = 1;
@@ -66,14 +68,16 @@ public class SmartMenu implements Externalizable {
     public final static ColorGL COLORGL_SUBMENU = new ColorGL(COLOR_SUBMENU);
 
     private int type;
-    private String id; // Se usa en los menuXXX.xml , así los mods pueden referirse a un item para borrarlo
+    private String id; // Se usa en los menuXXX.xml , así los mods pueden referirse a un item para
+                       // borrarlo
     private String name;
     private SmartMenu parent;
     private ArrayList<SmartMenu> items;
     private String command; // Acción que lanza este item
     private String parameter; // Parámetro del comando
     private String parameter2; // Parámetro 2 del comando
-    private Point3D directCoordinates; // Se usa en los menus contextuales, ya que lanzan un comando en casillas concretas
+    private Point3D directCoordinates; // Se usa en los menus contextuales, ya que lanzan un comando en casillas
+                                       // concretas
     private ColorGL color;
     private boolean trasparency; // Si es transparente no se dibuja el rectángulo negro abajo
     private boolean dynamic; // Para sustituir cadenas de texto de los menues
@@ -84,6 +88,100 @@ public class SmartMenu implements Externalizable {
 
     private ArrayList<String> prerequisites;
     private ArrayList<ColorGL> prerequisitesColor;
+
+    public static final class MenuItemsDefinition {
+        final int type;
+        final String messageKey;
+        final String command;
+        final boolean dynamic;
+        final String parameter;
+        final String parameter2;
+        final Point3D directCoordinates;
+        final boolean maintainOpen;
+        final Color color;
+        final boolean isTransparent;
+
+        public MenuItemsDefinition(
+                int type,
+                String messageKey,
+                String command,
+                boolean dynamic,
+                String parameter,
+                String parameter2,
+                Point3D directCoordinates,
+                boolean maintainOpen,
+                Color color,
+                boolean isTransparent) {
+            this.type = type;
+            this.messageKey = messageKey;
+            this.command = command;
+            this.dynamic = dynamic;
+            this.parameter = parameter;
+            this.parameter2 = parameter2;
+            this.directCoordinates = directCoordinates;
+            this.maintainOpen = maintainOpen;
+            this.color = color;
+            this.isTransparent = isTransparent;
+        }
+    }
+
+    public static SmartMenu createBackButton() {
+
+        return new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.7"), null, //$NON-NLS-1$
+                CommandPanel.COMMAND_BACK, null, null, null);
+    }
+
+    public static void addMenuItems(
+            SmartMenu parentMenu,
+            MenuItemsDefinition[] menuItemDefinitions) {
+        for (MenuItemsDefinition menuItemDefinition : menuItemDefinitions) {
+            SmartMenu menuItem = createMenuItem(parentMenu, menuItemDefinition);
+            parentMenu.addItem(menuItem);
+        }
+    }
+
+    public static SmartMenu createMenuItem(
+            SmartMenu parentMenu,
+            MenuItemsDefinition menuItemDefinition) {
+
+        String message = null;
+
+        if (menuItemDefinition.messageKey != null) {
+            message = Messages.getString(menuItemDefinition.messageKey);
+        }
+
+        SmartMenu menuItem;
+
+        if (menuItemDefinition.color != null) {
+            menuItem = new SmartMenu(
+                    menuItemDefinition.type,
+                    message,
+                    parentMenu,
+                    menuItemDefinition.command,
+                    menuItemDefinition.parameter,
+                    menuItemDefinition.parameter2,
+                    menuItemDefinition.directCoordinates,
+                    menuItemDefinition.color);
+        } else {
+            menuItem = new SmartMenu(
+                    menuItemDefinition.type,
+                    message,
+                    parentMenu,
+                    menuItemDefinition.command,
+                    menuItemDefinition.parameter,
+                    menuItemDefinition.parameter2,
+                    menuItemDefinition.directCoordinates);
+        }
+
+        menuItem.setDynamic(menuItemDefinition.dynamic);
+        menuItem.setMaintainOpen(menuItemDefinition.maintainOpen);
+
+        return menuItem;
+    }
+
+    public static SmartMenu createSpacer() {
+        return new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null);
+    }
 
     public SmartMenu() {
         this(TYPE_NO_TYPE, null, null, null, null);
@@ -97,11 +195,13 @@ public class SmartMenu implements Externalizable {
         this(type, name, parent, command, parameter, parameter2, null);
     }
 
-    public SmartMenu(int type, String name, SmartMenu parent, String command, String parameter, String parameter2, Point3D directCoordinates) {
+    public SmartMenu(int type, String name, SmartMenu parent, String command, String parameter, String parameter2,
+            Point3D directCoordinates) {
         this(type, name, parent, command, parameter, parameter2, directCoordinates, null);
     }
 
-    public SmartMenu(int type, String name, SmartMenu parent, String command, String parameter, String parameter2, Point3D directCoordinates, Color color) {
+    public SmartMenu(int type, String name, SmartMenu parent, String command, String parameter, String parameter2,
+            Point3D directCoordinates, Color color) {
         this.type = type;
         this.name = name;
         this.parent = parent;
@@ -294,7 +394,10 @@ public class SmartMenu implements Externalizable {
             GL11.glColor4f(1, 1, 1, 1);
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, UIPanelState.tileTooltipBackground.getTextureID());
             UtilsGL.glBegin(GL11.GL_QUADS);
-            UtilsGL.drawTexture(x, y, x + width, y + height, UIPanelState.tileTooltipBackground.getTileSetTexX0(), UIPanelState.tileTooltipBackground.getTileSetTexY0(), UIPanelState.tileTooltipBackground.getTileSetTexX1(), UIPanelState.tileTooltipBackground.getTileSetTexY1());
+            UtilsGL.drawTexture(x, y, x + width, y + height, UIPanelState.tileTooltipBackground.getTileSetTexX0(),
+                    UIPanelState.tileTooltipBackground.getTileSetTexY0(),
+                    UIPanelState.tileTooltipBackground.getTileSetTexX1(),
+                    UIPanelState.tileTooltipBackground.getTileSetTexY1());
             UtilsGL.glEnd();
         }
 
@@ -304,14 +407,16 @@ public class SmartMenu implements Externalizable {
         int mouseY = UtilsGL.getHeight() - Mouse.getY() - 1;
         int itemIndex = -1;
         if (isContext) {
-            if (mouseX >= x && mouseX < (x + width) && mouseY >= y && mouseY < (y + getItems().size() * UtilFont.MAX_HEIGHT)) {
+            if (mouseX >= x && mouseX < (x + width) && mouseY >= y
+                    && mouseY < (y + getItems().size() * UtilFont.MAX_HEIGHT)) {
                 itemIndex = (mouseY - y) / UtilFont.MAX_HEIGHT;
                 if (getItems().get(itemIndex).getType() != TYPE_TEXT) {
                     iY = y + itemIndex * UtilFont.MAX_HEIGHT + 1;
                     GL11.glBindTexture(GL11.GL_TEXTURE_2D, RED_TILE.getTextureID());
                     GL11.glColor3f(1, 0, 0);
                     UtilsGL.glBegin(GL11.GL_QUADS);
-                    UtilsGL.drawTexture(x, iY, x + width, iY + UtilFont.MAX_HEIGHT, RED_TILE.getTileSetTexX0(), RED_TILE.getTileSetTexY0(), RED_TILE.getTileSetTexX1(), RED_TILE.getTileSetTexY1());
+                    UtilsGL.drawTexture(x, iY, x + width, iY + UtilFont.MAX_HEIGHT, RED_TILE.getTileSetTexX0(),
+                            RED_TILE.getTileSetTexY0(), RED_TILE.getTileSetTexX1(), RED_TILE.getTileSetTexY1());
                     UtilsGL.glEnd();
                 }
             }
@@ -363,7 +468,9 @@ public class SmartMenu implements Externalizable {
         if (itemIndex != -1) {
             SmartMenu menuItem = getItems().get(itemIndex);
             if (menuItem.getPrerequisites() != null && menuItem.getPrerequisites().size() > 0) {
-                MainPanel.renderMessages(mouseX, mouseY + Tile.TERRAIN_ICON_HEIGHT / 2, UtilsGL.getWidth(), UtilsGL.getHeight(), Tile.TERRAIN_ICON_WIDTH / 2, menuItem.getPrerequisites(), menuItem.getPrerequisitesColor());
+                MainPanel.renderMessages(mouseX, mouseY + Tile.TERRAIN_ICON_HEIGHT / 2, UtilsGL.getWidth(),
+                        UtilsGL.getHeight(), Tile.TERRAIN_ICON_WIDTH / 2, menuItem.getPrerequisites(),
+                        menuItem.getPrerequisitesColor());
             }
         }
     }
@@ -374,7 +481,7 @@ public class SmartMenu implements Externalizable {
      * @return el padre de todos los menús
      */
     public static void readXMLMenu(SmartMenu menuInicial, String sFilename, String sCampaignID, String sMissionID) {
-        //SmartMenu menuInicial = new SmartMenu ();
+        // SmartMenu menuInicial = new SmartMenu ();
 
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -387,11 +494,12 @@ public class SmartMenu implements Externalizable {
                 readXMLItem(doc, doc.getDocumentElement().getChildNodes(), menuInicial, i == 0);
             }
         } catch (Exception e) {
-            Log.log(Log.LEVEL_ERROR, Messages.getString("SmartMenu.1") + sFilename + Messages.getString("SmartMenu.2") + e.toString() + "]", "SmartMenu"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+            Log.log(Log.LEVEL_ERROR, Messages.getString("SmartMenu.1") + sFilename + Messages.getString("SmartMenu.2") //$NON-NLS-1$ //$NON-NLS-2$
+                    + e.toString() + "]", "SmartMenu"); //$NON-NLS-1$ //$NON-NLS-2$
             Game.exit();
         }
 
-        //return menuInicial;
+        // return menuInicial;
     }
 
     private static void readXMLItem(Document doc, NodeList list, SmartMenu smartMenu, boolean bLoadingMain) {
@@ -407,7 +515,8 @@ public class SmartMenu implements Externalizable {
                 if (node.getNodeName().equalsIgnoreCase("ITEM")) { //$NON-NLS-1$
                     // Item
                     // Miramos que no sea un delete
-                    if (map.getNamedItem("delete") != null && map.getNamedItem("delete").getNodeValue() != null && map.getNamedItem("delete").getNodeValue().equalsIgnoreCase("TRUE")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                    if (map.getNamedItem("delete") != null && map.getNamedItem("delete").getNodeValue() != null //$NON-NLS-1$ //$NON-NLS-2$
+                            && map.getNamedItem("delete").getNodeValue().equalsIgnoreCase("TRUE")) { //$NON-NLS-1$ //$NON-NLS-2$
                         // Es un delete, miramos el ID a borrar
                         if (map.getNamedItem("id") != null) { //$NON-NLS-1$
                             String sID = map.getNamedItem("id").getNodeValue(); //$NON-NLS-1$
@@ -453,15 +562,36 @@ public class SmartMenu implements Externalizable {
                             }
                         }
                         if (sName == null || sName.length() == 0) {
-                            // No encuentra name, miramos si es una tarea de CREATE, CREATEANDPLACE, CREATEANDPLACEROW o BUILD para obtener la cadena de la definición del item/edificio
+                            // No encuentra name, miramos si es una tarea de CREATE, CREATEANDPLACE,
+                            // CREATEANDPLACEROW o BUILD para obtener la cadena de la definición del
+                            // item/edificio
                             if (parameter != null
                                     && parameter.getNodeValue() != null
                                     && parameter.getNodeValue().length() > 0
                                     && code.getNodeValue() != null
-                                    && (code.getNodeValue().equalsIgnoreCase(CommandPanel.COMMAND_CREATE) || code.getNodeValue().equalsIgnoreCase(CommandPanel.COMMAND_CREATE_AND_PLACE) || code.getNodeValue().equalsIgnoreCase(CommandPanel.COMMAND_CREATE_AND_PLACE_ROW) || code.getNodeValue().equalsIgnoreCase(CommandPanel.COMMAND_BUILD) || code.getNodeValue().equalsIgnoreCase(CommandPanel.COMMAND_CUSTOM_ACTION) || code.getNodeValue().equalsIgnoreCase(CommandPanel.COMMAND_QUEUE)
-                                    || code.getNodeValue().equalsIgnoreCase(CommandPanel.COMMAND_QUEUE_AND_PLACE) || code.getNodeValue().equalsIgnoreCase(CommandPanel.COMMAND_QUEUE_AND_PLACE_ROW) || code.getNodeValue().equalsIgnoreCase(CommandPanel.COMMAND_QUEUE_AND_PLACE_AREA)
-                                    || code.getNodeValue().equalsIgnoreCase(CommandPanel.COMMAND_CREATE_ZONE))) {
-                                if (code.getNodeValue().equalsIgnoreCase(CommandPanel.COMMAND_CUSTOM_ACTION) || code.getNodeValue().equalsIgnoreCase(CommandPanel.COMMAND_QUEUE) || code.getNodeValue().equalsIgnoreCase(CommandPanel.COMMAND_QUEUE_AND_PLACE) || code.getNodeValue().equalsIgnoreCase(CommandPanel.COMMAND_QUEUE_AND_PLACE_ROW) || code.getNodeValue().equalsIgnoreCase(CommandPanel.COMMAND_QUEUE_AND_PLACE_AREA)) {
+                                    && (code.getNodeValue().equalsIgnoreCase(CommandPanel.COMMAND_CREATE)
+                                            || code.getNodeValue()
+                                                    .equalsIgnoreCase(CommandPanel.COMMAND_CREATE_AND_PLACE)
+                                            || code.getNodeValue()
+                                                    .equalsIgnoreCase(CommandPanel.COMMAND_CREATE_AND_PLACE_ROW)
+                                            || code.getNodeValue().equalsIgnoreCase(CommandPanel.COMMAND_BUILD)
+                                            || code.getNodeValue().equalsIgnoreCase(CommandPanel.COMMAND_CUSTOM_ACTION)
+                                            || code.getNodeValue().equalsIgnoreCase(CommandPanel.COMMAND_QUEUE)
+                                            || code.getNodeValue()
+                                                    .equalsIgnoreCase(CommandPanel.COMMAND_QUEUE_AND_PLACE)
+                                            || code.getNodeValue()
+                                                    .equalsIgnoreCase(CommandPanel.COMMAND_QUEUE_AND_PLACE_ROW)
+                                            || code.getNodeValue()
+                                                    .equalsIgnoreCase(CommandPanel.COMMAND_QUEUE_AND_PLACE_AREA)
+                                            || code.getNodeValue()
+                                                    .equalsIgnoreCase(CommandPanel.COMMAND_CREATE_ZONE))) {
+                                if (code.getNodeValue().equalsIgnoreCase(CommandPanel.COMMAND_CUSTOM_ACTION)
+                                        || code.getNodeValue().equalsIgnoreCase(CommandPanel.COMMAND_QUEUE)
+                                        || code.getNodeValue().equalsIgnoreCase(CommandPanel.COMMAND_QUEUE_AND_PLACE)
+                                        || code.getNodeValue()
+                                                .equalsIgnoreCase(CommandPanel.COMMAND_QUEUE_AND_PLACE_ROW)
+                                        || code.getNodeValue()
+                                                .equalsIgnoreCase(CommandPanel.COMMAND_QUEUE_AND_PLACE_AREA)) {
                                     // Custom action & queues
                                     ActionManagerItem ami = ActionManager.getItem(parameter.getNodeValue());
                                     if (ami != null) {
@@ -498,7 +628,9 @@ public class SmartMenu implements Externalizable {
                                     }
                                 }
                                 if (sName == null || sName.trim().length() == 0) {
-                                    Log.log(Log.LEVEL_ERROR, Messages.getString("SmartMenu.0") + parameter.getNodeValue() + "]", Messages.getString("SmartMenu.5")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                                    Log.log(Log.LEVEL_ERROR,
+                                            Messages.getString("SmartMenu.0") + parameter.getNodeValue() + "]", //$NON-NLS-1$ //$NON-NLS-2$
+                                            Messages.getString("SmartMenu.5")); //$NON-NLS-1$
                                     Game.exit();
                                 }
                             } else {
@@ -508,9 +640,10 @@ public class SmartMenu implements Externalizable {
                         }
 
                         if (parameter != null) {
-                            item = new SmartMenu(SmartMenu.TYPE_ITEM, sName, null, code.getNodeValue(), parameter.getNodeValue()); //$NON-NLS-1$
+                            item = new SmartMenu(SmartMenu.TYPE_ITEM, sName, null, code.getNodeValue(),
+                                    parameter.getNodeValue()); // $NON-NLS-1$
                         } else {
-                            item = new SmartMenu(SmartMenu.TYPE_ITEM, sName, null, code.getNodeValue(), null); //$NON-NLS-1$
+                            item = new SmartMenu(SmartMenu.TYPE_ITEM, sName, null, code.getNodeValue(), null); // $NON-NLS-1$
                         }
 
                         // ID
@@ -523,18 +656,26 @@ public class SmartMenu implements Externalizable {
                             item.setIcon(map.getNamedItem("icon").getNodeValue()); //$NON-NLS-1$
                             item.setIconType(ICON_TYPE_UI);
                         } else {
-                            if (code != null && code.getNodeValue() != null && parameter != null && parameter.getNodeValue() != null) {
+                            if (code != null && code.getNodeValue() != null && parameter != null
+                                    && parameter.getNodeValue() != null) {
                                 String sCode = code.getNodeValue();
                                 String sParameter = parameter.getNodeValue();
-                                // Miramos si es un código de crear objeto, en ese caso el icono se pilla según el mismo
-                                if (sCode.equals(CommandPanel.COMMAND_QUEUE) || sCode.equals(CommandPanel.COMMAND_QUEUE_AND_PLACE) || sCode.equals(CommandPanel.COMMAND_QUEUE_AND_PLACE_ROW) || sCode.equals(CommandPanel.COMMAND_QUEUE_AND_PLACE_AREA)) {
+                                // Miramos si es un código de crear objeto, en ese caso el icono se pilla según
+                                // el mismo
+                                if (sCode.equals(CommandPanel.COMMAND_QUEUE)
+                                        || sCode.equals(CommandPanel.COMMAND_QUEUE_AND_PLACE)
+                                        || sCode.equals(CommandPanel.COMMAND_QUEUE_AND_PLACE_ROW)
+                                        || sCode.equals(CommandPanel.COMMAND_QUEUE_AND_PLACE_AREA)) {
                                     ActionManagerItem ami = ActionManager.getItem(sParameter);
 
                                     if (ami != null && ami.getGeneratedItem() != null) {
                                         item.setIcon(ami.getGeneratedItem());
                                         item.setIconType(ICON_TYPE_ITEM);
                                     }
-                                } else if (sCode.equals(CommandPanel.COMMAND_CREATE) || sCode.equals(CommandPanel.COMMAND_CREATE_AND_PLACE) || sCode.equals(CommandPanel.COMMAND_CREATE_AND_PLACE_ROW) || sCode.equals(CommandPanel.COMMAND_CREATE_IN_A_BUILDING)) {
+                                } else if (sCode.equals(CommandPanel.COMMAND_CREATE)
+                                        || sCode.equals(CommandPanel.COMMAND_CREATE_AND_PLACE)
+                                        || sCode.equals(CommandPanel.COMMAND_CREATE_AND_PLACE_ROW)
+                                        || sCode.equals(CommandPanel.COMMAND_CREATE_IN_A_BUILDING)) {
                                     item.setIcon(sParameter);
                                     item.setIconType(ICON_TYPE_ITEM);
                                 }
@@ -544,14 +685,17 @@ public class SmartMenu implements Externalizable {
                         // Prerequisitos
                         setPrerequisites(item, code, parameter);
 
-                        // Si es un back lo añadimos tal cual, en otro caso miramos que no haya un back, para añadirlo justo antes
-                        if (item.getCommand() != null && item.getCommand().equalsIgnoreCase(CommandPanel.COMMAND_BACK)) {
+                        // Si es un back lo añadimos tal cual, en otro caso miramos que no haya un back,
+                        // para añadirlo justo antes
+                        if (item.getCommand() != null
+                                && item.getCommand().equalsIgnoreCase(CommandPanel.COMMAND_BACK)) {
                             smartMenu.addItem(item);
                         } else {
                             // Miramos que el último no sea un back
                             if (smartMenu.getItems().size() > 0) {
                                 SmartMenu smLast = smartMenu.getItems().get(smartMenu.getItems().size() - 1);
-                                if (smLast.getCommand() != null && smLast.getCommand().equals(CommandPanel.COMMAND_BACK)) {
+                                if (smLast.getCommand() != null
+                                        && smLast.getCommand().equals(CommandPanel.COMMAND_BACK)) {
                                     // Hay un back, añadimos el item justo antes
                                     smLast = smartMenu.getItems().remove(smartMenu.getItems().size() - 1);
                                     smartMenu.addItem(item);
@@ -582,13 +726,16 @@ public class SmartMenu implements Externalizable {
 
                     // Mod cambiando valores de un item que ya existe?
                     boolean bModChangingValues = (iIndex != -1 && !bLoadingMain);
-                    if (map.getNamedItem("delete") != null && map.getNamedItem("delete").getNodeValue() != null && map.getNamedItem("delete").getNodeValue().equalsIgnoreCase("TRUE")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                    if (map.getNamedItem("delete") != null && map.getNamedItem("delete").getNodeValue() != null //$NON-NLS-1$ //$NON-NLS-2$
+                            && map.getNamedItem("delete").getNodeValue().equalsIgnoreCase("TRUE")) { //$NON-NLS-1$ //$NON-NLS-2$
                         // Borramos el submenu
                         if (bModChangingValues) {
                             smartMenu.getItems().remove(iIndex);
                         }
                         continue;
-                    } else if (map.getNamedItem("deleteContent") != null && map.getNamedItem("deleteContent").getNodeValue() != null && map.getNamedItem("deleteContent").getNodeValue().equalsIgnoreCase("TRUE")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                    } else if (map.getNamedItem("deleteContent") != null //$NON-NLS-1$
+                            && map.getNamedItem("deleteContent").getNodeValue() != null //$NON-NLS-1$
+                            && map.getNamedItem("deleteContent").getNodeValue().equalsIgnoreCase("TRUE")) { //$NON-NLS-1$ //$NON-NLS-2$
                         if (bModChangingValues) {
                             SmartMenu sm = smartMenu.getItems().get(iIndex);
                             if (sm.getItems() != null) {
@@ -603,7 +750,8 @@ public class SmartMenu implements Externalizable {
                         sName = map.getNamedItem(sLocale).getNodeValue();
                     }
                     if (sName == null || sName.length() == 0) {
-                        if (map.getNamedItem("name") != null && map.getNamedItem("name").getNodeValue() != null && map.getNamedItem("name").getNodeValue().length() > 0) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                        if (map.getNamedItem("name") != null && map.getNamedItem("name").getNodeValue() != null //$NON-NLS-1$ //$NON-NLS-2$
+                                && map.getNamedItem("name").getNodeValue().length() > 0) { //$NON-NLS-1$
                             sName = map.getNamedItem("name").getNodeValue(); //$NON-NLS-1$
                         }
                     }
@@ -613,7 +761,7 @@ public class SmartMenu implements Externalizable {
                         subMenu = smartMenu.getItems().get(iIndex);
                     } else {
                         subMenu = new SmartMenu(SmartMenu.TYPE_MENU, sName, smartMenu, null, sMenuID);
-                        subMenu.setID (sMenuID);
+                        subMenu.setID(sMenuID);
                     }
 
                     if (sName != null) {
@@ -643,12 +791,15 @@ public class SmartMenu implements Externalizable {
         if (code != null && code.getNodeValue() != null && parameter != null && parameter.getNodeValue() != null) {
             String sCode = code.getNodeValue();
             String sParameter = parameter.getNodeValue();
-            // Miramos si es un código de crear objeto, en ese caso el icono se pilla según el mismo
+            // Miramos si es un código de crear objeto, en ese caso el icono se pilla según
+            // el mismo
             ItemManagerItem imi = null;
             LivingEntityManagerItem lemi = null;
             ArrayList<String> alMessages = new ArrayList<>();
             ArrayList<ColorGL> alColor = new ArrayList<>();
-            if (sCode.equals(CommandPanel.COMMAND_QUEUE) || sCode.equals(CommandPanel.COMMAND_QUEUE_AND_PLACE) || sCode.equals(CommandPanel.COMMAND_QUEUE_AND_PLACE_ROW) || sCode.equals(CommandPanel.COMMAND_QUEUE_AND_PLACE_AREA)) {
+            if (sCode.equals(CommandPanel.COMMAND_QUEUE) || sCode.equals(CommandPanel.COMMAND_QUEUE_AND_PLACE)
+                    || sCode.equals(CommandPanel.COMMAND_QUEUE_AND_PLACE_ROW)
+                    || sCode.equals(CommandPanel.COMMAND_QUEUE_AND_PLACE_AREA)) {
                 ArrayList<String> alMessagesBuilding = new ArrayList<>();
                 ArrayList<String> alMessagesPrerequisites = new ArrayList<>();
                 ActionManagerItem ami = ActionManager.getItem(sParameter);
@@ -656,7 +807,8 @@ public class SmartMenu implements Externalizable {
                     ArrayList<QueueItem> alQueue = ami.getQueue();
                     String sName;
                     for (int i = 0; i < alQueue.size(); i++) {
-                        if (alQueue.get(i).getType() == QueueItem.TYPE_MOVE || alQueue.get(i).getType() == QueueItem.TYPE_PICK) {
+                        if (alQueue.get(i).getType() == QueueItem.TYPE_MOVE
+                                || alQueue.get(i).getType() == QueueItem.TYPE_PICK) {
                             ArrayList<String> alList = Utils.getArray(alQueue.get(i).getValue());
                             ArrayList<String> alListNames = new ArrayList<>();
                             sName = null;
@@ -782,7 +934,9 @@ public class SmartMenu implements Externalizable {
                         alColor.add(COLOR_PREREQUISITES);
                     }
                 }
-            } else if (sCode.equals(CommandPanel.COMMAND_CREATE) || sCode.equals(CommandPanel.COMMAND_CREATE_AND_PLACE) || sCode.equals(CommandPanel.COMMAND_CREATE_AND_PLACE_ROW) || sCode.equals(CommandPanel.COMMAND_CREATE_IN_A_BUILDING)) {
+            } else if (sCode.equals(CommandPanel.COMMAND_CREATE) || sCode.equals(CommandPanel.COMMAND_CREATE_AND_PLACE)
+                    || sCode.equals(CommandPanel.COMMAND_CREATE_AND_PLACE_ROW)
+                    || sCode.equals(CommandPanel.COMMAND_CREATE_IN_A_BUILDING)) {
                 imi = ItemManager.getItem(sParameter);
                 if (imi != null) {
                     if (imi.getDescriptions() != null) {
@@ -846,9 +1000,11 @@ public class SmartMenu implements Externalizable {
                             String sName = null;
                             for (int ite = 0; ite < aItems.length; ite++) {
                                 if (ite == 0) {
-                                    sName = ItemManager.getItem(UtilsIniHeaders.getStringIniHeader(aItems[ite])).getName();
+                                    sName = ItemManager.getItem(UtilsIniHeaders.getStringIniHeader(aItems[ite]))
+                                            .getName();
                                 } else {
-                                    sName += Messages.getString("SmartMenu.3") + ItemManager.getItem(UtilsIniHeaders.getStringIniHeader(aItems[ite])).getName(); //$NON-NLS-1$
+                                    sName += Messages.getString("SmartMenu.3") + ItemManager //$NON-NLS-1$
+                                            .getItem(UtilsIniHeaders.getStringIniHeader(aItems[ite])).getName();
                                 }
                             }
                             if (sName != null) {
@@ -864,9 +1020,11 @@ public class SmartMenu implements Externalizable {
                             String sName = null;
                             for (int liv = 0; liv < aLivings.length; liv++) {
                                 if (liv == 0) {
-                                    sName = LivingEntityManager.getItem(UtilsIniHeaders.getStringIniHeader(aLivings[liv])).getName();
+                                    sName = LivingEntityManager
+                                            .getItem(UtilsIniHeaders.getStringIniHeader(aLivings[liv])).getName();
                                 } else {
-                                    sName += Messages.getString("SmartMenu.3") + LivingEntityManager.getItem(UtilsIniHeaders.getStringIniHeader(aLivings[liv])).getName(); //$NON-NLS-1$
+                                    sName += Messages.getString("SmartMenu.3") + LivingEntityManager //$NON-NLS-1$
+                                            .getItem(UtilsIniHeaders.getStringIniHeader(aLivings[liv])).getName();
                                 }
                             }
                             if (sName != null) {
@@ -947,15 +1105,17 @@ public class SmartMenu implements Externalizable {
                 Game.deleteCurrentContextMenu();
                 return null;
             } else {
-                CommandPanel.executeCommand(menu.getCommand(), menu.getParameter(), menu.getParameter2(), menu.getDirectCoordinates(), menu.getIcon(), menu.getIconType());
-                if (Game.getCurrentState() == Game.STATE_SHOWING_CONTEXT_MENU && !menu.getCommand().equals(CommandPanel.COMMAND_EXIT_TO_MAIN_MENU)) {
+                CommandPanel.executeCommand(menu.getCommand(), menu.getParameter(), menu.getParameter2(),
+                        menu.getDirectCoordinates(), menu.getIcon(), menu.getIconType());
+                if (Game.getCurrentState() == Game.STATE_SHOWING_CONTEXT_MENU
+                        && !menu.getCommand().equals(CommandPanel.COMMAND_EXIT_TO_MAIN_MENU)) {
                     if (menu.isMaintainOpen()) {
                         return this;
                     }
                     Game.deleteCurrentContextMenu();
                     return null;
-//				} else if (menu.getCommand ().equals (CommandPanel.COMMAND_SAVE_OPTIONS)) {
-//					return getParent ();
+                    // } else if (menu.getCommand ().equals (CommandPanel.COMMAND_SAVE_OPTIONS)) {
+                    // return getParent ();
                 }
             }
         }
@@ -982,7 +1142,9 @@ public class SmartMenu implements Externalizable {
             if (i > 0) {
                 sm = new SmartMenu(TYPE_MENU, "(" + i + " / " + parts + ") ---->", menu.getParent(), null, null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             } else {
-                sm = new SmartMenu(menu.getType(), menu.getName(), menu.getParent(), menu.getCommand(), menu.getParameter(), menu.getParameter2(), menu.getDirectCoordinates(), menu.getColor().toColor());
+                sm = new SmartMenu(menu.getType(), menu.getName(), menu.getParent(), menu.getCommand(),
+                        menu.getParameter(), menu.getParameter2(), menu.getDirectCoordinates(),
+                        menu.getColor().toColor());
             }
             sm.setTrasparency(menu.isTrasparency());
             sm.setBorderColor(menu.getBorderColor());
