@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<menu id="main.root" titleKey="MainMenuPanel.4">
+    <!-- <item
+        id="fullscreen"
+        type="toggle"
+        titleKey="Menu.Graphics.Fullscreen"
+        action="settings.graphics.fullscreen.toggle" />
+
+    <item
+        id="ui_scale"
+        type="slider"
+        titleKey="Menu.Graphics.UiScale"
+        action="settings.ui.scale"
+        min="0.75"
+        max="2.0"
+        step="0.25" />
+
+    <item
+        id="back"
+        type="back"
+        titleKey="Menu.Back" /> -->
+</menu>

@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<menu id="main.options.root" titleKey="MainMenuPanel.4">
+    <item
+        id="main.options.graphics"
+        type="submenu"
+        titleKey="MainMenuPanel.16"
+        targetMenu="main.options.graphics.root" />
+    <item
+        id="main.options.graphics.spacer"
+        type="spacer"
+    />
+
+    <item
+        id="main.options.game"
+        type="submenu"
+        titleKey="MainMenuPanel.19"
+        targetMenu="main.options.game.root" />
+    <item
+        id="main.options.graphics.spacer"
+        type="spacer"
+    />
+    <item
+        id="main.options.controls"
+        type="submenu"
+        titleKey="MainMenuPanel.41"
+        targetMenu="main.options.controls.root" />
+    <item
+        id="main.options.graphics.spacer"
+        type="spacer"
+    />
+    <item
+        id="main.options.language"
+        type="submenu"
+        titleKey="MainMenuPanel.14"
+        targetMenu="main.options.language.root" />
+    <item
+        id="main.options.graphics.spacer"
+        type="spacer"
+    />
+
+    <item
+        id="main.options.audio"
+        type="submenu"
+        titleKey="MainMenuPanel.13"
+        targetMenu="main.options.audio.root" />
+    <item
+        id="main.options.graphics.spacer"
+        type="spacer"
+    />
+
+    <item
+        id="main.options.performance"
+        type="submenu"
+        titleKey="MainMenuPanel.8"
+        targetMenu="main.options.performance.root" />
+    <item
+        id="main.options.graphics.spacer"
+        type="spacer"
+    />
+
+    <item
+        id="main.options.back"
+        type="back"
+    />
+</menu>

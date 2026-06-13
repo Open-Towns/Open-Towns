@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<menu id="main.options.language.root" titleKey="MainMenuPanel.14">
+    <item
+        id="main.options.language.generated"
+        type="generated"
+        provider="main.options.languages.root"
+    />
+
+    <item
+        id="back"
+        type="back"
+    />
+</menu>
