@@ -4,7 +4,7 @@
         id="main.credits.title"
         type="text"
         titleKey="MainMenuPanel.34"
-        textColorName ="credits"
+        
         />
 
     <item
@@ -15,13 +15,13 @@
         id="main.credits.text1"
         type="text"
         titleKey="MainMenuPanel.35" 
-        textColorName ="black"
+        
         />
     <item
         id="main.credits.text2"
         type="text"
         titleKey="MainMenuPanel.86" 
-        textColorName ="GREEN"
+        
         />
     <item
         id="main.credits.spacer2"
@@ -31,7 +31,7 @@
         id="main.credits.text3"
         type="text"
         titleKey="MainMenuPanel.37"
-        textColorName ="default"
+        
          />
     <item
         id="main.credits.text4"

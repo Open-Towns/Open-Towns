@@ -17,7 +17,7 @@
         titleKey="MainMenuPanel.17"
         command="COMMAND_MM_TOGGLE_FULL_SCREEN"
         maintainOpen= "true"
-        textColorName= "black"
+        
         />
         <item
         id="main.options.graphics.spacer"
