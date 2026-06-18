@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<menu id="game.options.audio.root" titleKey="MainMenuPanel.13">
+    <item
+        id="game.options.audio.title"
+        type="text"
+        titleKey="MainMenuPanel.13"
+    />
+    <item
+        id="game.options.audio.spacer"
+        type="spacer"
+    />
+    <item
+        id="game.options.audio.music"
+        type="toggle"
+        titleKey="MainMenuPanel.5"
+        command="COMMAND_MM_SWITCH_MUSIC"
+        dynamic="true"
+    />
+    <item
+        id="game.options.audio.spacer"
+        type="spacer"
+    />
+    <item
+        id="game.options.audio.music_volume"
+        type="slider"
+        titleKey="MainMenuPanel.56"
+        command="COMMAND_MM_ADD_MUSIC_VOLUME"
+         dynamic="true" />
+         <item
+        id="game.options.audio.spacer"
+        type="spacer"
+    />
+    <item
+        id="game.options.audio.fx"
+        type="toggle"
+        titleKey="MainMenuPanel.6"
+        command="COMMAND_MM_SWITCH_FX"
+        dynamic="true"
+    />
+    <item
+        id="game.options.audio.spacer"
+        type="spacer"
+    />
+    <item
+        id="game.options.audio.fx_volume"
+        type="slider"
+        titleKey="MainMenuPanel.57"
+        command="COMMAND_MM_ADD_FX_VOLUME"
+        dynamic="true"
+    />
+    <item
+        id="game.options.audio.spacer"
+        type="spacer"
+    />
+    <item
+        id="game.options.audio.back"
+        type="back" />
+
+</menu>

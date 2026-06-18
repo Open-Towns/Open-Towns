@@ -26,7 +26,6 @@ import xaos.actions.QueueItem;
 import xaos.main.Game;
 import xaos.panels.CommandPanel;
 import xaos.panels.MainPanel;
-import xaos.panels.UI.UIPanel;
 import xaos.panels.UI.UIPanelState;
 import xaos.tiles.Tile;
 import xaos.tiles.entities.buildings.BuildingManager;
@@ -89,102 +88,7 @@ public class SmartMenu implements Externalizable {
     private ArrayList<String> prerequisites;
     private ArrayList<ColorGL> prerequisitesColor;
 
-    //
-    public static final class MenuItemsDefinition {
-        final int type;
-        final String messageKey;
-        final String command;
-        final boolean dynamic;
-        final String parameter;
-        final String parameter2;
-        final Point3D directCoordinates;
-        final boolean maintainOpen;
-        final Color color;
-        final boolean isTransparent;
-
-        public MenuItemsDefinition(
-                int type,
-                String messageKey,
-                String command,
-                boolean dynamic,
-                String parameter,
-                String parameter2,
-                Point3D directCoordinates,
-                boolean maintainOpen,
-                Color color,
-                boolean isTransparent) {
-            this.type = type;
-            this.messageKey = messageKey;
-            this.command = command;
-            this.dynamic = dynamic;
-            this.parameter = parameter;
-            this.parameter2 = parameter2;
-            this.directCoordinates = directCoordinates;
-            this.maintainOpen = maintainOpen;
-            this.color = color;
-            this.isTransparent = isTransparent;
-        }
-    }
-
-    public static SmartMenu createBackButton() {
-
-        return new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("MainMenuPanel.7"), null, //$NON-NLS-1$
-                CommandPanel.COMMAND_BACK, null, null, null);
-    }
-
-    public static void addMenuItems(
-            SmartMenu parentMenu,
-            MenuItemsDefinition[] menuItemDefinitions) {
-        for (MenuItemsDefinition menuItemDefinition : menuItemDefinitions) {
-            SmartMenu menuItem = createMenuItem(parentMenu, menuItemDefinition);
-            parentMenu.addItem(menuItem);
-        }
-    }
-
-    public static SmartMenu createMenuItem(
-            SmartMenu parentMenu,
-            MenuItemsDefinition menuItemDefinition) {
-
-        String message = null;
-
-        if (menuItemDefinition.messageKey != null) {
-            message = Messages.getString(menuItemDefinition.messageKey);
-        }
-
-        SmartMenu menuItem;
-
-        if (menuItemDefinition.color != null) {
-            menuItem = new SmartMenu(
-                    menuItemDefinition.type,
-                    message,
-                    parentMenu,
-                    menuItemDefinition.command,
-                    menuItemDefinition.parameter,
-                    menuItemDefinition.parameter2,
-                    menuItemDefinition.directCoordinates,
-                    menuItemDefinition.color);
-        } else {
-            menuItem = new SmartMenu(
-                    menuItemDefinition.type,
-                    message,
-                    parentMenu,
-                    menuItemDefinition.command,
-                    menuItemDefinition.parameter,
-                    menuItemDefinition.parameter2,
-                    menuItemDefinition.directCoordinates);
-        }
-
-        menuItem.setDynamic(menuItemDefinition.dynamic);
-        menuItem.setMaintainOpen(menuItemDefinition.maintainOpen);
-
-        return menuItem;
-    }
-
-    //
-    public static SmartMenu createSpacer() {
-        return new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null);
-    }
-
+   
     public SmartMenu() {
         this(TYPE_NO_TYPE, null, null, null, null);
     }

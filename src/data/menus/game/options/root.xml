@@ -1,0 +1,47 @@
+<menu id="game.options.root" titleKey="MainMenuPanel.4">
+    <item
+        id="game.options.graphics"
+        type="submenu"
+        titleKey="MainMenuPanel.16"
+        targetMenu="game.options.graphics.root" />
+    <item
+        id="game.options.graphics.spacer"
+        type="spacer"
+    />
+
+    <item
+        id="game.options.game"
+        type="submenu"
+        titleKey="MainMenuPanel.19"
+        targetMenu="game.options.game.root" />
+    <item
+        id="game.options.graphics.spacer"
+        type="spacer"
+    />
+
+
+    <item
+        id="game.options.audio"
+        type="submenu"
+        titleKey="MainMenuPanel.13"
+        targetMenu="game.options.audio.root" />
+    <item
+        id="game.options.graphics.spacer"
+        type="spacer"
+    />
+
+    <item
+        id="game.options.performance"
+        type="submenu"
+        titleKey="MainMenuPanel.8"
+        targetMenu="game.options.performance.root" />
+    <item
+        id="game.options.graphics.spacer"
+        type="spacer"
+    />
+
+    <item
+        id="game.options.back"
+        type="back"
+    />
+</menu>

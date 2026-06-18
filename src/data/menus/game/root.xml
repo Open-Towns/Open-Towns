@@ -1,0 +1,67 @@
+<menu id="game.root" titleKey="MainMenuPanel.4">
+    <item
+        id="game.save_no_misson_DEBUG"
+        type="item"
+        titleKey="CommandPanel.10"
+        command="COMMAND_SAVE_NO_MISSIONDATA"
+        condition="debug_mode"
+    />
+
+    <item
+        id="game.spacer"
+        type="spacer"
+    />
+    <item
+        id="game.save"
+        type="item"
+        titleKey="CommandPanel.4"
+        command="COMMAND_SAVE"
+    />
+    <item
+        id="game.spacer"
+        type="spacer"
+    />
+    <item
+        id="game.save_and_exit_main_menu"
+        type="item"
+        titleKey="CommandPanel.0"
+        command="COMMAND_EXIT_TO_MAIN_MENU_SAVE"
+    />
+    <item
+        id="game.spacer"
+        type="spacer"
+    />
+    <item
+        id="game.just_quit"
+        type="submenu"
+        titleKey="MainMenuPanel.1"
+        targetMenu="game.just_quit.root"
+        transparent="true" />
+
+    <item
+        id="game.spacer"
+        type="spacer"
+    />
+    <item
+        id="game.options"
+        type="submenu"
+        titleKey="MainMenuPanel.4"
+        targetMenu="game.options.root"
+        transparent="true" />
+    <item
+        id="game.spacer"
+        type="spacer"
+    />
+    <item
+        id="game.save_and_exit_main_menu"
+        type="item"
+        titleKey="CommandPanel.0"
+        command="COMMAND_EXIT_TO_MAIN_MENU_SAVE"
+    />
+
+</menu>
+
+                
+              
+
+      

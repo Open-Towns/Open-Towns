@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<menu id="game.options.performance.root" titleKey="MainMenuPanel.8">
+    <item
+        id="game.options.performance.title"
+        type="text"
+        titleKey="MainMenuPanel.8"
+    />
+     <item
+        id="game.options.performance.spacer"
+        type="spacer"
+    />
+    <item
+        id="game.options.performance.textline1"
+        type="text"
+        titleKey="MainMenuPanel.59"
+        dynamic="true"
+    />
+    <item
+        id="game.options.graphics.spacer"
+        type="spacer"
+    />
+    <item
+        id="game.options.performance.textline2"
+        type="text"
+        titleKey="MainMenuPanel.64"
+        dynamic="true"
+    />
+    <item
+        id="game.options.graphics.spacer"
+        type="spacer"
+    />
+    <item
+        id="game.options.performance.textline3"
+        type="text"
+        titleKey="MainMenuPanel.65"
+        dynamic="true"
+    />
+    <item
+        id="game.options.graphics.spacer"
+        type="spacer"
+    />
+    <item
+        id="game.options.performance.select"
+        type="text"
+        titleKey="MainMenuPanel.63"
+        command="COMMAND_MM_SWITCH_PATHFINDING_LEVEL"
+        dynamic="true"
+    />
+    <item
+        id="game.options.graphics.spacer"
+        type="spacer"
+    />
+
+
+    <item
+        id="back"
+        type="back"
+    />
+</menu>

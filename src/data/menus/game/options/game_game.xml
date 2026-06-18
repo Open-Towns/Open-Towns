@@ -1,0 +1,117 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<menu id="game.options.game.root" titleKey="MainMenuPanel.19">
+    <item
+        id="game.options.game.title"
+        type="text"
+        titleKey="MainMenuPanel.19"
+    />
+    <item
+        id="game.options.game.spacer"
+        type="spacer"
+    />
+    <item
+        id="game.options.game.mouse_scroll"
+        type="toggle"
+        titleKey="MainMenuPanel.20"
+        command="COMMAND_MM_SWITCH_MOUSE_SCROLL"
+        dynamic="true" />
+    <item
+        id="game.graphics.spacer"
+        type="spacer"
+    />
+    <item
+        id="game.options.game.mouse_scroll_ears"
+        type="toggle"
+        titleKey="MainMenuPanel.33"
+        command="COMMAND_MM_SWITCH_MOUSE_SCROLL_EARS"
+        dynamic="true" />
+    <item
+        id="game.graphics.spacer"
+        type="spacer"
+    />
+    <item
+        id="game.options.game.mouse_2d_cubes"
+        type="toggle"
+        titleKey="MainMenuPanel.72"
+        command="COMMAND_MM_SWITCH_MOUSE_2D_CUBES"
+        dynamic="true" />
+    <item
+        id="game.graphics.spacer"
+        type="spacer"
+    />
+    <item
+        id="game.options.game.mouse_disable_items"
+        type="toggle"
+        titleKey="MainMenuPanel.27"
+        command="COMMAND_MM_SWITCH_DISABLE_ITEMS"
+        dynamic="true" />
+    <item
+        id="game.graphics.spacer"
+        type="spacer"
+    />
+    <item
+        id="game.options.game.pause"
+        type="toggle"
+        titleKey="MainMenuPanel.28"
+        command="COMMAND_MM_SWITCH_PAUSE"
+        dynamic="true" />
+    <item
+        id="game.graphics.spacer"
+        type="spacer"
+    />
+    <item
+        id="game.options.game.autosave_days"
+        type="toggle"
+        titleKey="MainMenuPanel.31"
+        command="COMMAND_MM_SWITCH_AUTOSAVE_DAYS"
+        dynamic="true" />
+    <item
+        id="game.graphics.spacer"
+        type="spacer"
+    />
+    <!-- <item
+        id="game.options.game.gods"
+        type="toggle"
+        titleKey="MainMenuPanel.77"
+        command="COMMAND_MM_SWITCH_DISABLE_GODS"
+        dynamic="true" /> -->
+    <item
+        id="game.options.game.sieges"
+        type="toggle"
+        titleKey="MainMenuPanel.32"
+        command="COMMAND_MM_SWITCH_SIEGES"
+        dynamic="true" />
+    <item
+        id="game.graphics.spacer"
+        type="spacer"
+    />
+    <item
+        id="game.options.game.siege_pause"
+        type="toggle"
+        titleKey="MainMenuPanel.36"
+        command="COMMAND_MM_SWITCH_SIEGE_PAUSE"
+        dynamic="true" />
+    <item
+        id="game.graphics.spacer"
+        type="spacer"
+    />
+    <item
+        id="game.options.game.bury"
+        type="toggle"
+        titleKey="MainMenuPanel.66"
+        command="COMMAND_MM_SWITCH_BURY"
+        dynamic="true" />
+    <item
+        id="game.graphics.spacer"
+        type="spacer"
+    />
+
+
+    <item
+        id="game.options.game.back"
+        type="back"
+    />
+</menu>
+
+     

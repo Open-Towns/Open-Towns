@@ -1,0 +1,58 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<menu id="game.options.graphics.root" titleKey="MainMenuPanel.4">
+    <item
+        id="game.options.graphics.title"
+        type="text"
+        titleKey="MainMenuPanel.4"
+
+       />
+    <item
+        id="game.options.graphics.spacer1"
+        type="spacer"
+    />
+    <item
+        id="game.options.graphics.toggle_full_screen"
+        type="toggle"
+        titleKey="MainMenuPanel.17"
+        command="COMMAND_MM_TOGGLE_FULL_SCREEN"
+
+       />
+       <item
+        id="game.options.graphics.spacer2"
+        type="spacer"
+    />
+    <item
+        id="game.options.graphics.UI_scale"
+        type="slider"
+        titleKey="MainMenuPanel.83"
+        command="COMMAND_MM_UI_SCALE"
+
+       />
+        <item
+        id="game.options.graphics.spacer4"
+        type="spacer"
+    />
+    <item
+        id="game.options.graphics.tooltip_scale"
+        type="slider"
+        titleKey="MainMenuPanel.84"
+        command="COMMAND_MM_TOOLTIP_SCALE"
+
+       />
+         <item
+        id="game.options.graphics.spacer5"
+        type="spacer"
+    />
+    <item
+        id="game.options.graphics.UI_scale"
+        type="slider"
+        titleKey="MainMenuPanel.85"
+        command="COMMAND_MM_WORLD_ZOOM"
+
+       />
+       <item
+        id="game.options.graphics.back"
+        type="back" />
+
+</menu>

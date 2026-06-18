@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.awt.Color;
 
+import xaos.TownsProperties;
 import xaos.campaign.CampaignData;
 import xaos.campaign.CampaignManager;
 import xaos.utils.Point3D;
@@ -289,6 +290,10 @@ public final class MenuManager {
             return SmartMenu.TYPE_TEXT;
         }
 
+        if ("item".equals(type)) {
+            return SmartMenu.TYPE_ITEM;
+        }
+
         // TODO: create proper toggle and slider types in SmartMenu.
         if ("toggle".equals(type)) {
             return SmartMenu.TYPE_ITEM;
@@ -372,6 +377,9 @@ public final class MenuManager {
 
         if ("savegames.exists".equals(condition)) {
             return hasSavegames();
+        }
+        if("debug_mode".equals(condition)){
+            return TownsProperties.DEBUG_MODE;
         }
 
         // if ("mods.exists".equals(condition)) {

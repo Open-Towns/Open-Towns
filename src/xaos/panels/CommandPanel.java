@@ -901,35 +901,7 @@ public final class CommandPanel {
                 }
                 ContextMenu menuExit = new ContextMenu();
                 SmartMenu smExit = new SmartMenu();
-                if (TownsProperties.DEBUG_MODE) {
-                    smExit.addItem(new SmartMenu(SmartMenu.TYPE_ITEM, "Admin save, no mission", null, //$NON-NLS-1$
-                            COMMAND_SAVE_NO_MISSIONDATA, null));
-                    smExit.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-                }
-                smExit.addItem(new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("CommandPanel.4"), null, //$NON-NLS-1$
-                        COMMAND_SAVE, null));
-                smExit.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-                smExit.addItem(new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("CommandPanel.0"), null, //$NON-NLS-1$
-                        COMMAND_EXIT_TO_MAIN_MENU_SAVE, null));
-                smExit.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-                SmartMenu smSure = new SmartMenu(SmartMenu.TYPE_MENU, Messages.getString("CommandPanel.1"), smExit, //$NON-NLS-1$
-                        null, null);
-                smSure.addItem(new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("CommandPanel.3"), null, //$NON-NLS-1$
-                        COMMAND_EXIT_TO_MAIN_MENU_NOSAVE, null));
-                smSure.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-                smExit.addItem(new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("CommandPanel.7"), null, //$NON-NLS-1$
-                        COMMAND_BURY, null));
-                smExit.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-                smSure.addItem(new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("CommandPanel.5"), null, //$NON-NLS-1$
-                        COMMAND_BACK, null));
-
-                smExit.addItem(smSure);
-
-                smExit.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-                smExit.addItem(IngameOptionsMenu.createOptionsMenu(smExit));
-                smExit.addItem(new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null));
-                smExit.addItem(new SmartMenu(SmartMenu.TYPE_ITEM, Messages.getString("CommandPanel.2"), null, //$NON-NLS-1$
-                        COMMAND_CLOSE_CONTEXT, null));
+               //////////////////////////
                 menuExit.setSmartMenu(smExit);
                 menuExit.setX(UtilsGL.getWidth() / 2 - menuExit.getWidth() / 2);
                 menuExit.setY(UtilsGL.getHeight() / 2 - menuExit.getHeight() / 2);

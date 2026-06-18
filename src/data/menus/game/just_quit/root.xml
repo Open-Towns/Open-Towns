@@ -1,0 +1,27 @@
+ <menu id="game.just_quit.root" titleKey="CommandPanel.1">
+    <item
+        id="game.just_quit.exit_without_save"
+        type="item"
+        titleKey="CommandPanel.3"
+        command="COMMAND_EXIT_TO_MAIN_MENU_NOSAVE"/>
+    <item
+        id="game.options.graphics.spacer"
+        type="spacer"
+    />
+       <item
+        id="game.just_quit.bury"
+        type="item"
+        titleKey="CommandPanel.7"
+        command="COMMAND_BURY"/>
+        <item
+        id="game.options.graphics.spacer"
+        type="spacer"
+    />
+       <item
+        id="game.just_quit.bury"
+        type="item"
+        titleKey="CommandPanel.5"
+        command="COMMAND_BACK"/>
+ </menu>
+ 
+ 
