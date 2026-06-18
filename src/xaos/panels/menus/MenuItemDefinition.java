@@ -14,6 +14,7 @@ public final class MenuItemDefinition {
     private final String key;
     private final String condition;
     private final String textColorName;
+    private final boolean transparent;
 
     public MenuItemDefinition(
             String id,
@@ -26,7 +27,8 @@ public final class MenuItemDefinition {
             String provider,
             String key,
             String condition,
-            String textColorName
+            String textColorName,
+            boolean transparent
 
     ) {
         this.id = id;
@@ -40,6 +42,7 @@ public final class MenuItemDefinition {
         this.key = key;
         this.condition = condition;
         this.textColorName = textColorName;
+        this.transparent = transparent;
     }
 
     public String getId() {
@@ -83,7 +86,9 @@ public final class MenuItemDefinition {
     }
 
     public String getTextColorName() {
-
         return textColorName;
+    }
+    public boolean isTransparent(){
+        return transparent;
     }
 }

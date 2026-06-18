@@ -74,6 +74,7 @@ public final class MenuXmlLoader {
         String key = optional(itemElement, "key");
         String condition = optional(itemElement, "condition");
         String textColorName = optional(itemElement, "textColorName");
+        boolean transparent = optionalBoolean(itemElement, "transparent", true);
 
         return new MenuItemDefinition(
                 id,
@@ -86,7 +87,10 @@ public final class MenuXmlLoader {
                 provider,
                 key,
                 condition,
-                textColorName);
+                textColorName,
+                transparent
+            
+            );
     }
 
     private static String required(Element element, String attributeName, File file) {

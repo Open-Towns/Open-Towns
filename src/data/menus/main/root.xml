@@ -5,7 +5,8 @@
         id="main.tutorials"
         type="submenu"
         titleKey="MainMenuPanel.54"
-        targetMenu="main.tutorials.root" />
+        targetMenu="main.tutorials.root" 
+       />
     <item
         id="main.spacer1"
         type="spacer"

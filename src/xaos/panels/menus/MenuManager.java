@@ -123,8 +123,8 @@ public final class MenuManager {
 
         buildStack.remove(definition.getId());
 
-        // TODO: update this to set transparency from XML later.
-        menu.setTrasparency(true);
+       
+        menu.setTrasparency(definition.isTransparent());
 
         return menu;
     }
@@ -200,6 +200,7 @@ public final class MenuManager {
 
         menuItem.setDynamic(item.isDynamic());
         menuItem.setMaintainOpen(item.isMaintainOpen());
+        menuItem.setTrasparency(item.isTransparent());
     }
 
     private Color resolveTextColor(String textColorName) {

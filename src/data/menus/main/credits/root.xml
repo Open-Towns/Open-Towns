@@ -31,7 +31,8 @@
         id="main.credits.text3"
         type="text"
         titleKey="MainMenuPanel.37"
-        textColorName ="default" />
+        textColorName ="default"
+         />
     <item
         id="main.credits.text4"
         type="text"

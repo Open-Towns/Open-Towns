@@ -8,6 +8,7 @@ public final class MenuDefinition {
     private final String id;
     private final String titleKey;
     private final List<MenuItemDefinition> items = new ArrayList<>();
+    private final boolean transparent = true;
 
     public MenuDefinition(String id, String titleKey) {
         this.id = id;
@@ -30,5 +31,8 @@ public final class MenuDefinition {
         items.add(item);
     }
 
-  
+    public boolean isTransparent() {
+        return transparent;
+    }
+
 }
