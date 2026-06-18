@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<menu id="main.load_game.root" titleKey="MainMenuPanel.38">
+    <item
+        id="title"
+        type="text"
+        titleKey="MainMenuPanel.38" 
+        textColor ="default"/>
+
+    <item
+        id="main.load_game.spacer1"
+        type="spacer"
+    />
+
+    <item
+        id="savegames"
+        type="generated"
+        provider="main.load_game.saves" />
+
+    <item
+        id="main.load_game.spacer2"
+        type="spacer"
+    />
+
+    <item
+        id="back"
+        type="back" />
+</menu>

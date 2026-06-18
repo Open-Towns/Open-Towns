@@ -2,11 +2,22 @@
 
 <menu id="main.options.graphics.root" titleKey="MainMenuPanel.16">
     <item
+        id="main.options.graphics.title"
+        type="text"
+        titleKey="MainMenuPanel.16"
+
+    />
+    <item
+        id="main.options.graphics.spacer"
+        type="spacer"
+    />
+    <item
         id="main.options.graphics.fullscreen"
         type="toggle"
         titleKey="MainMenuPanel.17"
         command="COMMAND_MM_TOGGLE_FULL_SCREEN"
         maintainOpen= "true"
+        textColorName= "black"
         />
         <item
         id="main.options.graphics.spacer"

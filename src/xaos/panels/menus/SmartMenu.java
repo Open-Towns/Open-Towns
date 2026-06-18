@@ -89,6 +89,7 @@ public class SmartMenu implements Externalizable {
     private ArrayList<String> prerequisites;
     private ArrayList<ColorGL> prerequisitesColor;
 
+    //
     public static final class MenuItemsDefinition {
         final int type;
         final String messageKey;
@@ -179,6 +180,7 @@ public class SmartMenu implements Externalizable {
         return menuItem;
     }
 
+    //
     public static SmartMenu createSpacer() {
         return new SmartMenu(SmartMenu.TYPE_TEXT, null, null, null, null);
     }
@@ -311,6 +313,10 @@ public class SmartMenu implements Externalizable {
         this.directCoordinates = directCoordinates;
     }
 
+    public void setColor(Color color) {
+        this.color = new ColorGL(color);
+    }
+
     public void setColor(ColorGL color) {
         this.color = color;
     }
@@ -438,6 +444,16 @@ public class SmartMenu implements Externalizable {
                 sTexto = item.getName();
             }
 
+            ColorGL itemColor = item.getColor();
+
+            if (itemColor == null) {
+                if (item.getType() == TYPE_MENU) {
+                    itemColor = COLORGL_SUBMENU;
+                } else {
+                    itemColor = new ColorGL((Color) null);
+                }
+            }
+
             if (item.getBorderColor() != null) {
                 UtilsGL.drawString(sTexto, x, iY - 1, item.getBorderColor());
                 UtilsGL.drawString(sTexto, x + 1, iY - 1, item.getBorderColor());
@@ -448,17 +464,9 @@ public class SmartMenu implements Externalizable {
                 UtilsGL.drawString(sTexto, x + 1, iY + 1, item.getBorderColor());
                 UtilsGL.drawString(sTexto, x + 2, iY + 1, item.getBorderColor());
 
-                if (item.getParent() != null) {
-                    UtilsGL.drawString(sTexto, x + 1, iY, COLORGL_SUBMENU);
-                } else {
-                    UtilsGL.drawString(sTexto, x + 1, iY, item.getColor());
-                }
+                UtilsGL.drawString(sTexto, x + 1, iY, itemColor);
             } else {
-                if (item.getParent() != null) {
-                    UtilsGL.drawString(sTexto, x, iY, COLORGL_SUBMENU);
-                } else {
-                    UtilsGL.drawString(sTexto, x, iY, item.getColor());
-                }
+                UtilsGL.drawString(sTexto, x, iY, itemColor);
             }
 
         }

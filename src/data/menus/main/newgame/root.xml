@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<menu id="main.new_game.root" titleKey="MainMenuPanel.53">
+    <item
+        id="main.new_game.title"
+        titleKey="MainMenuPanel.53"
+        type="text" />
+
+    <item
+        id="main.new_game.spacer1"
+        type="spacer"
+    />
+    <item
+        id="normal_campaigns"
+        type="generated"
+        provider="main.new_game.root" />
+    <item
+        id="main.new_game.spacer2"
+        type="spacer"
+    />
+    <item
+        id="main.new_game.back"
+        type="back"
+    />
+
+</menu>

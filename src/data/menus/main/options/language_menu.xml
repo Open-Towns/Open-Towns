@@ -2,9 +2,22 @@
 
 <menu id="main.options.language.root" titleKey="MainMenuPanel.14">
     <item
+        id="main.options.language.title"
+        type="text"
+        titleKey="MainMenuPanel.14"
+    />
+    <item
+        id="main.options.language.spacer"
+        type="spacer"
+    />
+    <item
         id="main.options.language.generated"
         type="generated"
         provider="main.options.languages.root"
+    />
+      <item
+        id="main.options.language.spacer2"
+        type="spacer"
     />
 
     <item

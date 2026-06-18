@@ -2,6 +2,15 @@
 
 <menu id="main.options.audio.root" titleKey="MainMenuPanel.13">
     <item
+        id="main.options.audio.title"
+        type="text"
+        titleKey="MainMenuPanel.13"
+    />
+    <item
+        id="main.options.audio.spacer"
+        type="spacer"
+    />
+    <item
         id="main.options.audio.music"
         type="toggle"
         titleKey="MainMenuPanel.5"
@@ -9,11 +18,19 @@
         dynamic="true"
     />
     <item
+        id="main.options.audio.spacer"
+        type="spacer"
+    />
+    <item
         id="main.options.audio.music_volume"
         type="slider"
         titleKey="MainMenuPanel.56"
         command="COMMAND_MM_ADD_MUSIC_VOLUME"
          dynamic="true" />
+         <item
+        id="main.options.audio.spacer"
+        type="spacer"
+    />
     <item
         id="main.options.audio.fx"
         type="toggle"
@@ -22,11 +39,19 @@
         dynamic="true"
     />
     <item
+        id="main.options.audio.spacer"
+        type="spacer"
+    />
+    <item
         id="main.options.audio.fx_volume"
         type="slider"
         titleKey="MainMenuPanel.57"
         command="COMMAND_MM_ADD_FX_VOLUME"
         dynamic="true"
+    />
+    <item
+        id="main.options.audio.spacer"
+        type="spacer"
     />
     <item
         id="main.options.audio.back"

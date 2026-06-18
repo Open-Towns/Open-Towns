@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<menu id="main.credits.root" titleKey="MainMenuPanel.34">
+    <item
+        id="main.credits.title"
+        type="text"
+        titleKey="MainMenuPanel.34"
+        textColorName ="credits"
+        />
+
+    <item
+        id="main.credits.spacer1"
+        type="spacer"
+    />
+    <item
+        id="main.credits.text1"
+        type="text"
+        titleKey="MainMenuPanel.35" 
+        textColorName ="black"
+        />
+    <item
+        id="main.credits.text2"
+        type="text"
+        titleKey="MainMenuPanel.86" 
+        textColorName ="GREEN"
+        />
+    <item
+        id="main.credits.spacer2"
+        type="spacer"
+    />
+    <item
+        id="main.credits.text3"
+        type="text"
+        titleKey="MainMenuPanel.37"
+        textColorName ="default" />
+    <item
+        id="main.credits.text4"
+        type="text"
+        titleKey="MainMenuPanel.87" />
+    <item
+        id="main.credits.spacer3"
+        type="spacer"
+    />
+    <item
+        id="main.credits.text5"
+        type="text"
+        titleKey="MainMenuPanel.39" />
+    <item
+        id="main.credits.text6"
+        type="text"
+        titleKey="MainMenuPanel.88" />
+    <item
+        id="main.credits.spacer4"
+        type="spacer"
+    />
+    <item
+        id="main.credits.text7"
+        type="text"
+        titleKey="MainMenuPanel.78" />
+    <item
+        id="main.credits.text8"
+        type="text"
+        titleKey="MainMenuPanel.89" />
+    <item
+        id="main.credits.spacer5"
+        type="spacer"
+    />
+
+    <item
+        id="credits.back"
+        type="back" />
+</menu>

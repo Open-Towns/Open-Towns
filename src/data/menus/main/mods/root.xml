@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<menu id="main.mod_manager.root" titleKey="MainMenuPanel.58">
+    <item
+        id="title"
+        type="text"
+        titleKey="MainMenuPanel.58" 
+        textColor ="black"
+        />
+
+    <item
+        id="main.mod_manager.spacer1"
+        type="spacer"
+    />
+    <item
+        id="mods"
+        type="generated"
+        provider="main.mod_manager.root" />
+
+<item
+        id="main.mod_manager.spacer2"
+        type="spacer"
+    />
+    <item
+        id="mod_manager.back"
+        type="back" />
+</menu>

@@ -72,6 +72,8 @@ public final class MenuXmlLoader {
         boolean maintainOpen = optionalBoolean(itemElement, "maintainOpen", true);
         String provider = optional(itemElement, "provider");
         String key = optional(itemElement, "key");
+        String condition = optional(itemElement, "condition");
+        String textColorName = optional(itemElement, "textColorName");
 
         return new MenuItemDefinition(
                 id,
@@ -82,7 +84,9 @@ public final class MenuXmlLoader {
                 dynamic,
                 maintainOpen,
                 provider,
-                key);
+                key,
+                condition,
+                textColorName);
     }
 
     private static String required(Element element, String attributeName, File file) {

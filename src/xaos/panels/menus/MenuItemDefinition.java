@@ -1,5 +1,6 @@
 package xaos.panels.menus;
 
+
 public final class MenuItemDefinition {
 
     private final String id;
@@ -11,6 +12,8 @@ public final class MenuItemDefinition {
     private final boolean maintainOpen;
     private final String provider;
     private final String key;
+    private final String condition;
+    private final String textColorName;
 
     public MenuItemDefinition(
             String id,
@@ -21,7 +24,10 @@ public final class MenuItemDefinition {
             boolean dynamic,
             boolean maintainOpen,
             String provider,
-            String key
+            String key,
+            String condition,
+            String textColorName
+
     ) {
         this.id = id;
         this.type = type;
@@ -32,6 +38,8 @@ public final class MenuItemDefinition {
         this.maintainOpen = maintainOpen;
         this.provider = provider;
         this.key = key;
+        this.condition = condition;
+        this.textColorName = textColorName;
     }
 
     public String getId() {
@@ -68,5 +76,14 @@ public final class MenuItemDefinition {
 
     public boolean isMaintainOpen() {
         return maintainOpen;
+    }
+
+    public String getCondition() {
+        return condition;
+    }
+
+    public String getTextColorName() {
+
+        return textColorName;
     }
 }
