@@ -22,6 +22,8 @@ import xaos.main.Game;
 import xaos.main.World;
 import xaos.panels.menus.ContextMenu;
 import xaos.panels.menus.IngameOptionsMenu;
+import xaos.panels.menus.MenuDefinition;
+import xaos.panels.menus.MenuManager;
 import xaos.panels.menus.SmartMenu;
 import xaos.stockpiles.Stockpile;
 import xaos.tasks.Task;
@@ -901,8 +903,13 @@ public final class CommandPanel {
                 }
                 ContextMenu menuExit = new ContextMenu();
                 SmartMenu smExit = new SmartMenu();
-               //////////////////////////
-                menuExit.setSmartMenu(smExit);
+                MenuManager menuManager = new MenuManager();
+                menuManager.loadMenus(new File("data/menus/game"));
+
+                MenuDefinition optionsMenu = menuManager.getMenu("game.root");
+
+                
+                menuExit.setSmartMenu(menuManager.buildSmartMenu(optionsMenu, smExit));
                 menuExit.setX(UtilsGL.getWidth() / 2 - menuExit.getWidth() / 2);
                 menuExit.setY(UtilsGL.getHeight() / 2 - menuExit.getHeight() / 2);
                 Game.setContextMenu(menuExit);
