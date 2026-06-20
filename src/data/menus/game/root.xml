@@ -1,4 +1,4 @@
-<menu id="game.root" titleKey="MainMenuPanel.4">
+<menu id="game.root" titleKey="MainMenuPanel.4" >
     <item
         id="game.save_no_misson_DEBUG"
         type="item"
@@ -36,7 +36,7 @@
         type="submenu"
         titleKey="MainMenuPanel.1"
         targetMenu="game.just_quit.root"
-        transparent="true" />
+        transparent="false" />
 
     <item
         id="game.spacer"
@@ -47,7 +47,7 @@
         type="submenu"
         titleKey="MainMenuPanel.4"
         targetMenu="game.options.root"
-        transparent="true" />
+        transparent="false" />
     <item
         id="game.spacer"
         type="spacer"

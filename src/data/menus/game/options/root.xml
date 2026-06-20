@@ -3,7 +3,7 @@
         id="game.options.graphics"
         type="submenu"
         titleKey="MainMenuPanel.16"
-        targetMenu="game.options.graphics.root" />
+        targetMenu="game.options.graphics.root" transparent="false" />
     <item
         id="game.options.graphics.spacer"
         type="spacer"
@@ -13,7 +13,7 @@
         id="game.options.game"
         type="submenu"
         titleKey="MainMenuPanel.19"
-        targetMenu="game.options.game.root" />
+        targetMenu="game.options.game.root" transparent="false" />
     <item
         id="game.options.graphics.spacer"
         type="spacer"
@@ -24,7 +24,7 @@
         id="game.options.audio"
         type="submenu"
         titleKey="MainMenuPanel.13"
-        targetMenu="game.options.audio.root" />
+        targetMenu="game.options.audio.root" transparent="false" />
     <item
         id="game.options.graphics.spacer"
         type="spacer"
@@ -34,7 +34,7 @@
         id="game.options.performance"
         type="submenu"
         titleKey="MainMenuPanel.8"
-        targetMenu="game.options.performance.root" />
+        targetMenu="game.options.performance.root" transparent="false" />
     <item
         id="game.options.graphics.spacer"
         type="spacer"

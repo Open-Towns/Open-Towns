@@ -235,6 +235,7 @@ public final class CommandPanel {
     public int renderY;
     public int renderWidth;
     public int renderHeight;
+    public static ContextMenu escapeMenu;
 
     public CommandPanel(int renderX, int renderY, int renderWidth, int renderHeight, String sCampaignID,
             String sMissionID) {
@@ -249,6 +250,21 @@ public final class CommandPanel {
     private static void loadMenu(String sCampaignID, String sMissionID) {
         currentMenu = new SmartMenu();
         SmartMenu.readXMLMenu(currentMenu, "menu.xml", sCampaignID, sMissionID); //$NON-NLS-1$
+    }
+
+    private static ContextMenu createEscapeMenu() {
+
+        ContextMenu menuExit = new ContextMenu();
+
+        MenuManager menuManager = new MenuManager();
+        menuManager.loadMenus(new File("data/menus/game"));
+
+        MenuDefinition optionsMenu = menuManager.getMenu("game.root");
+        SmartMenu menu = menuManager.buildSmartMenu(optionsMenu, null);
+        menu.setTrasparency(false);
+        menuExit.setSmartMenu(menu);
+        return menuExit;
+
     }
 
     /**
@@ -901,15 +917,7 @@ public final class CommandPanel {
                 if (Game.getCurrentState() == Game.STATE_CREATING_TASK) {
                     Game.deleteCurrentTask();
                 }
-                ContextMenu menuExit = new ContextMenu();
-                SmartMenu smExit = new SmartMenu();
-                MenuManager menuManager = new MenuManager();
-                menuManager.loadMenus(new File("data/menus/game"));
-
-                MenuDefinition optionsMenu = menuManager.getMenu("game.root");
-
-                
-                menuExit.setSmartMenu(menuManager.buildSmartMenu(optionsMenu, smExit));
+                ContextMenu menuExit = createEscapeMenu();
                 menuExit.setX(UtilsGL.getWidth() / 2 - menuExit.getWidth() / 2);
                 menuExit.setY(UtilsGL.getHeight() / 2 - menuExit.getHeight() / 2);
                 Game.setContextMenu(menuExit);
