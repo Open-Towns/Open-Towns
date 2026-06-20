@@ -21,7 +21,7 @@ import xaos.events.EventManagerItem;
 import xaos.main.Game;
 import xaos.main.World;
 import xaos.panels.menus.ContextMenu;
-import xaos.panels.menus.IngameOptionsMenu;
+
 import xaos.panels.menus.MenuDefinition;
 import xaos.panels.menus.MenuManager;
 import xaos.panels.menus.SmartMenu;
