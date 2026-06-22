@@ -237,6 +237,14 @@ public final class CommandPanel {
     public int renderHeight;
     public static ContextMenu escapeMenu;
 
+    public static SmartMenu getCurrentMenu() {
+        return currentMenu;
+    }
+
+    public static void setCurrentMenu(SmartMenu menu) {
+        currentMenu = menu;
+    }
+
     public CommandPanel(int renderX, int renderY, int renderWidth, int renderHeight, String sCampaignID,
             String sMissionID) {
         resize(renderX, renderY, renderWidth, renderHeight);
