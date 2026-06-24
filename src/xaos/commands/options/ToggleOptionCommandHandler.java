@@ -1,4 +1,6 @@
-package xaos.commands;
+package xaos.commands.options;
+import xaos.commands.CommandContext;
+import xaos.commands.CommandHandler;
 import xaos.utils.Utils;
 
 public final class ToggleOptionCommandHandler implements CommandHandler {

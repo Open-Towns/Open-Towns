@@ -1,5 +1,6 @@
-package xaos.commands;
+package xaos.commands.tasks;
 
+import xaos.commands.CommandContext;
 import xaos.main.Game;
 import xaos.tasks.Task;
 import xaos.utils.Point3D;

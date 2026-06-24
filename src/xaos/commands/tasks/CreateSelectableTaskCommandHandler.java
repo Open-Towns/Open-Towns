@@ -1,7 +1,6 @@
 package xaos.commands.tasks;
 
 import xaos.commands.CommandHandler;
-import xaos.commands.TaskCommandHelper;
 import xaos.commands.CommandContext;
 
 public final class CreateSelectableTaskCommandHandler implements CommandHandler {

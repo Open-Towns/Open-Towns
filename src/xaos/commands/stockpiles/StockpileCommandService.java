@@ -1,60 +1,70 @@
 package xaos.commands.stockpiles;
 
-import xaos.data.Type;
+import java.util.ArrayList;
+
 import xaos.main.Game;
-import xaos.main.World;
 import xaos.stockpiles.Stockpile;
+import xaos.data.Type;
+import xaos.main.World;
 
 public final class StockpileCommandService {
 
-    public void copySettingsToMatchingStockpiles(String sourceStockpileId) {
-        Stockpile source = Stockpile.getStockpile(sourceStockpileId);
+    public void copyToAllMatchingStockpiles(String sourceStockpileId) {
+        Stockpile sourceStockpile = Stockpile.getStockpile(sourceStockpileId);
 
-        if (source == null) {
+        if (sourceStockpile == null) {
             return;
         }
 
-        Type sourceType = source.getType();
+        Type sourceType = sourceStockpile.getType();
+        ArrayList<Stockpile> stockpiles = Game.getWorld().getStockpiles();
 
-        for (Stockpile destination : Game.getWorld().getStockpiles()) {
-            if (shouldCopyToStockpile(source, destination, sourceType)) {
-                boolean removedItems = copyTypeElements(sourceType, destination.getType());
+        for (int i = 0; i < stockpiles.size(); i++) {
+            Stockpile destinationStockpile = stockpiles.get(i);
 
-                if (removedItems) {
-                    markItemsForHauling(destination);
-                }
+            if (!shouldCopyToStockpile(sourceStockpile, destinationStockpile, sourceType)) {
+                continue;
+            }
+
+            boolean removedSomething = copyTypeElements(
+                    sourceType,
+                    destinationStockpile.getType()
+            );
+
+            if (removedSomething) {
+                markStockpileItemsForHauling(destinationStockpile);
             }
         }
     }
 
     private boolean shouldCopyToStockpile(
-            Stockpile source,
-            Stockpile destination,
+            Stockpile sourceStockpile,
+            Stockpile destinationStockpile,
             Type sourceType
     ) {
-        return destination.getID() != source.getID()
-                && destination.getType().getID().equals(sourceType.getID())
-                && !destination.isLockedToCopy();
+        return destinationStockpile.getID() != sourceStockpile.getID()
+                && destinationStockpile.getType().getID().equals(sourceType.getID())
+                && !destinationStockpile.isLockedToCopy();
     }
 
     private boolean copyTypeElements(Type sourceType, Type destinationType) {
         boolean removedSomething = false;
 
         for (int i = destinationType.getElements().size() - 1; i >= 0; i--) {
-            String element = destinationType.getElements().get(i);
+            String destinationElement = destinationType.getElements().get(i);
 
-            if (!sourceType.contains(element)) {
-                destinationType.removeElement(element);
+            if (!sourceType.contains(destinationElement)) {
+                destinationType.removeElement(destinationElement);
                 removedSomething = true;
             }
         }
 
         for (int i = sourceType.getElements().size() - 1; i >= 0; i--) {
-            String element = sourceType.getElements().get(i);
+            String sourceElement = sourceType.getElements().get(i);
 
-            if (!destinationType.contains(element)) {
+            if (!destinationType.contains(sourceElement)) {
                 destinationType.addElement(
-                        element,
+                        sourceElement,
                         sourceType.getElementNames().get(i)
                 );
             }
@@ -63,7 +73,7 @@ public final class StockpileCommandService {
         return removedSomething;
     }
 
-    private void markItemsForHauling(Stockpile stockpile) {
+    private void markStockpileItemsForHauling(Stockpile stockpile) {
         for (int i = 0; i < stockpile.getPoints().size(); i++) {
             Game.getWorld().addItemToBeHauled(
                     World.getCell(stockpile.getPoints().get(i)).getItem()

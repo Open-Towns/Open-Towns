@@ -5,14 +5,16 @@ import xaos.commands.CommandHandler;
 
 public final class StockpileCopyToAllCommandHandler implements CommandHandler {
 
-    private final StockpileCommandService stockpileService;
+    private final StockpileCommandService stockpileCommandService;
 
-    public StockpileCopyToAllCommandHandler(StockpileCommandService stockpileService) {
-        this.stockpileService = stockpileService;
+    public StockpileCopyToAllCommandHandler() {
+        this.stockpileCommandService = new StockpileCommandService();
     }
 
     @Override
     public void execute(CommandContext context) {
-        stockpileService.copySettingsToMatchingStockpiles(context.getParameter());
+        stockpileCommandService.copyToAllMatchingStockpiles(
+                context.getParameter()
+        );
     }
 }
