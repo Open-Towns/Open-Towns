@@ -59,7 +59,7 @@
     />
     <item
         id="main.exit"
-        type="toggle"
+        type="button"
         titleKey="MainMenuPanel.3"
         command="COMMAND_EXIT_GAME"
     />

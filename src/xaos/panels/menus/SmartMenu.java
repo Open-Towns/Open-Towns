@@ -58,10 +58,9 @@ public class SmartMenu implements Externalizable {
     public final static int TYPE_MENU = 1;
     public final static int TYPE_ITEM = 2;
     public static final int TYPE_BUTTON = 5;
-public static final int TYPE_TOGGLE = 6;
-public static final int TYPE_SLIDER = 7;
-public static final int TYPE_HEADING = 8;
-public static final int TYPE_SPACER = 9;
+    public static final int TYPE_TOGGLE = 6;
+    public static final int TYPE_SLIDER = 7;
+    public static final int TYPE_HEADING = 8;
 
     public final static int ICON_TYPE_UI = 0;
     public final static int ICON_TYPE_ITEM = 1;
@@ -72,7 +71,7 @@ public static final int TYPE_SPACER = 9;
     private int type;
     private String id; // Se usa en los menuXXX.xml , así los mods pueden referirse a un item para
                        // borrarlo
-    private String name; 
+    private String name;
     private SmartMenu parent;
     private ArrayList<SmartMenu> items;
     private String command; // Acción que lanza este item
@@ -91,7 +90,6 @@ public static final int TYPE_SPACER = 9;
     private ArrayList<String> prerequisites;
     private ArrayList<ColorGL> prerequisitesColor;
 
-   
     public SmartMenu() {
         this(TYPE_NO_TYPE, null, null, null, null);
     }
@@ -306,31 +304,33 @@ public static final int TYPE_SPACER = 9;
         if (!isTrasparency()) {
             GL11.glColor4f(1, 1, 1, 1);
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, UIPanelState.tileTooltipBackground.getTextureID());
+
             UtilsGL.glBegin(GL11.GL_QUADS);
-            UtilsGL.drawTexture(x, y, x + width, y + height, UIPanelState.tileTooltipBackground.getTileSetTexX0(),
+            UtilsGL.drawTexture(
+                    x,
+                    y,
+                    x + width,
+                    y + height,
+                    UIPanelState.tileTooltipBackground.getTileSetTexX0(),
                     UIPanelState.tileTooltipBackground.getTileSetTexY0(),
                     UIPanelState.tileTooltipBackground.getTileSetTexX1(),
                     UIPanelState.tileTooltipBackground.getTileSetTexY1());
             UtilsGL.glEnd();
         }
 
-        // Rectángulito rojo en el item marcado (excepto TYPE_TEXT)
         int iY;
         int mouseX = Mouse.getX();
         int mouseY = UtilsGL.getHeight() - Mouse.getY() - 1;
         int itemIndex = -1;
+
         if (isContext) {
-            if (mouseX >= x && mouseX < (x + width) && mouseY >= y
-                    && mouseY < (y + getItems().size() * UtilFont.MAX_HEIGHT)) {
-                itemIndex = (mouseY - y) / UtilFont.MAX_HEIGHT;
-                if (getItems().get(itemIndex).getType() != TYPE_TEXT) {
-                    iY = y + itemIndex * UtilFont.MAX_HEIGHT + 1;
-                    GL11.glBindTexture(GL11.GL_TEXTURE_2D, RED_TILE.getTextureID());
-                    GL11.glColor3f(1, 0, 0);
-                    UtilsGL.glBegin(GL11.GL_QUADS);
-                    UtilsGL.drawTexture(x, iY, x + width, iY + UtilFont.MAX_HEIGHT, RED_TILE.getTileSetTexX0(),
-                            RED_TILE.getTileSetTexY0(), RED_TILE.getTileSetTexX1(), RED_TILE.getTileSetTexY1());
-                    UtilsGL.glEnd();
+            itemIndex = getHoveredItemIndex(x, y, width, mouseX, mouseY);
+
+            if (itemIndex != -1) {
+                SmartMenu hoveredItem = getItems().get(itemIndex);
+
+                if (usesLegacyHoverHighlight(hoveredItem)) {
+                    renderLegacyHoverHighlight(x, y, width, itemIndex);
                 }
             }
         }
@@ -338,56 +338,353 @@ public static final int TYPE_SPACER = 9;
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, Game.TEXTURE_FONT_ID);
         GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
 
-        // Menú
-        UtilsGL.glBegin(GL11.GL_QUADS);
         String sTexto;
         SmartMenu item;
+
         for (int i = 0; i < getItems().size(); i++) {
             item = getItems().get(i);
-            iY = y + (i * UtilFont.MAX_HEIGHT) + 1;
+            iY = y + i * UtilFont.MAX_HEIGHT + 1;
+
             if (item.isDynamic()) {
                 sTexto = Utils.getDynamicString(item.getName());
             } else {
                 sTexto = item.getName();
             }
 
-            ColorGL itemColor = item.getColor();
-
-            if (itemColor == null) {
-                if (item.getType() == TYPE_MENU) {
-                    itemColor = COLORGL_SUBMENU;
-                } else {
-                    itemColor = new ColorGL((Color) null);
-                }
-            }
-
-            if (item.getBorderColor() != null) {
-                UtilsGL.drawString(sTexto, x, iY - 1, item.getBorderColor());
-                UtilsGL.drawString(sTexto, x + 1, iY - 1, item.getBorderColor());
-                UtilsGL.drawString(sTexto, x + 2, iY - 1, item.getBorderColor());
-                UtilsGL.drawString(sTexto, x, iY, item.getBorderColor());
-                UtilsGL.drawString(sTexto, x + 2, iY, item.getBorderColor());
-                UtilsGL.drawString(sTexto, x, iY + 1, item.getBorderColor());
-                UtilsGL.drawString(sTexto, x + 1, iY + 1, item.getBorderColor());
-                UtilsGL.drawString(sTexto, x + 2, iY + 1, item.getBorderColor());
-
-                UtilsGL.drawString(sTexto, x + 1, iY, itemColor);
-            } else {
-                UtilsGL.drawString(sTexto, x, iY, itemColor);
-            }
-
+            renderMenuItemByType(
+                    item,
+                    sTexto,
+                    x,
+                    iY,
+                    width,
+                    UtilFont.MAX_HEIGHT,
+                    itemIndex == i);
         }
-        UtilsGL.glEnd();
 
-        // Tooltip
         if (itemIndex != -1) {
             SmartMenu menuItem = getItems().get(itemIndex);
+
             if (menuItem.getPrerequisites() != null && menuItem.getPrerequisites().size() > 0) {
-                MainPanel.renderMessages(mouseX, mouseY + Tile.TERRAIN_ICON_HEIGHT / 2, UtilsGL.getWidth(),
-                        UtilsGL.getHeight(), Tile.TERRAIN_ICON_WIDTH / 2, menuItem.getPrerequisites(),
+                MainPanel.renderMessages(
+                        mouseX,
+                        mouseY + Tile.TERRAIN_ICON_HEIGHT / 2,
+                        UtilsGL.getWidth(),
+                        UtilsGL.getHeight(),
+                        Tile.TERRAIN_ICON_WIDTH / 2,
+                        menuItem.getPrerequisites(),
                         menuItem.getPrerequisitesColor());
             }
         }
+    }
+
+    private void renderMenuItemByType(
+            SmartMenu item,
+            String text,
+            int x,
+            int y,
+            int width,
+            int height,
+            boolean hovered) {
+        switch (item.getType()) {
+            case TYPE_BUTTON:
+                renderButtonItem(item, text, x, y, width, height, hovered);
+                break;
+
+            case TYPE_TOGGLE:
+                renderToggleItem(item, text, x, y, width, height, hovered);
+                break;
+
+            case TYPE_SLIDER:
+                renderSliderItem(item, text, x, y, width, height, hovered);
+                break;
+
+            case TYPE_HEADING:
+                renderHeadingItem(item, text, x, y, width, height);
+                break;
+
+            case TYPE_TEXT:
+                renderTextItem(item, text, x, y);
+                break;
+
+            case TYPE_MENU:
+                renderMenuLinkItem(item, text, x, y, width, height, hovered);
+                break;
+
+            case TYPE_ITEM:
+            default:
+                renderTextItem(item, text, x, y);
+                break;
+        }
+    }
+
+    private void renderTextItem(SmartMenu item, String text, int x, int y) {
+        if (text == null) {
+            return;
+        }
+
+        ColorGL color = item.getColor();
+
+        if (color == null) {
+            color = new ColorGL(Color.WHITE);
+        }
+
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, Game.TEXTURE_FONT_ID);
+        GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
+
+        UtilsGL.glBegin(GL11.GL_QUADS);
+
+        if (item.getBorderColor() != null) {
+            UtilsGL.drawString(text, x, y - 1, item.getBorderColor());
+            UtilsGL.drawString(text, x + 1, y - 1, item.getBorderColor());
+            UtilsGL.drawString(text, x + 2, y - 1, item.getBorderColor());
+            UtilsGL.drawString(text, x, y, item.getBorderColor());
+            UtilsGL.drawString(text, x + 2, y, item.getBorderColor());
+            UtilsGL.drawString(text, x, y + 1, item.getBorderColor());
+            UtilsGL.drawString(text, x + 1, y + 1, item.getBorderColor());
+            UtilsGL.drawString(text, x + 2, y + 1, item.getBorderColor());
+
+            UtilsGL.drawString(text, x + 1, y, color);
+        } else {
+            UtilsGL.drawString(text, x, y, color);
+        }
+
+        UtilsGL.glEnd();
+    }
+
+    private void renderButtonItem(
+            SmartMenu item,
+            String text,
+            int x,
+            int y,
+            int width,
+            int height,
+            boolean hovered) {
+
+        int buttonPaddingX = 8;
+
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, UIPanelState.tileTooltipBackground.getTextureID());
+        GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
+
+        if (hovered) {
+            GL11.glColor4f(1f, 0.8f, 0.8f, 1f);
+        } else {
+            GL11.glColor4f(1f, 1f, 1f, 1f);
+        }
+
+        UtilsGL.glBegin(GL11.GL_QUADS);
+        UtilsGL.drawTexture(
+                x,
+                y,
+                x + width,
+                y + height,
+                UIPanelState.tileTooltipBackground.getTileSetTexX0(),
+                UIPanelState.tileTooltipBackground.getTileSetTexY0(),
+                UIPanelState.tileTooltipBackground.getTileSetTexX1(),
+                UIPanelState.tileTooltipBackground.getTileSetTexY1());
+        UtilsGL.glEnd();
+
+        renderTextItem(item, text, x + buttonPaddingX, y + 1);
+    }
+
+    private void renderToggleItem(
+            SmartMenu item,
+            String text,
+            int x,
+            int y,
+            int width,
+            int height,
+            boolean hovered) {
+
+        renderTextItem(item, text, x, y);
+
+        int toggleWidth = 34;
+        int toggleHeight = 14;
+        int toggleX = x + width - toggleWidth - 8;
+        int toggleY = y + 2;
+
+        boolean enabled = false;
+
+        if (item.isDynamic()) {
+            String dynamicText = Utils.getDynamicString(item.getName());
+            enabled = dynamicText != null && (dynamicText.toLowerCase().contains("on")
+                    || dynamicText.toLowerCase().contains("yes")
+                    || dynamicText.toLowerCase().contains("enabled"));
+        }
+
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, UIPanelState.tileTooltipBackground.getTextureID());
+        GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
+
+        UtilsGL.glBegin(GL11.GL_QUADS);
+
+        if (enabled) {
+            GL11.glColor4f(0.5f, 1f, 0.5f, 1f);
+        } else {
+            GL11.glColor4f(0.5f, 0.5f, 0.5f, 1f);
+        }
+
+        UtilsGL.drawTexture(
+                toggleX,
+                toggleY,
+                toggleX + toggleWidth,
+                toggleY + toggleHeight,
+                UIPanelState.tileTooltipBackground.getTileSetTexX0(),
+                UIPanelState.tileTooltipBackground.getTileSetTexY0(),
+                UIPanelState.tileTooltipBackground.getTileSetTexX1(),
+                UIPanelState.tileTooltipBackground.getTileSetTexY1());
+
+        int knobSize = toggleHeight - 4;
+        int knobX = enabled
+                ? toggleX + toggleWidth - knobSize - 2
+                : toggleX + 2;
+
+        GL11.glColor4f(1f, 1f, 1f, 1f);
+
+        UtilsGL.drawTexture(
+                knobX,
+                toggleY + 2,
+                knobX + knobSize,
+                toggleY + 2 + knobSize,
+                UIPanelState.tileTooltipBackground.getTileSetTexX0(),
+                UIPanelState.tileTooltipBackground.getTileSetTexY0(),
+                UIPanelState.tileTooltipBackground.getTileSetTexX1(),
+                UIPanelState.tileTooltipBackground.getTileSetTexY1());
+
+        UtilsGL.glEnd();
+    }
+
+    private void renderSliderItem(
+            SmartMenu item,
+            String text,
+            int x,
+            int y,
+            int width,
+            int height,
+            boolean hovered) {
+
+        renderTextItem(item, text, x, y);
+
+        int sliderWidth = 140;
+        int sliderHeight = 6;
+        int sliderX = x + width - sliderWidth - 8;
+        int sliderY = y + height / 2;
+
+        float value = 0.5f;
+
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, UIPanelState.tileTooltipBackground.getTextureID());
+        GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
+
+        UtilsGL.glBegin(GL11.GL_QUADS);
+
+        GL11.glColor4f(0.4f, 0.4f, 0.4f, 1f);
+
+        UtilsGL.drawTexture(
+                sliderX,
+                sliderY,
+                sliderX + sliderWidth,
+                sliderY + sliderHeight,
+                UIPanelState.tileTooltipBackground.getTileSetTexX0(),
+                UIPanelState.tileTooltipBackground.getTileSetTexY0(),
+                UIPanelState.tileTooltipBackground.getTileSetTexX1(),
+                UIPanelState.tileTooltipBackground.getTileSetTexY1());
+
+        int fillWidth = (int) (sliderWidth * value);
+
+        GL11.glColor4f(1f, 1f, 1f, 1f);
+
+        UtilsGL.drawTexture(
+                sliderX,
+                sliderY,
+                sliderX + fillWidth,
+                sliderY + sliderHeight,
+                UIPanelState.tileTooltipBackground.getTileSetTexX0(),
+                UIPanelState.tileTooltipBackground.getTileSetTexY0(),
+                UIPanelState.tileTooltipBackground.getTileSetTexX1(),
+                UIPanelState.tileTooltipBackground.getTileSetTexY1());
+
+        int knobSize = 12;
+        int knobX = sliderX + fillWidth - knobSize / 2;
+
+        UtilsGL.drawTexture(
+                knobX,
+                sliderY - 3,
+                knobX + knobSize,
+                sliderY + 9,
+                UIPanelState.tileTooltipBackground.getTileSetTexX0(),
+                UIPanelState.tileTooltipBackground.getTileSetTexY0(),
+                UIPanelState.tileTooltipBackground.getTileSetTexX1(),
+                UIPanelState.tileTooltipBackground.getTileSetTexY1());
+
+        UtilsGL.glEnd();
+    }
+
+    private void renderHeadingItem(SmartMenu item, String text, int x, int y, int width, int height) {
+        renderTextItem(item, text, x, y);
+    }
+
+    private void renderMenuLinkItem(
+            SmartMenu item,
+            String text,
+            int x,
+            int y,
+            int width,
+            int height,
+            boolean hovered) {
+
+        renderButtonItem(item, text, x, y, width, height, hovered);
+
+        String arrow = ">";
+
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, Game.TEXTURE_FONT_ID);
+        GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
+
+        UtilsGL.glBegin(GL11.GL_QUADS);
+        UtilsGL.drawString(
+                arrow,
+                x + width - UtilFont.getWidth(arrow) - 8,
+                y + 1,
+                item.getColor());
+        UtilsGL.glEnd();
+    }
+
+    private boolean usesLegacyHoverHighlight(SmartMenu item) {
+        return item.getType() == TYPE_ITEM || item.getType() == TYPE_MENU;
+    }
+
+    private int getHoveredItemIndex(int x, int y, int width, int mouseX, int mouseY) {
+        int menuHeight = getItems().size() * UtilFont.MAX_HEIGHT;
+
+        if (mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + menuHeight) {
+            int index = (mouseY - y) / UtilFont.MAX_HEIGHT;
+
+            if (index >= 0 && index < getItems().size()) {
+                SmartMenu item = getItems().get(index);
+
+                if (item.getType() != TYPE_TEXT && item.getType() != TYPE_HEADING) {
+                    return index;
+                }
+            }
+        }
+
+        return -1;
+    }
+
+    private void renderLegacyHoverHighlight(int x, int y, int width, int itemIndex) {
+        int iY = y + itemIndex * UtilFont.MAX_HEIGHT + 1;
+
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, RED_TILE.getTextureID());
+        GL11.glColor3f(1, 0, 0);
+
+        UtilsGL.glBegin(GL11.GL_QUADS);
+        UtilsGL.drawTexture(
+                x,
+                iY,
+                x + width,
+                iY + UtilFont.MAX_HEIGHT,
+                RED_TILE.getTileSetTexX0(),
+                RED_TILE.getTileSetTexY0(),
+                RED_TILE.getTileSetTexX1(),
+                RED_TILE.getTileSetTexY1());
+        UtilsGL.glEnd();
     }
 
     /**
@@ -1001,39 +1298,107 @@ public static final int TYPE_SPACER = 9;
      * @return
      */
     public SmartMenu mousePressed(int x, int y) {
-        // Miramos donde ha clicado
-        int iMenuIndex = y / UtilFont.MAX_HEIGHT; // Posición donde ha clicado
+        int iMenuIndex = y / UtilFont.MAX_HEIGHT;
 
         if (iMenuIndex >= getItems().size() || y < 0) {
             return this;
         }
 
-        UtilsAL.play(UtilsAL.SOURCE_FX_CLICK);
-
         SmartMenu menu = getItems().get(iMenuIndex);
-        if (menu.getType() == SmartMenu.TYPE_MENU) {
-            return menu;
-        } else if (menu.getType() == SmartMenu.TYPE_ITEM) {
-            if (menu.getCommand().equals(CommandPanel.COMMAND_BACK)) {
-                return getParent();
-            } else if (menu.getCommand().equals(CommandPanel.COMMAND_CLOSE_CONTEXT)) {
-                Game.deleteCurrentContextMenu();
-                return null;
-            } else {
-                CommandPanel.executeCommand(menu.getCommand(), menu.getParameter(), menu.getParameter2(),
-                        menu.getDirectCoordinates(), menu.getIcon(), menu.getIconType());
-                if (Game.getCurrentState() == Game.STATE_SHOWING_CONTEXT_MENU
-                        && !menu.getCommand().equals(CommandPanel.COMMAND_EXIT_TO_MAIN_MENU)) {
-                    if (menu.isMaintainOpen()) {
-                        return this;
-                    }
-                    Game.deleteCurrentContextMenu();
-                    return null;
-                    // } else if (menu.getCommand ().equals (CommandPanel.COMMAND_SAVE_OPTIONS)) {
-                    // return getParent ();
-                }
-            }
+
+        // Ignore non-clickable visual rows
+        if (menu.getType() == SmartMenu.TYPE_TEXT || menu.getType() == SmartMenu.TYPE_HEADING) {
+            return this;
         }
+
+        UtilsAL.play(UtilsAL.SOURCE_FX_CLICK);
+        switch (menu.getType()) {
+            case SmartMenu.TYPE_MENU:
+                return menu;
+
+            case SmartMenu.TYPE_BUTTON:
+                if (menu.getItems() != null && menu.getItems().size() > 0) {
+                    return menu;
+                }
+                return handleActionClick(menu);
+
+            case SmartMenu.TYPE_ITEM:
+                return handleActionClick(menu);
+
+            case SmartMenu.TYPE_TOGGLE:
+                return handleToggleClick(menu);
+
+            case SmartMenu.TYPE_SLIDER:
+                return handleSliderClick(menu, x);
+
+            default:
+                return this;
+        }
+    }
+
+    private SmartMenu handleActionClick(SmartMenu menu) {
+        if (menu.getCommand() == null) {
+            return this;
+        }
+
+        if (menu.getCommand().equals(CommandPanel.COMMAND_BACK)) {
+            return getParent();
+        }
+
+        if (menu.getCommand().equals(CommandPanel.COMMAND_CLOSE_CONTEXT)) {
+            Game.deleteCurrentContextMenu();
+            return null;
+        }
+
+        CommandPanel.executeCommand(
+                menu.getCommand(),
+                menu.getParameter(),
+                menu.getParameter2(),
+                menu.getDirectCoordinates(),
+                menu.getIcon(),
+                menu.getIconType());
+
+        if (Game.getCurrentState() == Game.STATE_SHOWING_CONTEXT_MENU
+                && !menu.getCommand().equals(CommandPanel.COMMAND_EXIT_TO_MAIN_MENU)) {
+            if (menu.isMaintainOpen()) {
+                return this;
+            }
+
+            Game.deleteCurrentContextMenu();
+            return null;
+        }
+
+        return this;
+    }
+
+    private SmartMenu handleToggleClick(SmartMenu menu) {
+        if (menu.getCommand() == null) {
+            return this;
+        }
+
+        CommandPanel.executeCommand(
+                menu.getCommand(),
+                menu.getParameter(),
+                menu.getParameter2(),
+                menu.getDirectCoordinates(),
+                menu.getIcon(),
+                menu.getIconType());
+
+        return this;
+    }
+
+    private SmartMenu handleSliderClick(SmartMenu menu, int mouseX) {
+        if (menu.getCommand() == null) {
+            return this;
+        }
+
+        CommandPanel.executeCommand(
+                menu.getCommand(),
+                menu.getParameter(),
+                menu.getParameter2(),
+                menu.getDirectCoordinates(),
+                menu.getIcon(),
+                menu.getIconType());
 
         return this;
     }

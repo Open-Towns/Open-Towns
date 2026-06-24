@@ -141,20 +141,6 @@ public final class MainMenuPanel implements Runnable {
                 }
         }
 
-        // public void loadMenuTexture(boolean bUnload) {
-        // final TextureData textureMainMenu = UtilsGL.loadTexture(
-        // Towns.getPropertiesString(PropertyFile.PROPERTY_FILE_GRAPHICS,
-        // "MAINMENU_BG_FILE"), //$NON-NLS-1$
-        // GL11.GL_REPLACE,
-        // true);
-        // if (textureMainMenu == null) {
-        // Log.log(Log.LEVEL_ERROR, Messages.getString("MainMenuPanel.0"),
-        // getClass().getName()); //$NON-NLS-1$
-        // Game.exit();
-        // }
-        // TEXTURE_MAIN_MENU_ID = textureMainMenu.getTextureID(); // $NON-NLS-1$
-        // //$NON-NLS-2$
-        // }
 
         // MAIN MENU
         public void createMenu() {
@@ -169,11 +155,48 @@ public final class MainMenuPanel implements Runnable {
 
                 menu = new ContextMenu();
                 menu.setHeight(MainFrame.MIN_HEIGHT - UtilFont.MAX_HEIGHT * 8);
-
                 menu.setSmartMenu(mainMenu);
+
+                updateMenuPosition();
 
                 menu.setX(xMenu);
                 menu.setY(yMenu);
+        }
+
+        public void resize(int renderX, int renderY, int renderWidth, int renderHeight) {
+                this.renderX = renderX;
+                this.renderY = renderY;
+                this.renderWidth = renderWidth;
+                this.renderHeight = renderHeight;
+
+                updateMenuPosition();
+
+                if (menu != null) {
+                        menu.setHeight(MainFrame.MIN_HEIGHT - UtilFont.MAX_HEIGHT * 8);
+                        menu.setX(xMenu);
+                        menu.setY(yMenu);
+                        menu.resize();
+                }
+        }
+
+        private void updateMenuPosition() {
+                int menuWidth = 360;
+                int menuHeight = 300;
+
+                if (menu != null && menu.getSmartMenu() != null && menu.getSmartMenu().getItems() != null) {
+                        menuHeight = menu.getSmartMenu().getItems().size() * UtilFont.MAX_HEIGHT;
+                }
+
+                this.xMenu = renderX + (renderWidth - menuWidth) / 2;
+                this.yMenu = renderY + (renderHeight - menuHeight) / 2;
+
+                if (this.xMenu < renderX + 20) {
+                        this.xMenu = renderX + 20;
+                }
+
+                if (this.yMenu < renderY + 20) {
+                        this.yMenu = renderY + 20;
+                }
         }
 
         public static SmartMenu createKeyboardMenu(int iFN, Color textColor, ColorGL borderColor) {
@@ -655,21 +678,22 @@ public final class MainMenuPanel implements Runnable {
                 return active;
         }
 
-        public void resize(int renderX, int renderY, int renderWidth, int renderHeight) {
-                this.renderX = renderX;
-                this.renderY = renderY;
-                this.renderWidth = renderWidth;
-                this.renderHeight = renderHeight;
-                this.xMenu = 20;
-                this.yMenu = 20;
+        // public void resize(int renderX, int renderY, int renderWidth, int
+        // renderHeight) {
+        // this.renderX = renderX;
+        // this.renderY = renderY;
+        // this.renderWidth = renderWidth;
+        // this.renderHeight = renderHeight;
+        // this.xMenu = 20;
+        // this.yMenu = 20;
 
-                if (menu != null) {
-                        menu.setHeight(MainFrame.MIN_HEIGHT - UtilFont.MAX_HEIGHT * 8);
-                        menu.setX(xMenu);
-                        menu.setY(yMenu);
-                        menu.resize();
-                }
-        }
+        // if (menu != null) {
+        // menu.setHeight(MainFrame.MIN_HEIGHT - UtilFont.MAX_HEIGHT * 8);
+        // menu.setX(xMenu);
+        // menu.setY(yMenu);
+        // menu.resize();
+        // }
+        // }
 
         public void run() {
                 // Starting
