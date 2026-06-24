@@ -57,8 +57,11 @@ public class SmartMenu implements Externalizable {
     public final static int TYPE_TEXT = 0;
     public final static int TYPE_MENU = 1;
     public final static int TYPE_ITEM = 2;
-    public final static int TYPE_SLIDER = 3;
-    public final static int TYPE_TOGGLE = 4;
+    public static final int TYPE_BUTTON = 5;
+public static final int TYPE_TOGGLE = 6;
+public static final int TYPE_SLIDER = 7;
+public static final int TYPE_HEADING = 8;
+public static final int TYPE_SPACER = 9;
 
     public final static int ICON_TYPE_UI = 0;
     public final static int ICON_TYPE_ITEM = 1;
@@ -69,7 +72,7 @@ public class SmartMenu implements Externalizable {
     private int type;
     private String id; // Se usa en los menuXXX.xml , así los mods pueden referirse a un item para
                        // borrarlo
-    private String name;
+    private String name; 
     private SmartMenu parent;
     private ArrayList<SmartMenu> items;
     private String command; // Acción que lanza este item
