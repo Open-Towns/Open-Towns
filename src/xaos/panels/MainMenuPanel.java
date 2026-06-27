@@ -141,7 +141,6 @@ public final class MainMenuPanel implements Runnable {
                 }
         }
 
-
         // MAIN MENU
         public void createMenu() {
                 setLoadingText(new String());
@@ -200,19 +199,19 @@ public final class MainMenuPanel implements Runnable {
         }
 
         public static SmartMenu createKeyboardMenu(int iFN, Color textColor, ColorGL borderColor) {
-    SmartMenu menuAux = new SmartMenu(
-            SmartMenu.TYPE_KEYBOARD,
-            UtilsKeyboard.getFNHumanString(iFN) + UtilsKeyboard.getTooltip(iFN),
-            null,
-            CommandPanel.COMMAND_CHANGE_HOTKEY,
-            Integer.toString(iFN),
-            null,
-            null,
-            textColor);
+                SmartMenu menuAux = new SmartMenu(
+                                SmartMenu.TYPE_KEYBOARD,
+                                UtilsKeyboard.getFNHumanString(iFN) + UtilsKeyboard.getTooltip(iFN),
+                                null,
+                                CommandPanel.COMMAND_CHANGE_HOTKEY,
+                                Integer.toString(iFN),
+                                null,
+                                null,
+                                textColor);
 
-    menuAux.setBorderColor(borderColor);
-    return menuAux;
-}
+                menuAux.setBorderColor(borderColor);
+                return menuAux;
+        }
 
         public boolean isSettingSavegameName() {
                 return settingSavegameName;
@@ -324,9 +323,19 @@ public final class MainMenuPanel implements Runnable {
                 // Pintamos el logo Towns
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, TEXTURE_TOWNS_LOGO_ID);
                 GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
+
+                int logoYOffset = 120;
+
                 UtilsGL.glBegin(GL11.GL_QUADS);
-                UtilsGL.drawTexture(centerX - imageTownsLogoWidth / 2, centerY - 10 - imageTownsLogoHeight,
-                                centerX + imageTownsLogoWidth / 2, centerY - 10, 0, 0, 1, 1);
+                UtilsGL.drawTexture(
+                                centerX - imageTownsLogoWidth / 2,
+                                centerY - 10 - imageTownsLogoHeight - logoYOffset,
+                                centerX + imageTownsLogoWidth / 2,
+                                centerY - 10 - logoYOffset,
+                                0,
+                                0,
+                                1,
+                                1);
                 UtilsGL.glEnd();
 
                 boolean bTextureFontLoaded = false;
