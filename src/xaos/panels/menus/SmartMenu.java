@@ -51,8 +51,6 @@ public class SmartMenu implements Externalizable {
 
     private static final long serialVersionUID = -2274612491197616852L;
 
-    private static Tile RED_TILE = new Tile("ui_red"); //$NON-NLS-1$
-
     public final static int TYPE_NO_TYPE = -1;
     public final static int TYPE_TEXT = 0;
     public final static int TYPE_MENU = 1;
@@ -61,6 +59,7 @@ public class SmartMenu implements Externalizable {
     public static final int TYPE_TOGGLE = 6;
     public static final int TYPE_SLIDER = 7;
     public static final int TYPE_HEADING = 8;
+    public static final int TYPE_KEYBOARD = 9;
 
     public final static int ICON_TYPE_UI = 0;
     public final static int ICON_TYPE_ITEM = 1;
@@ -86,6 +85,11 @@ public class SmartMenu implements Externalizable {
     private ColorGL borderColor; // Si es distinto de null pinta un borde a los textos del color indicado
     private Tile icon; // Icono a usar en los menus
     private int iconType; // Tipo de icono (ui, items, ...)
+
+    private String stateKey;
+    private float sliderMin;
+    private float sliderMax;
+    private float sliderStep;
 
     private ArrayList<String> prerequisites;
     private ArrayList<ColorGL> prerequisitesColor;
@@ -116,7 +120,12 @@ public class SmartMenu implements Externalizable {
         this.parameter = parameter;
         this.parameter2 = parameter2;
         this.directCoordinates = directCoordinates;
-        this.color = new ColorGL(color);
+
+        if (color != null) {
+            this.color = new ColorGL(color);
+        } else {
+            this.color = new ColorGL(Color.WHITE);
+        }
     }
 
     public void refreshTransients() {
@@ -300,7 +309,41 @@ public class SmartMenu implements Externalizable {
         return prerequisitesColor;
     }
 
+    public String getStateKey() {
+        return stateKey;
+    }
+
+    public void setStateKey(String stateKey) {
+        this.stateKey = stateKey;
+    }
+
+    public float getSliderMin() {
+        return sliderMin;
+    }
+
+    public void setSliderMin(float sliderMin) {
+        this.sliderMin = sliderMin;
+    }
+
+    public float getSliderMax() {
+        return sliderMax;
+    }
+
+    public void setSliderMax(float sliderMax) {
+        this.sliderMax = sliderMax;
+    }
+
+    public float getSliderStep() {
+        return sliderStep;
+    }
+
+    public void setSliderStep(float sliderStep) {
+        this.sliderStep = sliderStep;
+    }
+
     public void render(int x, int y, int width, int height, boolean isContext) {
+        height = getContentHeight();
+
         if (!isTrasparency()) {
             GL11.glColor4f(1, 1, 1, 1);
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, UIPanelState.tileTooltipBackground.getTextureID());
@@ -326,13 +369,6 @@ public class SmartMenu implements Externalizable {
         if (isContext) {
             itemIndex = getHoveredItemIndex(x, y, width, mouseX, mouseY);
 
-            if (itemIndex != -1) {
-                SmartMenu hoveredItem = getItems().get(itemIndex);
-
-                if (usesLegacyHoverHighlight(hoveredItem)) {
-                    renderLegacyHoverHighlight(x, y, width, itemIndex);
-                }
-            }
         }
 
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, Game.TEXTURE_FONT_ID);
@@ -340,10 +376,13 @@ public class SmartMenu implements Externalizable {
 
         String sTexto;
         SmartMenu item;
+        int currentY = y;
 
         for (int i = 0; i < getItems().size(); i++) {
             item = getItems().get(i);
-            iY = y + i * UtilFont.MAX_HEIGHT + 1;
+
+            int itemHeight = getItemHeight(item);
+            iY = currentY + 1;
 
             if (item.isDynamic()) {
                 sTexto = Utils.getDynamicString(item.getName());
@@ -357,10 +396,11 @@ public class SmartMenu implements Externalizable {
                     x,
                     iY,
                     width,
-                    UtilFont.MAX_HEIGHT,
+                    itemHeight,
                     itemIndex == i);
-        }
 
+            currentY += itemHeight;
+        }
         if (itemIndex != -1) {
             SmartMenu menuItem = getItems().get(itemIndex);
 
@@ -397,6 +437,9 @@ public class SmartMenu implements Externalizable {
             case TYPE_SLIDER:
                 renderSliderItem(item, text, x, y, width, height, hovered);
                 break;
+            case TYPE_KEYBOARD:
+                renderKeyboardItem(item, text, x, y, width, height, hovered);
+                break;
 
             case TYPE_HEADING:
                 renderHeadingItem(item, text, x, y, width, height);
@@ -417,41 +460,104 @@ public class SmartMenu implements Externalizable {
         }
     }
 
-    private void renderTextItem(SmartMenu item, String text, int x, int y) {
-        if (text == null) {
-            return;
+    private int getItemHeight(SmartMenu item) {
+        if (item == null) {
+            return UtilFont.MAX_HEIGHT;
         }
 
-        ColorGL color = item.getColor();
+        switch (item.getType()) {
+            case TYPE_MENU:
+            case TYPE_BUTTON:
+                return UtilFont.MAX_HEIGHT + 30;
 
-        if (color == null) {
-            color = new ColorGL(Color.WHITE);
+            case TYPE_TOGGLE:
+                return UtilFont.MAX_HEIGHT + 6;
+
+            case TYPE_SLIDER:
+                return UtilFont.MAX_HEIGHT + 8;
+
+            case TYPE_KEYBOARD:
+                return UtilFont.MAX_HEIGHT + 8;
+
+            case TYPE_HEADING:
+                return UtilFont.MAX_HEIGHT + 10;
+
+            case TYPE_TEXT:
+            case TYPE_ITEM:
+
+            default:
+                return UtilFont.MAX_HEIGHT;
         }
-
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, Game.TEXTURE_FONT_ID);
-        GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
-
-        UtilsGL.glBegin(GL11.GL_QUADS);
-
-        if (item.getBorderColor() != null) {
-            UtilsGL.drawString(text, x, y - 1, item.getBorderColor());
-            UtilsGL.drawString(text, x + 1, y - 1, item.getBorderColor());
-            UtilsGL.drawString(text, x + 2, y - 1, item.getBorderColor());
-            UtilsGL.drawString(text, x, y, item.getBorderColor());
-            UtilsGL.drawString(text, x + 2, y, item.getBorderColor());
-            UtilsGL.drawString(text, x, y + 1, item.getBorderColor());
-            UtilsGL.drawString(text, x + 1, y + 1, item.getBorderColor());
-            UtilsGL.drawString(text, x + 2, y + 1, item.getBorderColor());
-
-            UtilsGL.drawString(text, x + 1, y, color);
-        } else {
-            UtilsGL.drawString(text, x, y, color);
-        }
-
-        UtilsGL.glEnd();
     }
 
-    private void renderButtonItem(
+    public int getContentHeight() {
+        int contentHeight = 0;
+
+        for (int i = 0; i < getItems().size(); i++) {
+            contentHeight += getItemHeight(getItems().get(i));
+        }
+
+        return contentHeight;
+    }
+
+    public int getRecommendedWidth() {
+        int recommendedWidth = 260;
+
+        for (int i = 0; i < getItems().size(); i++) {
+            SmartMenu item = getItems().get(i);
+
+            if (item.getName() == null) {
+                continue;
+            }
+
+            int textWidth = UtilFont.getWidth(sanitiseMenuText(item.getName())) + 32;
+
+            if (item.getType() == TYPE_TOGGLE) {
+                textWidth += 50;
+            }
+
+            if (item.getType() == TYPE_SLIDER) {
+                textWidth += 160;
+            }
+
+            if (textWidth > recommendedWidth) {
+                recommendedWidth = textWidth;
+            }
+        }
+
+        return recommendedWidth;
+    }
+
+    private String sanitiseMenuText(String text) {
+        if (text == null) {
+            return "";
+        }
+
+        StringBuilder safe = new StringBuilder();
+
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+
+            if ((c >= 'A' && c <= 'Z')
+                    || (c >= 'a' && c <= 'z')
+                    || (c >= '0' && c <= '9')
+                    || c == ' '
+                    || c == '-'
+                    || c == '_'
+                    || c == '/'
+                    || c == ':'
+                    || c == '.'
+                    || c == ','
+                    || c == '('
+                    || c == ')') {
+                safe.append(c);
+            }
+        }
+
+        return safe.toString();
+    }
+
+    private void renderKeyboardItem(
             SmartMenu item,
             String text,
             int x,
@@ -460,7 +566,7 @@ public class SmartMenu implements Externalizable {
             int height,
             boolean hovered) {
 
-        int buttonPaddingX = 8;
+        int paddingX = 8;
 
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, UIPanelState.tileTooltipBackground.getTextureID());
         GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
@@ -483,7 +589,178 @@ public class SmartMenu implements Externalizable {
                 UIPanelState.tileTooltipBackground.getTileSetTexY1());
         UtilsGL.glEnd();
 
-        renderTextItem(item, text, x + buttonPaddingX, y + 1);
+        String displayText = sanitiseMenuText(text);
+
+        if (displayText == null || displayText.length() == 0) {
+            displayText = "Keyboard";
+        }
+
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, Game.TEXTURE_FONT_ID);
+        GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
+
+        UtilsGL.glBegin(GL11.GL_QUADS);
+        UtilsGL.drawString(displayText, x + paddingX, y + 1, COLORGL_SUBMENU);
+        UtilsGL.glEnd();
+    }
+
+    private void renderTextItem(SmartMenu item, String text, int x, int y) {
+        if (text == null) {
+            return;
+        }
+
+        text = sanitiseMenuText(text);
+
+        if (text.length() == 0) {
+            return;
+        }
+
+        ColorGL color = item.getColor();
+        if (color == null) {
+            color = new ColorGL(Color.WHITE);
+        }
+
+        ColorGL borderColor = item.getBorderColor();
+        if (borderColor == null) {
+            borderColor = new ColorGL(Color.BLACK);
+        }
+
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, Game.TEXTURE_FONT_ID);
+        GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
+
+        UtilsGL.glBegin(GL11.GL_QUADS);
+
+        if (item.getBorderColor() != null) {
+            UtilsGL.drawString(text, x, y - 1, borderColor);
+            UtilsGL.drawString(text, x + 1, y - 1, borderColor);
+            UtilsGL.drawString(text, x + 2, y - 1, borderColor);
+            UtilsGL.drawString(text, x, y, borderColor);
+            UtilsGL.drawString(text, x + 2, y, borderColor);
+            UtilsGL.drawString(text, x, y + 1, borderColor);
+            UtilsGL.drawString(text, x + 1, y + 1, borderColor);
+            UtilsGL.drawString(text, x + 2, y + 1, borderColor);
+
+            UtilsGL.drawString(text, x + 1, y, color);
+        } else {
+            UtilsGL.drawString(text, x, y, color);
+        }
+
+        UtilsGL.glEnd();
+    }
+
+    private void renderButtonItem(
+            SmartMenu item,
+            String text,
+            int x,
+            int y,
+            int width,
+            int height,
+            boolean hovered) {
+
+        if (text == null) {
+            text = "";
+        }
+
+        int buttonX = x + 2;
+        int buttonY = y;
+        int buttonWidth = width - 4;
+        int buttonHeight = height - 2;
+
+        boolean pressedLook = hovered;
+
+        if (pressedLook) {
+            buttonX += 1;
+            buttonY += 1;
+        }
+
+        // Outer frame
+        drawColoredRect(buttonX, buttonY, buttonWidth, buttonHeight, 0.18f, 0.12f, 0.08f);
+
+        // Inner frame
+        drawColoredRect(buttonX + 1, buttonY + 1, buttonWidth - 2, buttonHeight - 2, 0.35f, 0.26f, 0.18f);
+
+        // Main fill
+        if (hovered) {
+            drawColoredRect(buttonX + 2, buttonY + 2, buttonWidth - 4, buttonHeight - 4, 0.72f, 0.66f, 0.50f);
+        } else {
+            drawColoredRect(buttonX + 2, buttonY + 2, buttonWidth - 4, buttonHeight - 4, 0.62f, 0.56f, 0.42f);
+        }
+
+        // Top highlight
+        drawColoredRect(buttonX + 2, buttonY + 2, buttonWidth - 4, 2, 0.82f, 0.76f, 0.58f);
+
+        // Bottom shadow
+        drawColoredRect(buttonX + 2, buttonY + buttonHeight - 4, buttonWidth - 4, 2, 0.28f, 0.22f, 0.16f);
+
+        // Optional textured overlay to keep Towns feel
+        GL11.glColor4f(1f, 1f, 1f, 0.35f);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, UIPanelState.tileTooltipBackground.getTextureID());
+        GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
+
+        UtilsGL.glBegin(GL11.GL_QUADS);
+        UtilsGL.drawTexture(
+                buttonX + 2,
+                buttonY + 2,
+                buttonX + buttonWidth - 2,
+                buttonY + buttonHeight - 2,
+                UIPanelState.tileTooltipBackground.getTileSetTexX0(),
+                UIPanelState.tileTooltipBackground.getTileSetTexY0(),
+                UIPanelState.tileTooltipBackground.getTileSetTexX1(),
+                UIPanelState.tileTooltipBackground.getTileSetTexY1());
+        UtilsGL.glEnd();
+
+        // Reset colour before text
+        GL11.glColor4f(1f, 1f, 1f, 1f);
+
+        renderButtonText(item, text, buttonX, buttonY, buttonWidth, buttonHeight, hovered);
+    }
+
+    private void drawColoredRect(int x, int y, int width, int height, float r, float g, float b) {
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glColor4f(r, g, b, 1f);
+
+        GL11.glBegin(GL11.GL_QUADS);
+        GL11.glVertex2i(x, y);
+        GL11.glVertex2i(x + width, y);
+        GL11.glVertex2i(x + width, y + height);
+        GL11.glVertex2i(x, y + height);
+        GL11.glEnd();
+
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+    }
+
+    private void renderButtonText(SmartMenu item, String text, int x, int y, int width, int height, boolean hovered) {
+        text = sanitiseMenuText(text);
+
+        if (text.length() == 0) {
+            return;
+        }
+
+        int textWidth = UtilFont.getWidth(text);
+        int textX = x + (width - textWidth) / 2;
+        int textY = y + (height - UtilFont.MAX_HEIGHT) / 2;
+
+        ColorGL textColor = new ColorGL(new java.awt.Color(235, 225, 190));
+        ColorGL borderColor = new ColorGL(new java.awt.Color(45, 30, 20));
+
+        if (hovered) {
+            textColor = new ColorGL(new java.awt.Color(255, 240, 200));
+        }
+
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, Game.TEXTURE_FONT_ID);
+        GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
+
+        UtilsGL.glBegin(GL11.GL_QUADS);
+
+        // outline / shadow
+        UtilsGL.drawString(text, textX - 1, textY, borderColor);
+        UtilsGL.drawString(text, textX + 1, textY, borderColor);
+        UtilsGL.drawString(text, textX, textY - 1, borderColor);
+        UtilsGL.drawString(text, textX, textY + 1, borderColor);
+
+        // main text
+        UtilsGL.drawString(text, textX, textY, textColor);
+
+        UtilsGL.glEnd();
     }
 
     private void renderToggleItem(
@@ -502,14 +779,7 @@ public class SmartMenu implements Externalizable {
         int toggleX = x + width - toggleWidth - 8;
         int toggleY = y + 2;
 
-        boolean enabled = false;
-
-        if (item.isDynamic()) {
-            String dynamicText = Utils.getDynamicString(item.getName());
-            enabled = dynamicText != null && (dynamicText.toLowerCase().contains("on")
-                    || dynamicText.toLowerCase().contains("yes")
-                    || dynamicText.toLowerCase().contains("enabled"));
-        }
+        boolean enabled = MenuStateResolver.getBoolean(item.getEffectiveStateKey());
 
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, UIPanelState.tileTooltipBackground.getTextureID());
         GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
@@ -552,6 +822,32 @@ public class SmartMenu implements Externalizable {
         UtilsGL.glEnd();
     }
 
+    private float normaliseSliderValue(float value, float min, float max) {
+        if (max <= min) {
+            return 0f;
+        }
+
+        float normalised = (value - min) / (max - min);
+
+        if (normalised < 0f) {
+            return 0f;
+        }
+
+        if (normalised > 1f) {
+            return 1f;
+        }
+
+        return normalised;
+    }
+
+    public String getEffectiveStateKey() {
+        if (stateKey != null && stateKey.trim().length() > 0) {
+            return stateKey;
+        }
+
+        return command;
+    }
+
     private void renderSliderItem(
             SmartMenu item,
             String text,
@@ -568,7 +864,8 @@ public class SmartMenu implements Externalizable {
         int sliderX = x + width - sliderWidth - 8;
         int sliderY = y + height / 2;
 
-        float value = 0.5f;
+        float rawValue = MenuStateResolver.getFloat(item.getEffectiveStateKey());
+        float value = normaliseSliderValue(rawValue, item.getSliderMin(), item.getSliderMax());
 
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, UIPanelState.tileTooltipBackground.getTextureID());
         GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
@@ -632,59 +929,32 @@ public class SmartMenu implements Externalizable {
 
         renderButtonItem(item, text, x, y, width, height, hovered);
 
-        String arrow = ">";
-
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, Game.TEXTURE_FONT_ID);
-        GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
-
-        UtilsGL.glBegin(GL11.GL_QUADS);
-        UtilsGL.drawString(
-                arrow,
-                x + width - UtilFont.getWidth(arrow) - 8,
-                y + 1,
-                item.getColor());
-        UtilsGL.glEnd();
-    }
-
-    private boolean usesLegacyHoverHighlight(SmartMenu item) {
-        return item.getType() == TYPE_ITEM || item.getType() == TYPE_MENU;
     }
 
     private int getHoveredItemIndex(int x, int y, int width, int mouseX, int mouseY) {
-        int menuHeight = getItems().size() * UtilFont.MAX_HEIGHT;
+        if (mouseX < x || mouseX >= x + width || mouseY < y) {
+            return -1;
+        }
 
-        if (mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + menuHeight) {
-            int index = (mouseY - y) / UtilFont.MAX_HEIGHT;
+        int relativeY = mouseY - y;
+        int currentY = 0;
 
-            if (index >= 0 && index < getItems().size()) {
-                SmartMenu item = getItems().get(index);
+        for (int i = 0; i < getItems().size(); i++) {
+            SmartMenu item = getItems().get(i);
+            int itemHeight = getItemHeight(item);
 
-                if (item.getType() != TYPE_TEXT && item.getType() != TYPE_HEADING) {
-                    return index;
+            if (relativeY >= currentY && relativeY < currentY + itemHeight) {
+                if (item.getType() == TYPE_TEXT || item.getType() == TYPE_HEADING) {
+                    return -1;
                 }
+
+                return i;
             }
+
+            currentY += itemHeight;
         }
 
         return -1;
-    }
-
-    private void renderLegacyHoverHighlight(int x, int y, int width, int itemIndex) {
-        int iY = y + itemIndex * UtilFont.MAX_HEIGHT + 1;
-
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, RED_TILE.getTextureID());
-        GL11.glColor3f(1, 0, 0);
-
-        UtilsGL.glBegin(GL11.GL_QUADS);
-        UtilsGL.drawTexture(
-                x,
-                iY,
-                x + width,
-                iY + UtilFont.MAX_HEIGHT,
-                RED_TILE.getTileSetTexX0(),
-                RED_TILE.getTileSetTexY0(),
-                RED_TILE.getTileSetTexX1(),
-                RED_TILE.getTileSetTexY1());
-        UtilsGL.glEnd();
     }
 
     /**
@@ -1288,6 +1558,23 @@ public class SmartMenu implements Externalizable {
         }
     }
 
+    private int getItemIndexAtY(int mouseY) {
+        int currentY = 0;
+
+        for (int i = 0; i < getItems().size(); i++) {
+            SmartMenu item = getItems().get(i);
+            int itemHeight = getItemHeight(item);
+
+            if (mouseY >= currentY && mouseY < currentY + itemHeight) {
+                return i;
+            }
+
+            currentY += itemHeight;
+        }
+
+        return -1;
+    }
+
     /**
      * Comprueba si se ha clicado en un submenu o en un item En el primer caso
      * devuelve dicho submenú En el segundo caso ejecuta la acción
@@ -1298,20 +1585,20 @@ public class SmartMenu implements Externalizable {
      * @return
      */
     public SmartMenu mousePressed(int x, int y) {
-        int iMenuIndex = y / UtilFont.MAX_HEIGHT;
+        int iMenuIndex = getItemIndexAtY(y);
 
-        if (iMenuIndex >= getItems().size() || y < 0) {
+        if (iMenuIndex < 0 || iMenuIndex >= getItems().size()) {
             return this;
         }
 
         SmartMenu menu = getItems().get(iMenuIndex);
 
-        // Ignore non-clickable visual rows
         if (menu.getType() == SmartMenu.TYPE_TEXT || menu.getType() == SmartMenu.TYPE_HEADING) {
             return this;
         }
 
         UtilsAL.play(UtilsAL.SOURCE_FX_CLICK);
+
         switch (menu.getType()) {
             case SmartMenu.TYPE_MENU:
                 return menu;
@@ -1330,6 +1617,9 @@ public class SmartMenu implements Externalizable {
 
             case SmartMenu.TYPE_SLIDER:
                 return handleSliderClick(menu, x);
+
+            case SmartMenu.TYPE_KEYBOARD:
+                return handleActionClick(menu);
 
             default:
                 return this;
@@ -1470,6 +1760,10 @@ public class SmartMenu implements Externalizable {
         iconType = in.readInt();
         prerequisites = (ArrayList<String>) in.readObject();
         prerequisitesColor = (ArrayList<ColorGL>) in.readObject();
+        stateKey = (String) in.readObject();
+        sliderMin = in.readFloat();
+        sliderMax = in.readFloat();
+        sliderStep = in.readFloat();
     }
 
     public void writeExternal(ObjectOutput out) throws IOException {
@@ -1490,5 +1784,9 @@ public class SmartMenu implements Externalizable {
         out.writeInt(iconType);
         out.writeObject(prerequisites);
         out.writeObject(prerequisitesColor);
+        out.writeObject(stateKey);
+        out.writeFloat(sliderMin);
+        out.writeFloat(sliderMax);
+        out.writeFloat(sliderStep);
     }
 }

@@ -200,12 +200,19 @@ public final class MainMenuPanel implements Runnable {
         }
 
         public static SmartMenu createKeyboardMenu(int iFN, Color textColor, ColorGL borderColor) {
-                SmartMenu menuAux = new SmartMenu(SmartMenu.TYPE_ITEM,
-                                UtilsKeyboard.getFNHumanString(iFN) + UtilsKeyboard.getTooltip(iFN), null,
-                                CommandPanel.COMMAND_CHANGE_HOTKEY, Integer.toString(iFN), null, null, textColor);
-                menuAux.setBorderColor(borderColor);
-                return menuAux;
-        }
+    SmartMenu menuAux = new SmartMenu(
+            SmartMenu.TYPE_KEYBOARD,
+            UtilsKeyboard.getFNHumanString(iFN) + UtilsKeyboard.getTooltip(iFN),
+            null,
+            CommandPanel.COMMAND_CHANGE_HOTKEY,
+            Integer.toString(iFN),
+            null,
+            null,
+            textColor);
+
+    menuAux.setBorderColor(borderColor);
+    return menuAux;
+}
 
         public boolean isSettingSavegameName() {
                 return settingSavegameName;
