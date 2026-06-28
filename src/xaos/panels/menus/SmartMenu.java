@@ -1066,7 +1066,16 @@ public class SmartMenu implements Externalizable {
 
         return this;
     }
+public void renderScrollable(
+        int x,
+        int y,
+        int width,
+        int height,
+        int scrollY,
+        boolean isContext) {
 
+    SmartMenuRenderer.renderScrollable(this, x, y, width, height, scrollY, isContext);
+}
     /**
      * Divide el menú en varias pantallas en el caso de que sea demasiado ganso
      *

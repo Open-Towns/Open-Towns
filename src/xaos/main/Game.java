@@ -966,32 +966,32 @@ public final class Game {
 	}
 
 	public static void finishCurrentTask() {
-	if (getCurrentTask() == null) {
-		return;
-	}
+		if (getCurrentTask() == null) {
+			return;
+		}
 
-	getCurrentTask().finishCreation();
-}
+		getCurrentTask().finishCreation();
+	}
 
 	public static void taskCreated() {
-	taskCreated(getCurrentTask());
-}
-
-public static void taskCreated(Task task) {
-	if (task == null) {
-		return;
+		taskCreated(getCurrentTask());
 	}
 
-	if (task.getTask() == Task.TASK_DIG) {
-		task.setTask(Task.TASK_MINE);
-	}
+	public static void taskCreated(Task task) {
+		if (task == null) {
+			return;
+		}
 
-	world.getTaskManager().addTask(task);
+		if (task.getTask() == Task.TASK_DIG) {
+			task.setTask(Task.TASK_MINE);
+		}
 
-	if (task == getCurrentTask()) {
-		setCurrentState(Game.STATE_NO_STATE);
+		world.getTaskManager().addTask(task);
+
+		if (task == getCurrentTask()) {
+			setCurrentState(Game.STATE_NO_STATE);
+		}
 	}
-}
 
 	public static void deleteCurrentTask() {
 		setCurrentState(STATE_NO_STATE);
@@ -1071,7 +1071,6 @@ public static void taskCreated(Task task) {
 	private static boolean handleWorldZoomMouseWheel() {
 		int wheelDelta = Mouse.getEventDWheel();
 
-		
 		if (wheelDelta == 0) {
 			return false;
 		}
@@ -1097,12 +1096,12 @@ public static void taskCreated(Task task) {
 	 */
 	private void checkMouseEvents() {
 
-		int mouseX = Mouse.getEventX();
-		int mouseY = UtilsGL.getHeight() - Mouse.getEventY() - 1;
-		int mouseButton;
-
+		int mouseX = Mouse.getX();
+		int mouseY = UtilsGL.getHeight() - Mouse.getY() - 1;
 		while (Mouse.next()) {
-			mouseButton = Mouse.getEventButton();
+			mouseX = Mouse.getEventX();
+			mouseY = UtilsGL.getHeight() - Mouse.getEventY() - 1;
+			int mouseButton = Mouse.getEventButton();
 
 			if (Mouse.getEventButtonState()) {
 				// Main menu
@@ -1182,21 +1181,37 @@ public static void taskCreated(Task task) {
 					}
 				}
 			}
-			if (handleWorldZoomMouseWheel()) {
+			
+
+			// Wheel
+			int mouseWheelMoved = Mouse.getEventDWheel();
+if (mouseWheelMoved != 0) {
+    System.out.println(
+            "Raw wheel event: " + mouseWheelMoved
+                    + " mouseX=" + mouseX
+                    + " mouseY=" + mouseY
+                    + " state=" + getCurrentState()
+                    + " hasContext=" + (getCurrentContextMenu() != null));
+}
+			if (mouseWheelMoved != 0) {
+			
+if (getPanelMainMenu().isActive()) {
+    getPanelMainMenu().mouseWheelMoved(mouseWheelMoved, mouseX, mouseY);
+    continue;
+}
+				if (isMouseOverCurrentContextMenu(mouseX, mouseY)) {
+					getCurrentContextMenu().mouseWheelMoved(mouseWheelMoved);
+					continue;
+				}
+				if (handleWorldZoomMouseWheel()) {
 				return;
 			}
 
-			// Wheel
-			if (Mouse.getEventDWheel() > 0) {
-				if (getPanelMainMenu().isActive()) {
-					continue;
+				if (mouseWheelMoved > 0) {
+					world.keyPressed(Keyboard.KEY_NONE, UtilsKeyboard.FN_LEVEL_UP);
+				} else if (mouseWheelMoved < 0) {
+					world.keyPressed(Keyboard.KEY_NONE, UtilsKeyboard.FN_LEVEL_DOWN);
 				}
-				world.keyPressed(Keyboard.KEY_NONE, UtilsKeyboard.FN_LEVEL_UP);
-			} else if (Mouse.getEventDWheel() < 0) {
-				if (getPanelMainMenu().isActive()) {
-					continue;
-				}
-				world.keyPressed(Keyboard.KEY_NONE, UtilsKeyboard.FN_LEVEL_DOWN);
 			}
 		}
 
@@ -1265,6 +1280,21 @@ public static void taskCreated(Task task) {
 		}
 	}
 
+	private boolean isMouseOverCurrentContextMenu(int mouseX, int mouseY) {
+		if (getCurrentState() != STATE_SHOWING_CONTEXT_MENU) {
+			return false;
+		}
+
+		if (getCurrentContextMenu() == null) {
+			return false;
+		}
+
+		return mouseX >= getCurrentContextMenu().getX()
+				&& mouseX < getCurrentContextMenu().getX() + getCurrentContextMenu().getWidth()
+				&& mouseY >= getCurrentContextMenu().getY()
+				&& mouseY < getCurrentContextMenu().getY() + getCurrentContextMenu().getHeight();
+	}
+
 	/**
 	 * Obtiene los eventos de teclado y llama al World.keyPressed (int tecla)
 	 */
@@ -1294,13 +1324,13 @@ public static void taskCreated(Task task) {
 				} else {
 					if (iKEY == Keyboard.KEY_ADD || iKEY == Keyboard.KEY_EQUALS) {
 						TooltipScale.set(TooltipScale.get() + 0.25f);
-						
+
 						continue;
 					}
 
 					if (iKEY == Keyboard.KEY_SUBTRACT || iKEY == Keyboard.KEY_MINUS) {
 						TooltipScale.set(TooltipScale.get() - 0.25f);
-					
+
 						continue;
 					}
 

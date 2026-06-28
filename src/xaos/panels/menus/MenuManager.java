@@ -659,7 +659,7 @@ public final class MenuManager {
 
     private SmartMenu createBackItem(SmartMenu parent) {
         return new SmartMenu(
-                SmartMenu.TYPE_ITEM,
+                SmartMenu.TYPE_BUTTON,
                 Messages.getString("MainMenuPanel.7"),
                 parent,
                 CommandPanel.COMMAND_BACK,

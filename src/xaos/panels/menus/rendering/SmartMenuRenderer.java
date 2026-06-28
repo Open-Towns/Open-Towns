@@ -94,7 +94,99 @@ public final class SmartMenuRenderer {
             }
         }
     }
+public static void renderScrollable(
+        SmartMenu menu,
+        int x,
+        int y,
+        int width,
+        int height,
+        int scrollY,
+        boolean isContext) {
 
+    if (menu == null) {
+        return;
+    }
+
+    if (!menu.isTrasparency()) {
+        GL11.glColor4f(1, 1, 1, 1);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, UIPanelState.tileTooltipBackground.getTextureID());
+
+        UtilsGL.glBegin(GL11.GL_QUADS);
+        UtilsGL.drawTexture(
+                x,
+                y,
+                x + width,
+                y + height,
+                UIPanelState.tileTooltipBackground.getTileSetTexX0(),
+                UIPanelState.tileTooltipBackground.getTileSetTexY0(),
+                UIPanelState.tileTooltipBackground.getTileSetTexX1(),
+                UIPanelState.tileTooltipBackground.getTileSetTexY1());
+        UtilsGL.glEnd();
+    }
+
+    int mouseX = Mouse.getX();
+    int mouseY = UtilsGL.getHeight() - Mouse.getY() - 1;
+
+    int itemIndex = -1;
+
+    if (isContext) {
+        itemIndex = SmartMenuLayout.getHoveredItemIndex(
+                menu,
+                x,
+                y + scrollY,
+                width,
+                mouseX,
+                mouseY + scrollY);
+    }
+
+    int currentY = 0;
+
+    for (int i = 0; i < menu.getItems().size(); i++) {
+        SmartMenu item = menu.getItems().get(i);
+
+        int itemHeight = SmartMenuLayout.getItemHeight(item);
+        int itemScreenY = y + currentY - scrollY + 1;
+
+        boolean above = itemScreenY + itemHeight < y;
+        boolean below = itemScreenY > y + height;
+
+        if (!above && !below) {
+            String text;
+
+            if (item.isDynamic()) {
+                text = Utils.getDynamicString(item.getName());
+            } else {
+                text = item.getName();
+            }
+
+            renderMenuItemByType(
+                    item,
+                    text,
+                    x,
+                    itemScreenY,
+                    width,
+                    itemHeight,
+                    itemIndex == i);
+        }
+
+        currentY += itemHeight;
+    }
+
+    if (itemIndex != -1) {
+        SmartMenu menuItem = menu.getItems().get(itemIndex);
+
+        if (menuItem.getPrerequisites() != null && menuItem.getPrerequisites().size() > 0) {
+            MainPanel.renderMessages(
+                    mouseX,
+                    mouseY + Tile.TERRAIN_ICON_HEIGHT / 2,
+                    UtilsGL.getWidth(),
+                    UtilsGL.getHeight(),
+                    Tile.TERRAIN_ICON_WIDTH / 2,
+                    menuItem.getPrerequisites(),
+                    menuItem.getPrerequisitesColor());
+        }
+    }
+}
     private static void renderMenuItemByType(
             SmartMenu item,
             String text,

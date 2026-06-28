@@ -182,8 +182,9 @@ public final class MainMenuPanel implements Runnable {
                 int menuWidth = 360;
                 int menuHeight = 300;
 
-                if (menu != null && menu.getSmartMenu() != null && menu.getSmartMenu().getItems() != null) {
-                        menuHeight = menu.getSmartMenu().getItems().size() * UtilFont.MAX_HEIGHT;
+                if (menu != null && menu.getSmartMenu() != null) {
+                        menuWidth = menu.getWidth();
+                        menuHeight = menu.getSmartMenu().getContentHeight();
                 }
 
                 this.xMenu = renderX + (renderWidth - menuWidth) / 2;
@@ -521,57 +522,90 @@ public final class MainMenuPanel implements Runnable {
         public void mousePressed(int x, int y, int mouseButton) {
                 if (startingGame > 0) {
                         startingGame = 0;
-                } else {
-                        if (mouseButton == 0) {
-                                if (isSettingSavegameName()) {
-                                        // Ha pulsado en algún sitio mientras el panel de savegame name está abierto
-                                        int iMousePanel = TypingPanel.whereIsMouse(x, y);
-                                        if (iMousePanel == MOUSE_TYPING_PANEL_CLOSE) {
-                                                // Cerramos
-                                                setSettingSavegameName(false, null, null);
-                                        } else if (iMousePanel == MOUSE_TYPING_PANEL_CONFIRM) {
-                                                if (TypingPanel.getNewText() != null
-                                                                && TypingPanel.getNewText().length() > 0) {
-                                                        // Confirmamos y empieza la partida
-                                                        if (!Utils.existsSavegame(TypingPanel.getNewText())) { // Sólo
-                                                                                                               // si no
-                                                                                                               // existe
-                                                                                                               // en
-                                                                                                               // disco
-                                                                                                               // previamente
-                                                                startGame(TypingPanel.getNewText());
-                                                        }
-                                                }
-                                        }
-                                } else if (isSettingHotkey()) {
-                                        // Ha pulsado en algún sitio mientras el panel de hotkeys está abierto
-                                        int iMousePanel = TypingPanel.whereIsMouse(x, y);
-                                        if (iMousePanel == MOUSE_TYPING_PANEL_CLOSE) {
-                                                // Cerramos
-                                                setSettingHotkey(false, 0);
-                                        }
-                                } else if (isSettingNewServer()) {
-                                        // Ha pulsado en algún sitio mientras el panel de new server está abierto
-                                        int iMousePanel = TypingPanel.whereIsMouse(x, y);
-                                        if (iMousePanel == MOUSE_TYPING_PANEL_CLOSE) {
-                                                // Cerramos
-                                                setSettingNewServer(false);
-                                        } else if (iMousePanel == MOUSE_TYPING_PANEL_CONFIRM) {
-                                                if (TypingPanel.getNewText() != null
-                                                                && TypingPanel.getNewText().length() > 0) {
-                                                        // Confirmamos
-                                                        Game.addServer(TypingPanel.getNewText());
-                                                        Utils.saveOptions();
+                        return;
+                }
 
-                                                        setSettingNewServer(false);
-                                                        createMenu();
-                                                }
+                if (mouseButton != 0) {
+                        return;
+                }
+
+                if (isSettingSavegameName()) {
+                        int iMousePanel = TypingPanel.whereIsMouse(x, y);
+
+                        if (iMousePanel == MOUSE_TYPING_PANEL_CLOSE) {
+                                setSettingSavegameName(false, null, null);
+                        } else if (iMousePanel == MOUSE_TYPING_PANEL_CONFIRM) {
+                                if (TypingPanel.getNewText() != null
+                                                && TypingPanel.getNewText().length() > 0) {
+                                        if (!Utils.existsSavegame(TypingPanel.getNewText())) {
+                                                startGame(TypingPanel.getNewText());
                                         }
-                                } else if (!loadingGame) {
-                                        menu.mousePressed(x - xMenu, y - yMenu);
                                 }
                         }
+
+                        return;
                 }
+
+                if (isSettingHotkey()) {
+                        int iMousePanel = TypingPanel.whereIsMouse(x, y);
+
+                        if (iMousePanel == MOUSE_TYPING_PANEL_CLOSE) {
+                                setSettingHotkey(false, 0);
+                        }
+
+                        return;
+                }
+
+                if (isSettingNewServer()) {
+                        int iMousePanel = TypingPanel.whereIsMouse(x, y);
+
+                        if (iMousePanel == MOUSE_TYPING_PANEL_CLOSE) {
+                                setSettingNewServer(false);
+                        } else if (iMousePanel == MOUSE_TYPING_PANEL_CONFIRM) {
+                                if (TypingPanel.getNewText() != null
+                                                && TypingPanel.getNewText().length() > 0) {
+                                        Game.addServer(TypingPanel.getNewText());
+                                        Utils.saveOptions();
+
+                                        setSettingNewServer(false);
+                                        createMenu();
+                                }
+                        }
+
+                        return;
+                }
+
+                if (!loadingGame && menu != null) {
+                        menu.mousePressed(x - menu.getX(), y - menu.getY());
+                        repositionMenu();
+                }
+        }
+
+        private void repositionMenu() {
+                if (menu == null || menu.getSmartMenu() == null) {
+                        return;
+                }
+
+                updateMenuPosition();
+
+                menu.setX(xMenu);
+                menu.setY(yMenu);
+                menu.resize();
+        }
+
+        public void mouseWheelMoved(int amount, int mouseX, int mouseY) {
+                if (menu == null || menu.getSmartMenu() == null) {
+                        return;
+                }
+
+                if (mouseX < menu.getX()
+                                || mouseX >= menu.getX() + menu.getWidth()
+                                || mouseY < menu.getY()
+                                || mouseY >= menu.getY() + menu.getHeight()) {
+                        return;
+                }
+
+                menu.mouseWheelMoved(amount);
         }
 
         /**
