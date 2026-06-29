@@ -93,10 +93,10 @@
         type="spacer"
     />
     <item
-        id="main.options.game.bury"
+        id="main.options.game.caravan_pause"
         type="toggle"
         titleKey="MainMenuPanel.66"
-        command="COMMAND_MM_SWITCH_BURY"
+        command="COMMAND_MM_SWITCH_CARAVAN_PAUSE"
         dynamic="true" />
     <item
         id="main.options.graphics.spacer"

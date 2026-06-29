@@ -2,6 +2,7 @@ package xaos.panels.menus.rendering;
 
 import xaos.panels.menus.SmartMenu;
 import xaos.utils.UtilFont;
+import xaos.utils.Utils;
 
 public final class SmartMenuLayout {
 
@@ -16,22 +17,16 @@ public final class SmartMenuLayout {
         switch (item.getType()) {
             case SmartMenu.TYPE_MENU:
             case SmartMenu.TYPE_BUTTON:
-                return UtilFont.MAX_HEIGHT + 30;
-
             case SmartMenu.TYPE_TOGGLE:
-                return UtilFont.MAX_HEIGHT + 6;
-
             case SmartMenu.TYPE_SLIDER:
-                return UtilFont.MAX_HEIGHT + 8;
-
+            case SmartMenu.TYPE_ITEM:
             case SmartMenu.TYPE_KEYBOARD:
-                return UtilFont.MAX_HEIGHT + 8;
+                return UtilFont.MAX_HEIGHT + 30;
 
             case SmartMenu.TYPE_HEADING:
                 return UtilFont.MAX_HEIGHT + 10;
-
             case SmartMenu.TYPE_TEXT:
-            case SmartMenu.TYPE_ITEM:
+
             default:
                 return UtilFont.MAX_HEIGHT;
         }
@@ -52,11 +47,7 @@ public final class SmartMenuLayout {
     }
 
     public static int getRecommendedWidth(SmartMenu menu) {
-        if (menu == null) {
-            return 260;
-        }
-
-        int recommendedWidth = 260;
+        int maxWidth = 1;
 
         for (int i = 0; i < menu.getItems().size(); i++) {
             SmartMenu item = menu.getItems().get(i);
@@ -65,22 +56,41 @@ public final class SmartMenuLayout {
                 continue;
             }
 
-            int textWidth = UtilFont.getWidth(MenuTextSanitiser.sanitise(item.getName())) + 32;
+            String text = item.getName();
+
+            if (item.isDynamic()) {
+                text = Utils.getDynamicString(item.getName());
+            }
+
+            text = MenuTextSanitiser.sanitise(text);
+
+            int itemWidth = UtilFont.getWidth(text);
+
+            if (item.getType() == SmartMenu.TYPE_ITEM || item.getType() == SmartMenu.TYPE_MENU) {
+                itemWidth += 60;
+            }
+            if (item.getType() == SmartMenu.TYPE_TEXT) {
+                itemWidth += 50;
+            }
+
+            if (item.getType() == SmartMenu.TYPE_HEADING) {
+                itemWidth += 90;
+            }
 
             if (item.getType() == SmartMenu.TYPE_TOGGLE) {
-                textWidth += 50;
+                itemWidth += 130;
             }
 
             if (item.getType() == SmartMenu.TYPE_SLIDER) {
-                textWidth += 160;
+                itemWidth += 210;
             }
 
-            if (textWidth > recommendedWidth) {
-                recommendedWidth = textWidth;
+            if (itemWidth > maxWidth) {
+                maxWidth = itemWidth;
             }
         }
 
-        return recommendedWidth;
+        return maxWidth + 32;
     }
 
     public static int getItemIndexAtY(SmartMenu menu, int mouseY) {

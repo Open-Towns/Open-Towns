@@ -649,7 +649,7 @@ public final class MenuManager {
 
     private SmartMenu createSpacerItem() {
         return new SmartMenu(
-                SmartMenu.TYPE_TEXT,
+                SmartMenu.TYPE_SPACER,
                 null,
                 null,
                 null,

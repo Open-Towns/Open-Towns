@@ -10,27 +10,23 @@ public final class MenuTextSanitiser {
             return "";
         }
 
-        StringBuilder safe = new StringBuilder();
+        return removeControlCharacters(text);
+
+    }
+
+    private static String removeControlCharacters(String text) {
+        StringBuilder builder = new StringBuilder(text.length());
 
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
 
-            if ((c >= 'A' && c <= 'Z')
-                    || (c >= 'a' && c <= 'z')
-                    || (c >= '0' && c <= '9')
-                    || c == ' '
-                    || c == '-'
-                    || c == '_'
-                    || c == '/'
-                    || c == ':'
-                    || c == '.'
-                    || c == ','
-                    || c == '('
-                    || c == ')') {
-                safe.append(c);
+            if (c == '\n' || c == '\r' || c == '\t') {
+                builder.append(' ');
+            } else if (!Character.isISOControl(c)) {
+                builder.append(c);
             }
         }
 
-        return safe.toString();
+        return builder.toString();
     }
 }

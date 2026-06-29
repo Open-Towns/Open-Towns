@@ -159,4 +159,13 @@ public final class MenuPanelRenderer {
 
         UtilsGL.glEnd();
     }
+
+    public static void renderPanelTitleOnly(
+            SmartMenu menu,
+            int x,
+            int y,
+            int width) {
+
+        renderTitle(menu, x, y, width);
+    }
 }

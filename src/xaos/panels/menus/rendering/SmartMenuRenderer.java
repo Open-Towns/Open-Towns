@@ -109,113 +109,132 @@ public final class SmartMenuRenderer {
         }
     }
 
+   
     public static void renderScrollable(
-            SmartMenu menu,
-            int x,
-            int y,
-            int width,
-            int height,
-            int scrollY,
-            boolean isContext) {
+        SmartMenu menu,
+        int x,
+        int y,
+        int width,
+        int height,
+        int scrollY,
+        boolean isContext) {
 
-        if (menu == null) {
-            return;
-        }
-        int panelX = x;
-        int panelY = y;
-        int panelWidth = width;
-        int panelHeight = height;
+    if (menu == null) {
+        return;
+    }
 
-        int contentX = x;
-        int contentY = y;
-        int contentWidth = width;
-        int contentHeight = height;
+    int panelX = x;
+    int panelY = y;
+    int panelWidth = width;
+    int panelHeight = height;
 
-        if (!menu.isTrasparency()) {
-            MenuPanelRenderer.renderPanel(
-                    menu,
-                    panelX,
-                    panelY,
-                    panelWidth,
-                    panelHeight);
+    int contentX = x;
+    int contentY = y;
+    int contentWidth = width;
+    int contentHeight = height;
 
-            contentX = x + MenuPanelRenderer.PANEL_PADDING_X;
-            contentY = y + MenuPanelRenderer.PANEL_PADDING_Y;
-            contentWidth = width - MenuPanelRenderer.PANEL_PADDING_X * 2;
-            contentHeight = height - MenuPanelRenderer.PANEL_PADDING_Y * 2;
-        }
+    if (!menu.isTrasparency()) {
+        MenuPanelRenderer.renderPanel(
+                menu,
+                panelX,
+                panelY,
+                panelWidth,
+                panelHeight);
 
-        int mouseX = Mouse.getX();
-        int mouseY = UtilsGL.getHeight() - Mouse.getY() - 1;
+        contentX = x + MenuPanelRenderer.PANEL_PADDING_X;
+        contentY = y + MenuPanelRenderer.PANEL_PADDING_Y;
+        contentWidth = width - MenuPanelRenderer.PANEL_PADDING_X * 2;
+        contentHeight = height - MenuPanelRenderer.PANEL_PADDING_Y * 2;
+    }
 
-        int itemIndex = -1;
+    int mouseX = Mouse.getX();
+    int mouseY = UtilsGL.getHeight() - Mouse.getY() - 1;
 
-        if (isContext) {
-            int relativeMouseY = mouseY - contentY + scrollY;
+    int itemIndex = -1;
 
-            if (mouseX >= contentX && mouseX < contentX + contentWidth
-                    && mouseY >= contentY && mouseY < contentY + contentHeight) {
+    if (isContext) {
+        int relativeMouseY = mouseY - contentY + scrollY;
 
-                itemIndex = SmartMenuLayout.getItemIndexAtY(menu, relativeMouseY);
+        if (mouseX >= contentX && mouseX < contentX + contentWidth
+                && mouseY >= contentY && mouseY < contentY + contentHeight) {
 
-                if (itemIndex >= 0 && itemIndex < menu.getItems().size()) {
-                    SmartMenu hoveredItem = menu.getItems().get(itemIndex);
+            itemIndex = SmartMenuLayout.getItemIndexAtY(menu, relativeMouseY);
 
-                    if (hoveredItem.getType() == SmartMenu.TYPE_TEXT
-                            || hoveredItem.getType() == SmartMenu.TYPE_HEADING) {
-                        itemIndex = -1;
-                    }
+            if (itemIndex >= 0 && itemIndex < menu.getItems().size()) {
+                SmartMenu hoveredItem = menu.getItems().get(itemIndex);
+
+                if (hoveredItem.getType() == SmartMenu.TYPE_TEXT
+                        || hoveredItem.getType() == SmartMenu.TYPE_HEADING) {
+                    itemIndex = -1;
                 }
-            }
-        }
-        int currentY = 0;
-
-        for (int i = 0; i < menu.getItems().size(); i++) {
-            SmartMenu item = menu.getItems().get(i);
-
-            int itemHeight = SmartMenuLayout.getItemHeight(item);
-            int itemScreenY = contentY + currentY - scrollY + 1;
-
-            boolean above = itemScreenY + itemHeight < contentY;
-            boolean below = itemScreenY > contentY + contentHeight;
-
-            if (!above && !below) {
-                String text;
-
-                if (item.isDynamic()) {
-                    text = Utils.getDynamicString(item.getName());
-                } else {
-                    text = item.getName();
-                }
-
-                renderMenuItemByType(
-                        item,
-                        text,
-                        x,
-                        itemScreenY,
-                        width,
-                        itemHeight,
-                        itemIndex == i);
-            }
-
-            currentY += itemHeight;
-        }
-
-        if (itemIndex != -1) {
-            SmartMenu menuItem = menu.getItems().get(itemIndex);
-
-            if (menuItem.getPrerequisites() != null && menuItem.getPrerequisites().size() > 0) {
-                MainPanel.renderMessages(
-                        mouseX,
-                        mouseY + Tile.TERRAIN_ICON_HEIGHT / 2,
-                        UtilsGL.getWidth(),
-                        UtilsGL.getHeight(),
-                        Tile.TERRAIN_ICON_WIDTH / 2,
-                        menuItem.getPrerequisites(),
-                        menuItem.getPrerequisitesColor());
             }
         }
     }
+
+    beginClip(contentX, contentY, contentWidth, contentHeight);
+
+    int currentY = 0;
+
+    for (int i = 0; i < menu.getItems().size(); i++) {
+        SmartMenu item = menu.getItems().get(i);
+
+        int itemHeight = SmartMenuLayout.getItemHeight(item);
+        int itemScreenY = contentY + currentY - scrollY + 1;
+
+        boolean above = itemScreenY + itemHeight < contentY;
+        boolean below = itemScreenY > contentY + contentHeight;
+
+        if (!above && !below) {
+            String text;
+
+            if (item.isDynamic()) {
+                text = Utils.getDynamicString(item.getName());
+            } else {
+                text = item.getName();
+            }
+
+            renderMenuItemByType(
+                    item,
+                    text,
+                    contentX,
+                    itemScreenY,
+                    contentWidth,
+                    itemHeight,
+                    itemIndex == i);
+        }
+
+        currentY += itemHeight;
+    }
+
+    endClip();
+
+    /*
+     * Optional but recommended:
+     * redraw the panel title after items so scrolled rows can never visually cover it.
+     */
+    if (!menu.isTrasparency()) {
+        MenuPanelRenderer.renderPanelTitleOnly(
+                menu,
+                panelX,
+                panelY,
+                panelWidth);
+    }
+
+    if (itemIndex != -1) {
+        SmartMenu menuItem = menu.getItems().get(itemIndex);
+
+        if (menuItem.getPrerequisites() != null && menuItem.getPrerequisites().size() > 0) {
+            MainPanel.renderMessages(
+                    mouseX,
+                    mouseY + Tile.TERRAIN_ICON_HEIGHT / 2,
+                    UtilsGL.getWidth(),
+                    UtilsGL.getHeight(),
+                    Tile.TERRAIN_ICON_WIDTH / 2,
+                    menuItem.getPrerequisites(),
+                    menuItem.getPrerequisitesColor());
+        }
+    }
+}
 
     private static void renderMenuItemByType(
             SmartMenu item,
@@ -240,25 +259,62 @@ public final class SmartMenuRenderer {
                 break;
 
             case SmartMenu.TYPE_KEYBOARD:
-                MenuKeyboardRenderer.render(item, text, x, y, width, height, hovered);
-                break;
-
-            case SmartMenu.TYPE_HEADING:
-                MenuTextRenderer.renderText(item, text, x, y);
+                MenuKeyboardRenderer.render(
+                        item,
+                        text,
+                        x,
+                        y,
+                        width,
+                        height,
+                        hovered);
                 break;
 
             case SmartMenu.TYPE_TEXT:
-                MenuTextRenderer.renderText(item, text, x, y);
+            case SmartMenu.TYPE_HEADING:
+                MenuTextRenderer.render(
+                        item,
+                        text,
+                        x,
+                        y,
+                        width,
+                        height);
                 break;
 
             case SmartMenu.TYPE_MENU:
                 MenuButtonRenderer.render(item, text, x, y, width, height, hovered);
                 break;
 
+            case SmartMenu.TYPE_SPACER:
+                break;
+
             case SmartMenu.TYPE_ITEM:
             default:
-                MenuTextRenderer.renderText(item, text, x, y);
+                MenuItemRenderer.render(
+                        item,
+                        text,
+                        x,
+                        y,
+                        width,
+                        height,
+                        hovered);
                 break;
         }
+    }private static void beginClip(int x, int y, int width, int height) {
+    if (width <= 0 || height <= 0) {
+        return;
     }
+
+    /*
+     * OpenGL scissor uses bottom-left coordinates.
+     * The UI uses top-left coordinates, so convert Y.
+     */
+    int scissorY = UtilsGL.getHeight() - y - height;
+
+    GL11.glEnable(GL11.GL_SCISSOR_TEST);
+    GL11.glScissor(x, scissorY, width, height);
+}
+
+private static void endClip() {
+    GL11.glDisable(GL11.GL_SCISSOR_TEST);
+}
 }

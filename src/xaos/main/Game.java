@@ -1181,36 +1181,28 @@ public final class Game {
 					}
 				}
 			}
-			
 
 			// Wheel
 			int mouseWheelMoved = Mouse.getEventDWheel();
-if (mouseWheelMoved != 0) {
-    System.out.println(
-            "Raw wheel event: " + mouseWheelMoved
-                    + " mouseX=" + mouseX
-                    + " mouseY=" + mouseY
-                    + " state=" + getCurrentState()
-                    + " hasContext=" + (getCurrentContextMenu() != null));
-}
+
 			if (mouseWheelMoved != 0) {
-			
-if (getPanelMainMenu().isActive()) {
-    getPanelMainMenu().mouseWheelMoved(mouseWheelMoved, mouseX, mouseY);
-    continue;
-}
+
+				if (getPanelMainMenu().isActive()) {
+					getPanelMainMenu().mouseWheelMoved(mouseWheelMoved, mouseX, mouseY);
+					continue;
+				}
 				if (isMouseOverCurrentContextMenu(mouseX, mouseY)) {
 					getCurrentContextMenu().mouseWheelMoved(mouseWheelMoved);
 					continue;
 				}
-				if (handleWorldZoomMouseWheel()) {
-				return;
-			}
-
+				
 				if (mouseWheelMoved > 0) {
 					world.keyPressed(Keyboard.KEY_NONE, UtilsKeyboard.FN_LEVEL_UP);
 				} else if (mouseWheelMoved < 0) {
 					world.keyPressed(Keyboard.KEY_NONE, UtilsKeyboard.FN_LEVEL_DOWN);
+				}
+				if (handleWorldZoomMouseWheel()) {
+					return;
 				}
 			}
 		}

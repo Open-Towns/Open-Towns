@@ -23,6 +23,7 @@ import xaos.actions.ActionManagerItem;
 import xaos.actions.QueueItem;
 import xaos.main.Game;
 import xaos.panels.CommandPanel;
+import xaos.panels.menus.rendering.MenuSliderRenderer;
 import xaos.panels.menus.rendering.SmartMenuLayout;
 import xaos.panels.menus.rendering.SmartMenuRenderer;
 import xaos.tiles.Tile;
@@ -51,6 +52,7 @@ public class SmartMenu implements Externalizable {
     public final static int TYPE_TEXT = 0;
     public final static int TYPE_MENU = 1;
     public final static int TYPE_ITEM = 2;
+    public final static int TYPE_SPACER = 3;
     public static final int TYPE_BUTTON = 5;
     public static final int TYPE_TOGGLE = 6;
     public static final int TYPE_SLIDER = 7;
@@ -391,6 +393,22 @@ public class SmartMenu implements Externalizable {
         }
     }
 
+    public SmartMenu mousePressed(int x, int y, int menuWidth) {
+        int iMenuIndex = SmartMenuLayout.getItemIndexAtY(this, y);
+
+        if (iMenuIndex < 0 || iMenuIndex >= getItems().size()) {
+            return this;
+        }
+
+        SmartMenu menu = getItems().get(iMenuIndex);
+
+        if (menu.getType() == SmartMenu.TYPE_SLIDER) {
+            return handleSliderClick(menu, x, menuWidth);
+        }
+
+        return mousePressed(x, y);
+    }
+
     public String getEffectiveStateKey() {
         if (stateKey != null && stateKey.trim().length() > 0) {
             return stateKey;
@@ -398,6 +416,74 @@ public class SmartMenu implements Externalizable {
 
         return command;
     }
+
+    private SmartMenu handleSliderClick(SmartMenu slider, int mouseX, int rowWidth) {
+        if (slider == null) {
+            return this;
+        }
+
+        int rowX = 2;
+        int rowActualWidth = rowWidth - 4;
+
+        int sliderX = rowX + rowActualWidth
+                - MenuSliderRenderer.SLIDER_WIDTH
+                - MenuSliderRenderer.SLIDER_RIGHT_PADDING;
+
+        int trackX = sliderX;
+        int trackWidth = MenuSliderRenderer.SLIDER_WIDTH
+                - MenuSliderRenderer.VALUE_TEXT_WIDTH
+                - MenuSliderRenderer.VALUE_TEXT_GAP;
+
+        if (mouseX < trackX) {
+            mouseX = trackX;
+        }
+
+        if (mouseX > trackX + trackWidth) {
+            mouseX = trackX + trackWidth;
+        }
+
+        int value = Math.round(((mouseX - trackX) / (float) trackWidth) * 100f);
+
+        if (value < 0) {
+            value = 0;
+        }
+
+        if (value > 100) {
+            value = 100;
+        }
+
+        applySliderValue(slider, value);
+
+        return this;
+    }
+
+   private void applySliderValue(SmartMenu slider, int value) {
+    if (slider.getCommand() == null) {
+        return;
+    }
+
+    int gameVolume = Math.round(value / 10f);
+
+    if (gameVolume < 0) {
+        gameVolume = 0;
+    }
+
+    if (gameVolume > 10) {
+        gameVolume = 10;
+    }
+
+    if (slider.getCommand().equals(CommandPanel.COMMAND_MM_ADD_MUSIC_VOLUME)) {
+        Game.setVolumeMusic(gameVolume);
+        Utils.saveOptions();
+        return;
+    }
+
+    if (slider.getCommand().equals(CommandPanel.COMMAND_MM_ADD_FX_VOLUME)) {
+        Game.setVolumeFX(gameVolume);
+        Utils.saveOptions();
+        return;
+    }
+}
 
     /**
      * Carga los menús del .xml y lo mapea todo a clases SmartMenu
@@ -1066,16 +1152,18 @@ public class SmartMenu implements Externalizable {
 
         return this;
     }
-public void renderScrollable(
-        int x,
-        int y,
-        int width,
-        int height,
-        int scrollY,
-        boolean isContext) {
 
-    SmartMenuRenderer.renderScrollable(this, x, y, width, height, scrollY, isContext);
-}
+    public void renderScrollable(
+            int x,
+            int y,
+            int width,
+            int height,
+            int scrollY,
+            boolean isContext) {
+
+        SmartMenuRenderer.renderScrollable(this, x, y, width, height, scrollY, isContext);
+    }
+
     /**
      * Divide el menú en varias pantallas en el caso de que sea demasiado ganso
      *

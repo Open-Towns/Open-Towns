@@ -13,9 +13,9 @@ public class ContextMenu {
     private int width;
     private int height;
     private int scrollY;
-    private int maxVisibleHeight;
     private boolean scrollable;
-
+    private static final int MAX_KEYBOARD_VISIBLE_ROWS = 10;
+private boolean centered;
     private SmartMenu smartMenu;
 
     public int getHeight() {
@@ -78,6 +78,29 @@ public class ContextMenu {
         } else {
             getSmartMenu().render(getX(), getY(), getWidth(), getHeight(), true);
         }
+    }
+public void setCentered(boolean centered) {
+    this.centered = centered;
+}
+
+public boolean isCentered() {
+    return centered;
+}private void centerOnScreen() {
+    setX(UtilsGL.getWidth() / 2 - getWidth() / 2);
+    setY(UtilsGL.getHeight() / 2 - getHeight() / 2);
+}
+    private boolean isKeyboardMenu() {
+        if (smartMenu == null || smartMenu.getItems() == null) {
+            return false;
+        }
+
+        for (int i = 0; i < smartMenu.getItems().size(); i++) {
+            if (smartMenu.getItems().get(i).getType() == SmartMenu.TYPE_KEYBOARD) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void renderScrollBar() {
@@ -175,34 +198,64 @@ public class ContextMenu {
                 0.24f,
                 0.16f);
     }
-
-    public void mouseWheelMoved(int amount) {
-        System.out.println("Context menu wheel: " + amount + " scrollable=" + scrollable + " scrollY=" + scrollY);
-
-        if (!scrollable || getSmartMenu() == null) {
-            return;
-        }
-
-        int scrollStep = UtilFont.MAX_HEIGHT * 3;
-
-        if (amount > 0) {
-            scrollY -= scrollStep;
-        } else if (amount < 0) {
-            scrollY += scrollStep;
-        }
-
-        int maxScrollY = getSmartMenu().getContentHeight() + 2 - getHeight();
-
-        if (scrollY < 0) {
-            scrollY = 0;
-        }
-
-        if (scrollY > maxScrollY) {
-            scrollY = maxScrollY;
-        }
-
-        System.out.println("New scrollY=" + scrollY + " maxScrollY=" + maxScrollY);
+private int getMenuContentHeight() {
+    if (smartMenu == null) {
+        return 0;
     }
+
+    return smartMenu.getContentHeight() + 2;
+}
+
+private int getVisibleContentHeight() {
+    int visibleHeight = getHeight();
+
+    if (smartMenu != null && !smartMenu.isTrasparency()) {
+        visibleHeight -= MenuPanelRenderer.PANEL_PADDING_Y * 2;
+    }
+
+    if (visibleHeight < 0) {
+        visibleHeight = 0;
+    }
+
+    return visibleHeight;
+}
+
+private int getMaxScrollY() {
+    int maxScrollY = getMenuContentHeight() - getVisibleContentHeight();
+
+    if (maxScrollY < 0) {
+        return 0;
+    }
+
+    return maxScrollY;
+}
+
+private void clampScrollY() {
+    int maxScrollY = getMaxScrollY();
+
+    if (scrollY < 0) {
+        scrollY = 0;
+    }
+
+    if (scrollY > maxScrollY) {
+        scrollY = maxScrollY;
+    }
+}
+    public void mouseWheelMoved(int amount) {
+    if (!scrollable || getSmartMenu() == null) {
+        return;
+    }
+
+    int scrollStep = UtilFont.MAX_HEIGHT * 3;
+
+    if (amount > 0) {
+        scrollY -= scrollStep;
+    } else if (amount < 0) {
+        scrollY += scrollStep;
+    }
+
+    clampScrollY();
+}
 
     public void mousePressed(int x, int y) {
         if (getSmartMenu() == null) {
@@ -231,63 +284,110 @@ public class ContextMenu {
 
         int finalMenuY = scrollable ? menuY + scrollY : menuY;
 
-        setSmartMenu(getSmartMenu().mousePressed(menuX, finalMenuY));
+        setSmartMenu(getSmartMenu().mousePressed(menuX, finalMenuY, getContentClickWidth()));
+        resize();
+    }
+
+    private int getContentClickWidth() {
+        int width = getWidth();
+
+        if (getSmartMenu() != null && !getSmartMenu().isTrasparency()) {
+            width -= MenuPanelRenderer.PANEL_PADDING_X * 2;
+        }
+
+        return width;
     }
 
     public void resize() {
-        if (getSmartMenu() == null) {
-            return;
+    if (getSmartMenu() == null) {
+        return;
+    }
+
+    /*
+     * Height of the actual menu rows/items.
+     * This is the thing that scrolls.
+     */
+    int menuContentHeight = smartMenu.getContentHeight() + 8;
+
+    /*
+     * Height of the full outer window/panel.
+     * This includes the decorative panel padding.
+     */
+    int fullPanelHeight = menuContentHeight;
+
+    if (!smartMenu.isTrasparency()) {
+        fullPanelHeight += MenuPanelRenderer.PANEL_PADDING_Y * 2;
+    }
+
+    int maxHeight = MainPanel.renderHeight - 4 * UtilFont.MAX_HEIGHT;
+
+    if (isKeyboardMenu()) {
+        int keyboardRowHeight = UtilFont.MAX_HEIGHT + 24;
+        int keyboardMaxHeight = keyboardRowHeight * MAX_KEYBOARD_VISIBLE_ROWS;
+
+        if (!smartMenu.isTrasparency()) {
+            keyboardMaxHeight += MenuPanelRenderer.PANEL_PADDING_Y * 2;
         }
 
-        int maxHeight = MainPanel.renderHeight - 4 * UtilFont.MAX_HEIGHT;
-        int contentHeight = smartMenu.getContentHeight() + 2;
-
-        scrollable = contentHeight > maxHeight;
-
-        if (scrollable) {
-            setHeight(maxHeight);
-        } else {
-            setHeight(contentHeight);
-            scrollY = 0;
-        }
-
-        int maxScrollY = contentHeight - getHeight();
-
-        if (scrollY < 0) {
-            scrollY = 0;
-        }
-
-        if (scrollY > maxScrollY) {
-            scrollY = maxScrollY;
-        }
-
-        int iMaxWidth = 1;
-        int iWidth;
-
-        for (int i = 0; i < smartMenu.getItems().size(); i++) {
-            if (smartMenu.getItems().get(i).getName() != null) {
-                iWidth = UtilFont.getWidth(smartMenu.getItems().get(i).getName());
-
-                if (iMaxWidth < iWidth) {
-                    iMaxWidth = iWidth;
-                }
-            }
-        }
-
-        int extraWidth = scrollable ? 44 : 32;
-        setWidth(iMaxWidth + extraWidth);
-
-        if (getX() + getWidth() > UtilsGL.getWidth()) {
-            setX(UtilsGL.getWidth() - getWidth());
-        } else if (getX() < 0) {
-            setX(0);
-        }
-
-        if (getY() + getHeight() > UtilsGL.getHeight()) {
-            setY(UtilsGL.getHeight() - getHeight());
-        } else if (getY() < 0) {
-            setY(0);
+        if (keyboardMaxHeight < maxHeight) {
+            maxHeight = keyboardMaxHeight;
         }
     }
+
+    scrollable = fullPanelHeight > maxHeight;
+
+    if (scrollable) {
+        setHeight(maxHeight);
+    } else {
+        setHeight(fullPanelHeight);
+        scrollY = 0;
+    }
+
+    int visibleContentHeight = getHeight();
+
+    if (!smartMenu.isTrasparency()) {
+        visibleContentHeight -= MenuPanelRenderer.PANEL_PADDING_Y * 2;
+    }
+
+    if (visibleContentHeight < 0) {
+        visibleContentHeight = 0;
+    }
+
+    int maxScrollY = menuContentHeight - visibleContentHeight;
+
+    if (maxScrollY < 0) {
+        maxScrollY = 0;
+    }
+
+    if (scrollY < 0) {
+        scrollY = 0;
+    }
+
+    if (scrollY > maxScrollY) {
+        scrollY = maxScrollY;
+    }
+
+    int recommendedWidth = smartMenu.getRecommendedWidth();
+
+    if (scrollable) {
+        recommendedWidth += 12;
+    }
+
+    if (centered) {
+        centerOnScreen();
+    }
+    setWidth(recommendedWidth);
+    if (getX() + getWidth() > UtilsGL.getWidth()) {
+        setX(UtilsGL.getWidth() - getWidth());
+    } else if (getX() < 0) {
+        setX(0);
+    }
+
+    if (getY() + getHeight() > UtilsGL.getHeight()) {
+        setY(UtilsGL.getHeight() - getHeight());
+    } else if (getY() < 0) {
+        setY(0);
+    }
+}
 
 }

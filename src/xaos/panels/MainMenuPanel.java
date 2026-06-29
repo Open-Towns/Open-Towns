@@ -156,10 +156,9 @@ public final class MainMenuPanel implements Runnable {
                 menu.setHeight(MainFrame.MIN_HEIGHT - UtilFont.MAX_HEIGHT * 8);
                 menu.setSmartMenu(mainMenu);
 
-                updateMenuPosition();
+                
 
-                menu.setX(xMenu);
-                menu.setY(yMenu);
+                repositionMenu();
         }
 
         public void resize(int renderX, int renderY, int renderWidth, int renderHeight) {
@@ -168,36 +167,12 @@ public final class MainMenuPanel implements Runnable {
                 this.renderWidth = renderWidth;
                 this.renderHeight = renderHeight;
 
-                updateMenuPosition();
-
                 if (menu != null) {
-                        menu.setHeight(MainFrame.MIN_HEIGHT - UtilFont.MAX_HEIGHT * 8);
-                        menu.setX(xMenu);
-                        menu.setY(yMenu);
-                        menu.resize();
+                        repositionMenu();
                 }
         }
 
-        private void updateMenuPosition() {
-                int menuWidth = 360;
-                int menuHeight = 300;
-
-                if (menu != null && menu.getSmartMenu() != null) {
-                        menuWidth = menu.getWidth();
-                        menuHeight = menu.getSmartMenu().getContentHeight();
-                }
-
-                this.xMenu = renderX + (renderWidth - menuWidth) / 2;
-                this.yMenu = renderY + (renderHeight - menuHeight) / 2;
-
-                if (this.xMenu < renderX + 20) {
-                        this.xMenu = renderX + 20;
-                }
-
-                if (this.yMenu < renderY + 20) {
-                        this.yMenu = renderY + 20;
-                }
-        }
+      
 
         public static SmartMenu createKeyboardMenu(int iFN, Color textColor, ColorGL borderColor) {
                 SmartMenu menuAux = new SmartMenu(
@@ -586,10 +561,22 @@ public final class MainMenuPanel implements Runnable {
                         return;
                 }
 
-                updateMenuPosition();
+                menu.resize();
+
+                xMenu = renderX + (renderWidth - menu.getWidth()) / 2;
+                yMenu = renderY + (renderHeight - menu.getHeight()) / 2;
+
+                if (xMenu < renderX + 20) {
+                        xMenu = renderX + 20;
+                }
+
+                if (yMenu < renderY + 20) {
+                        yMenu = renderY + 20;
+                }
 
                 menu.setX(xMenu);
                 menu.setY(yMenu);
+
                 menu.resize();
         }
 
