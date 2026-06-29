@@ -4,7 +4,6 @@ import org.lwjgl.opengl.GL11;
 
 import xaos.main.Game;
 import xaos.panels.MainPanel;
-import xaos.panels.UI.UIPanelState;
 import xaos.panels.menus.SmartMenu;
 import xaos.platform.lwjgl3.input.Mouse;
 import xaos.tiles.Tile;
@@ -23,21 +22,28 @@ public final class SmartMenuRenderer {
 
         height = SmartMenuLayout.getContentHeight(menu);
 
-        if (!menu.isTrasparency()) {
-            GL11.glColor4f(1, 1, 1, 1);
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, UIPanelState.tileTooltipBackground.getTextureID());
+        int panelX = x;
+        int panelY = y;
+        int panelWidth = width;
+        int panelHeight = height;
 
-            UtilsGL.glBegin(GL11.GL_QUADS);
-            UtilsGL.drawTexture(
-                    x,
-                    y,
-                    x + width,
-                    y + height,
-                    UIPanelState.tileTooltipBackground.getTileSetTexX0(),
-                    UIPanelState.tileTooltipBackground.getTileSetTexY0(),
-                    UIPanelState.tileTooltipBackground.getTileSetTexX1(),
-                    UIPanelState.tileTooltipBackground.getTileSetTexY1());
-            UtilsGL.glEnd();
+        int contentX = x;
+        int contentY = y;
+        int contentWidth = width;
+
+        if (!menu.isTrasparency()) {
+            panelHeight = height + MenuPanelRenderer.PANEL_PADDING_Y * 2;
+
+            MenuPanelRenderer.renderPanel(
+                    menu,
+                    panelX,
+                    panelY,
+                    panelWidth,
+                    panelHeight);
+
+            contentX = x + MenuPanelRenderer.PANEL_PADDING_X;
+            contentY = y + MenuPanelRenderer.PANEL_PADDING_Y;
+            contentWidth = width - MenuPanelRenderer.PANEL_PADDING_X * 2;
         }
 
         int mouseX = Mouse.getX();
@@ -45,13 +51,21 @@ public final class SmartMenuRenderer {
         int itemIndex = -1;
 
         if (isContext) {
-            itemIndex = SmartMenuLayout.getHoveredItemIndex(menu, x, y, width, mouseX, mouseY);
+            itemIndex = SmartMenuLayout.getHoveredItemIndex(
+                    menu,
+                    contentX,
+                    contentY,
+                    contentWidth,
+                    mouseX,
+                    mouseY);
         }
 
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, Game.TEXTURE_FONT_ID);
         GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
 
-        int currentY = y;
+        // int currentY = y;
+
+        int currentY = contentY;
 
         for (int i = 0; i < menu.getItems().size(); i++) {
             SmartMenu item = menu.getItems().get(i);
@@ -70,9 +84,9 @@ public final class SmartMenuRenderer {
             renderMenuItemByType(
                     item,
                     text,
-                    x,
+                    contentX,
                     itemY,
-                    width,
+                    contentWidth,
                     itemHeight,
                     itemIndex == i);
 
@@ -94,99 +108,115 @@ public final class SmartMenuRenderer {
             }
         }
     }
-public static void renderScrollable(
-        SmartMenu menu,
-        int x,
-        int y,
-        int width,
-        int height,
-        int scrollY,
-        boolean isContext) {
 
-    if (menu == null) {
-        return;
-    }
+    public static void renderScrollable(
+            SmartMenu menu,
+            int x,
+            int y,
+            int width,
+            int height,
+            int scrollY,
+            boolean isContext) {
 
-    if (!menu.isTrasparency()) {
-        GL11.glColor4f(1, 1, 1, 1);
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, UIPanelState.tileTooltipBackground.getTextureID());
+        if (menu == null) {
+            return;
+        }
+        int panelX = x;
+        int panelY = y;
+        int panelWidth = width;
+        int panelHeight = height;
 
-        UtilsGL.glBegin(GL11.GL_QUADS);
-        UtilsGL.drawTexture(
-                x,
-                y,
-                x + width,
-                y + height,
-                UIPanelState.tileTooltipBackground.getTileSetTexX0(),
-                UIPanelState.tileTooltipBackground.getTileSetTexY0(),
-                UIPanelState.tileTooltipBackground.getTileSetTexX1(),
-                UIPanelState.tileTooltipBackground.getTileSetTexY1());
-        UtilsGL.glEnd();
-    }
+        int contentX = x;
+        int contentY = y;
+        int contentWidth = width;
+        int contentHeight = height;
 
-    int mouseX = Mouse.getX();
-    int mouseY = UtilsGL.getHeight() - Mouse.getY() - 1;
+        if (!menu.isTrasparency()) {
+            MenuPanelRenderer.renderPanel(
+                    menu,
+                    panelX,
+                    panelY,
+                    panelWidth,
+                    panelHeight);
 
-    int itemIndex = -1;
+            contentX = x + MenuPanelRenderer.PANEL_PADDING_X;
+            contentY = y + MenuPanelRenderer.PANEL_PADDING_Y;
+            contentWidth = width - MenuPanelRenderer.PANEL_PADDING_X * 2;
+            contentHeight = height - MenuPanelRenderer.PANEL_PADDING_Y * 2;
+        }
 
-    if (isContext) {
-        itemIndex = SmartMenuLayout.getHoveredItemIndex(
-                menu,
-                x,
-                y + scrollY,
-                width,
-                mouseX,
-                mouseY + scrollY);
-    }
+        int mouseX = Mouse.getX();
+        int mouseY = UtilsGL.getHeight() - Mouse.getY() - 1;
 
-    int currentY = 0;
+        int itemIndex = -1;
 
-    for (int i = 0; i < menu.getItems().size(); i++) {
-        SmartMenu item = menu.getItems().get(i);
+        if (isContext) {
+            int relativeMouseY = mouseY - contentY + scrollY;
 
-        int itemHeight = SmartMenuLayout.getItemHeight(item);
-        int itemScreenY = y + currentY - scrollY + 1;
+            if (mouseX >= contentX && mouseX < contentX + contentWidth
+                    && mouseY >= contentY && mouseY < contentY + contentHeight) {
 
-        boolean above = itemScreenY + itemHeight < y;
-        boolean below = itemScreenY > y + height;
+                itemIndex = SmartMenuLayout.getItemIndexAtY(menu, relativeMouseY);
 
-        if (!above && !below) {
-            String text;
+                if (itemIndex >= 0 && itemIndex < menu.getItems().size()) {
+                    SmartMenu hoveredItem = menu.getItems().get(itemIndex);
 
-            if (item.isDynamic()) {
-                text = Utils.getDynamicString(item.getName());
-            } else {
-                text = item.getName();
+                    if (hoveredItem.getType() == SmartMenu.TYPE_TEXT
+                            || hoveredItem.getType() == SmartMenu.TYPE_HEADING) {
+                        itemIndex = -1;
+                    }
+                }
+            }
+        }
+        int currentY = 0;
+
+        for (int i = 0; i < menu.getItems().size(); i++) {
+            SmartMenu item = menu.getItems().get(i);
+
+            int itemHeight = SmartMenuLayout.getItemHeight(item);
+            int itemScreenY = contentY + currentY - scrollY + 1;
+
+            boolean above = itemScreenY + itemHeight < contentY;
+            boolean below = itemScreenY > contentY + contentHeight;
+
+            if (!above && !below) {
+                String text;
+
+                if (item.isDynamic()) {
+                    text = Utils.getDynamicString(item.getName());
+                } else {
+                    text = item.getName();
+                }
+
+                renderMenuItemByType(
+                        item,
+                        text,
+                        x,
+                        itemScreenY,
+                        width,
+                        itemHeight,
+                        itemIndex == i);
             }
 
-            renderMenuItemByType(
-                    item,
-                    text,
-                    x,
-                    itemScreenY,
-                    width,
-                    itemHeight,
-                    itemIndex == i);
+            currentY += itemHeight;
         }
 
-        currentY += itemHeight;
-    }
+        if (itemIndex != -1) {
+            SmartMenu menuItem = menu.getItems().get(itemIndex);
 
-    if (itemIndex != -1) {
-        SmartMenu menuItem = menu.getItems().get(itemIndex);
-
-        if (menuItem.getPrerequisites() != null && menuItem.getPrerequisites().size() > 0) {
-            MainPanel.renderMessages(
-                    mouseX,
-                    mouseY + Tile.TERRAIN_ICON_HEIGHT / 2,
-                    UtilsGL.getWidth(),
-                    UtilsGL.getHeight(),
-                    Tile.TERRAIN_ICON_WIDTH / 2,
-                    menuItem.getPrerequisites(),
-                    menuItem.getPrerequisitesColor());
+            if (menuItem.getPrerequisites() != null && menuItem.getPrerequisites().size() > 0) {
+                MainPanel.renderMessages(
+                        mouseX,
+                        mouseY + Tile.TERRAIN_ICON_HEIGHT / 2,
+                        UtilsGL.getWidth(),
+                        UtilsGL.getHeight(),
+                        Tile.TERRAIN_ICON_WIDTH / 2,
+                        menuItem.getPrerequisites(),
+                        menuItem.getPrerequisitesColor());
+            }
         }
     }
-}
+
     private static void renderMenuItemByType(
             SmartMenu item,
             String text,

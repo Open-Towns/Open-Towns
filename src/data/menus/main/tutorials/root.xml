@@ -1,11 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 
 <menu id="main.tutorials.root" titleKey="MainMenuPanel.82">
-    <item
-        id="main.tutorials.title"
-        type="text"
-        titleKey="MainMenuPanel.82"
-    />
+   
     <item
         id="main.tutorials.spacer1"
         type="spacer"

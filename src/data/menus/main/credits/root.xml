@@ -1,11 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <menu id="main.credits.root" titleKey="MainMenuPanel.34">
-    <item
-        id="main.credits.title"
-        type="text"
-        titleKey="MainMenuPanel.34"
-        
-        />
+ 
 
     <item
         id="main.credits.spacer1"

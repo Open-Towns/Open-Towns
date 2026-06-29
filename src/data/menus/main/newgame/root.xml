@@ -1,9 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <menu id="main.new_game.root" titleKey="MainMenuPanel.53">
-    <item
-        id="main.new_game.title"
-        titleKey="MainMenuPanel.53"
-        type="text" />
+   
 
     <item
         id="main.new_game.spacer1"

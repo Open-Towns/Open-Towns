@@ -325,7 +325,7 @@ public final class MainMenuPanel implements Runnable {
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, TEXTURE_TOWNS_LOGO_ID);
                 GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
 
-                int logoYOffset = 120;
+                int logoYOffset = 220;
 
                 UtilsGL.glBegin(GL11.GL_QUADS);
                 UtilsGL.drawTexture(

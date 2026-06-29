@@ -5,7 +5,7 @@
         id="main.tutorials"
         type="submenu"
         titleKey="MainMenuPanel.54"
-        targetMenu="main.tutorials.root" 
+        targetMenu="main.tutorials.root" transparent="false" 
        />
     <item
         id="main.spacer1"
@@ -15,7 +15,7 @@
         id="main.new_game"
         type="submenu"
         titleKey="MainMenuPanel.53"
-        targetMenu="main.new_game.root" />
+        targetMenu="main.new_game.root" transparent="false" />
     <item
         id="main.spacer2"
         type="spacer"
@@ -25,7 +25,7 @@
         type="submenu"
         titleKey="MainMenuPanel.38"
         targetMenu="main.load_game.root"
-        condition="savegames.exists" />
+        condition="savegames.exists" transparent="false"/>
     <item
         id="main.spacer3"
         type="spacer"
@@ -34,7 +34,7 @@
         id="main.mod_manager"
         type="submenu"
         titleKey="MainMenuPanel.58"
-        targetMenu="main.mod_manager.root" />
+        targetMenu="main.mod_manager.root" transparent="false"/>
     <item
         id="main.spacer4"
         type="spacer"
@@ -43,7 +43,7 @@
         id="main.credits"
         type="submenu"
         titleKey="MainMenuPanel.34"
-        targetMenu="main.credits.root" />
+        targetMenu="main.credits.root" transparent="false"/>
     <item
         id="main.spacer5"
         type="spacer"
@@ -52,7 +52,7 @@
         id="main.options"
         type="submenu"
         titleKey="MainMenuPanel.4"
-        targetMenu="main.options.root" />
+        targetMenu="main.options.root" transparent="false" />
     <item
         id="main.spacer6"
         type="spacer"

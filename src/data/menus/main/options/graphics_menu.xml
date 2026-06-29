@@ -1,12 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 
 <menu id="main.options.graphics.root" titleKey="MainMenuPanel.16">
-    <item
-        id="main.options.graphics.title"
-        type="text"
-        titleKey="MainMenuPanel.16"
-
-    />
+    
     <item
         id="main.options.graphics.spacer"
         type="spacer"

@@ -1,11 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 
 <menu id="main.options.game.root" titleKey="MainMenuPanel.19">
-    <item
-        id="main.options.game.title"
-        type="text"
-        titleKey="MainMenuPanel.19"
-    />
+   
     <item
         id="main.options.game.spacer"
         type="spacer"
