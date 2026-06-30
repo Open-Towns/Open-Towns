@@ -459,7 +459,7 @@ public final class Game {
 		// Terrain slopes
 		Terrain.changeSlopes(cells);
 
-		long lTime;
+		long lTime = TownsProperties.DEBUG_MODE ? System.currentTimeMillis() : 0L;
 		String sLog = null;
 
 		// Aquí mismo borro los alphas
@@ -966,32 +966,32 @@ public final class Game {
 	}
 
 	public static void finishCurrentTask() {
-	if (getCurrentTask() == null) {
-		return;
-	}
+		if (getCurrentTask() == null) {
+			return;
+		}
 
-	getCurrentTask().finishCreation();
-}
+		getCurrentTask().finishCreation();
+	}
 
 	public static void taskCreated() {
-	taskCreated(getCurrentTask());
-}
-
-public static void taskCreated(Task task) {
-	if (task == null) {
-		return;
+		taskCreated(getCurrentTask());
 	}
 
-	if (task.getTask() == Task.TASK_DIG) {
-		task.setTask(Task.TASK_MINE);
-	}
+	public static void taskCreated(Task task) {
+		if (task == null) {
+			return;
+		}
 
-	world.getTaskManager().addTask(task);
+		if (task.getTask() == Task.TASK_DIG) {
+			task.setTask(Task.TASK_MINE);
+		}
 
-	if (task == getCurrentTask()) {
-		setCurrentState(Game.STATE_NO_STATE);
+		world.getTaskManager().addTask(task);
+
+		if (task == getCurrentTask()) {
+			setCurrentState(Game.STATE_NO_STATE);
+		}
 	}
-}
 
 	public static void deleteCurrentTask() {
 		setCurrentState(STATE_NO_STATE);
@@ -1071,7 +1071,6 @@ public static void taskCreated(Task task) {
 	private static boolean handleWorldZoomMouseWheel() {
 		int wheelDelta = Mouse.getEventDWheel();
 
-		
 		if (wheelDelta == 0) {
 			return false;
 		}
@@ -1294,13 +1293,13 @@ public static void taskCreated(Task task) {
 				} else {
 					if (iKEY == Keyboard.KEY_ADD || iKEY == Keyboard.KEY_EQUALS) {
 						TooltipScale.set(TooltipScale.get() + 0.25f);
-						
+
 						continue;
 					}
 
 					if (iKEY == Keyboard.KEY_SUBTRACT || iKEY == Keyboard.KEY_MINUS) {
 						TooltipScale.set(TooltipScale.get() - 0.25f);
-					
+
 						continue;
 					}
 

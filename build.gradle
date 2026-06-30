@@ -211,12 +211,24 @@ tasks.named('run', JavaExec) {
     javaLauncher = javaToolchains.launcherFor {
         languageVersion = townsJavaLanguageVersion
     }
+
     jvmArgs '--enable-native-access=ALL-UNNAMED'
+
+  
     systemProperty 'towns.disableSteam', 'false'
+
+  
+    systemProperty 'opentowns.debug',
+        providers.gradleProperty('opentowns.debug').orElse('false').get()
+
+    systemProperty 'opentowns.testCommands',
+        providers.gradleProperty('opentowns.testCommands').orElse('false').get()
 
     doFirst {
         println "TownsForever Java target: ${townsJavaVersion.get()}"
         println "Steam API loading disabled for Gradle run: ${systemProperties['towns.disableSteam']}"
+        println "OpenTowns debug mode: ${systemProperties['opentowns.debug']}"
+        println "OpenTowns test commands: ${systemProperties['opentowns.testCommands']}"
     }
 }
 
