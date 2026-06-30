@@ -257,6 +257,7 @@ public final class MainMenuPanel implements Runnable {
 
         public void render() {
 
+      
                 GL11.glColor4f(1, 1, 1, 1);
 
                 int iMaxSize = renderWidth;
@@ -280,8 +281,8 @@ public final class MainMenuPanel implements Runnable {
                                         centerY + iMaxSize, 0, 0, 1,
                                         1, startingGameColor);
                         UtilsGL.glEnd();
-                        return;
-                } else {
+                        return;}
+               else {
                         if (deleteLogoTexture) {
                                 deleteLogoTexture = false;
 
@@ -560,27 +561,27 @@ public final class MainMenuPanel implements Runnable {
                 }
         }
 
-        private void repositionMenu() {
-                if (menu == null || menu.getSmartMenu() == null) {
-                        return;
-                }
-
-                menu.resize();
-
-                xMenu = renderX + (renderWidth - menu.getWidth()) / 2;
-                yMenu = renderY + (renderHeight - menu.getHeight()) / 2;
-
-                if (xMenu < renderX + 20) {
-                        xMenu = renderX + 20;
-                }
-
-                if (yMenu < renderY + 20) {
-                        yMenu = renderY + 20;
-                }
-
-                menu.setX(xMenu);
-                menu.setY(yMenu);
+       private void repositionMenu() {
+        if (menu == null || menu.getSmartMenu() == null) {
+                return;
         }
+
+        menu.resize();
+
+        xMenu = renderX + (renderWidth - menu.getWidth()) / 2;
+        yMenu = renderY + (renderHeight - menu.getHeight()) / 2;
+
+        if (xMenu < renderX + 20) {
+                xMenu = renderX + 20;
+        }
+
+        if (yMenu < renderY + 20) {
+                yMenu = renderY + 20;
+        }
+
+        menu.setX(xMenu);
+        menu.setY(yMenu);
+}
 
         public void mouseWheelMoved(int amount, int mouseX, int mouseY) {
                 if (menu == null || menu.getSmartMenu() == null) {

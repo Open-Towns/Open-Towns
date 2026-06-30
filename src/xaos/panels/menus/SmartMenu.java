@@ -94,6 +94,7 @@ public class SmartMenu implements Externalizable {
     private ArrayList<String> prerequisites;
     private ArrayList<ColorGL> prerequisitesColor;
 
+   
     public SmartMenu() {
         this(TYPE_NO_TYPE, null, null, null, null);
     }
