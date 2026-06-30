@@ -125,7 +125,6 @@ public final class MainMenuPanel implements Runnable {
                 imageTownsLogoHeight = textureLoading.getHeight();
 
                 setErrorToShow(null);
-                createMenu();
 
                 startingGame = 80;
                 startingGameColor = new ColorGL(new Color(255, 255, 255));
@@ -134,6 +133,7 @@ public final class MainMenuPanel implements Runnable {
                 settingSavegameName = false;
                 settingHotkey = 0;
                 settingNewServer = false;
+                createMenu();
                 new Thread(this).start();
 
                 if (TownsProperties.DEBUG_MODE) {
@@ -156,8 +156,6 @@ public final class MainMenuPanel implements Runnable {
                 menu.setHeight(MainFrame.MIN_HEIGHT - UtilFont.MAX_HEIGHT * 8);
                 menu.setSmartMenu(mainMenu);
 
-                
-
                 repositionMenu();
         }
 
@@ -171,8 +169,6 @@ public final class MainMenuPanel implements Runnable {
                         repositionMenu();
                 }
         }
-
-      
 
         public static SmartMenu createKeyboardMenu(int iFN, Color textColor, ColorGL borderColor) {
                 SmartMenu menuAux = new SmartMenu(
@@ -260,6 +256,7 @@ public final class MainMenuPanel implements Runnable {
         }
 
         public void render() {
+
                 GL11.glColor4f(1, 1, 1, 1);
 
                 int iMaxSize = renderWidth;
@@ -551,8 +548,15 @@ public final class MainMenuPanel implements Runnable {
                 }
 
                 if (!loadingGame && menu != null) {
+                        SmartMenu beforeMenu = menu.getSmartMenu();
+
                         menu.mousePressed(x - menu.getX(), y - menu.getY());
-                        repositionMenu();
+
+                        SmartMenu afterMenu = menu.getSmartMenu();
+
+                        if (beforeMenu != afterMenu) {
+                                repositionMenu();
+                        }
                 }
         }
 
@@ -576,8 +580,6 @@ public final class MainMenuPanel implements Runnable {
 
                 menu.setX(xMenu);
                 menu.setY(yMenu);
-
-                menu.resize();
         }
 
         public void mouseWheelMoved(int amount, int mouseX, int mouseY) {

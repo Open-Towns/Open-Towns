@@ -85,7 +85,7 @@ import xaos.zones.ZoneManager;
 import xaos.panels.UI.UIPanelInputHandler;
 import static xaos.panels.UI.UIPanelState.*;
 import static xaos.panels.UI.UIPanelInputHandler.*;
-import static xaos.panels.UI.UIPanel.*;
+
 
 public final class Game {
 

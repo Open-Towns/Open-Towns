@@ -40,7 +40,6 @@ import xaos.panels.CommandPanel;
 import xaos.panels.MainPanel;
 import xaos.panels.MessagesPanel;
 import xaos.panels.MiniMapPanel;
-import xaos.panels.UI.UIPanel;
 import xaos.panels.UI.UIPanelState;
 import xaos.panels.menus.SmartMenu;
 import xaos.stockpiles.Stockpile;
@@ -95,9 +94,7 @@ import xaos.zones.ZoneManager;
 import xaos.zones.ZoneManagerItem;
 import xaos.zones.ZonePersonal;
 import xaos.panels.UI.UIPanelInputHandler;
-import static xaos.panels.UI.UIPanelState.*;
-import static xaos.panels.UI.UIPanelInputHandler.*;
-import static xaos.panels.UI.UIPanel.*;
+
 
 
 public final class World implements Externalizable {
@@ -1639,16 +1636,16 @@ public final class World implements Externalizable {
 		// setReadyForNextTurnTasks (true);
 		// }
 		// Demo version, codificado de forma rara para evitar que se toque con un editor hexadecimal o así
-		if (TownsProperties.DEMO_VERSION && (date.getDay () > maxDemoDays || date.getMonth () > 1 || date.getYear () > 1)) {
-			if (Game.getCurrentState () == Game.STATE_CREATING_TASK) {
-				Game.deleteCurrentTask ();
-			}
-			UtilsAL.stopMusic ();
-			UtilsAL.stopFX ();
-			UtilsAL.play (UtilsAL.SOURCE_MUSIC_MAINMENU);
-			Game.exitToMainMenu ();
-			return;
-		}
+		// if (TownsProperties.DEMO_VERSION && (date.getDay () > maxDemoDays || date.getMonth () > 1 || date.getYear () > 1)) {
+		// 	if (Game.getCurrentState () == Game.STATE_CREATING_TASK) {
+		// 		Game.deleteCurrentTask ();
+		// 	}
+		// 	UtilsAL.stopMusic ();
+		// 	UtilsAL.stopFX ();
+		// 	UtilsAL.play (UtilsAL.SOURCE_MUSIC_MAINMENU);
+		// 	Game.exitToMainMenu ();
+		// 	return;
+		// }
 
 		// Fecha
 		turn++;

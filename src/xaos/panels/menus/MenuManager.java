@@ -302,13 +302,15 @@ public final class MenuManager {
             return SmartMenu.TYPE_KEYBOARD;
         }
 
-        // TODO: create proper toggle and slider types in SmartMenu.
         if ("toggle".equals(type)) {
             return SmartMenu.TYPE_TOGGLE;
         }
 
         if ("slider".equals(type)) {
             return SmartMenu.TYPE_SLIDER;
+        }
+        if ("cycle".equals(type)) {
+            return SmartMenu.TYPE_CYCLE;
         }
 
         throw new IllegalArgumentException("Unknown menu item type: " + type);

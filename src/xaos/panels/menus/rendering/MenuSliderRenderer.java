@@ -9,9 +9,8 @@ import xaos.panels.CommandPanel;
 import xaos.panels.menus.SmartMenu;
 import xaos.utils.ColorGL;
 import xaos.utils.UtilFont;
-import xaos.utils.Utils;
 import xaos.utils.UtilsGL;
-import xaos.panels.CommandPanel.*;
+
 
 public final class MenuSliderRenderer {
 

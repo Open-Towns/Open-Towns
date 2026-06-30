@@ -58,7 +58,7 @@
     />
     <item
         id="main.options.game.autosave_days"
-        type="toggle"
+        type="cycle"
         titleKey="MainMenuPanel.31"
         command="COMMAND_MM_SWITCH_AUTOSAVE_DAYS"
         dynamic="true" />
@@ -74,7 +74,7 @@
         dynamic="true" /> -->
     <item
         id="main.options.game.sieges"
-        type="toggle"
+        type="cycle"
         titleKey="MainMenuPanel.32"
         command="COMMAND_MM_SWITCH_SIEGES"
         dynamic="true" />

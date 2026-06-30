@@ -21,6 +21,8 @@ public final class SmartMenuLayout {
             case SmartMenu.TYPE_SLIDER:
             case SmartMenu.TYPE_ITEM:
             case SmartMenu.TYPE_KEYBOARD:
+            case SmartMenu.TYPE_CYCLE:
+
                 return UtilFont.MAX_HEIGHT + 30;
 
             case SmartMenu.TYPE_HEADING:
@@ -82,6 +84,9 @@ public final class SmartMenuLayout {
             }
 
             if (item.getType() == SmartMenu.TYPE_SLIDER) {
+                itemWidth += 210;
+            }
+            if (item.getType() == SmartMenu.TYPE_CYCLE) {
                 itemWidth += 210;
             }
 

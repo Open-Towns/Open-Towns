@@ -303,16 +303,9 @@ private void clampScrollY() {
         return;
     }
 
-    /*
-     * Height of the actual menu rows/items.
-     * This is the thing that scrolls.
-     */
     int menuContentHeight = smartMenu.getContentHeight() + 8;
 
-    /*
-     * Height of the full outer window/panel.
-     * This includes the decorative panel padding.
-     */
+   
     int fullPanelHeight = menuContentHeight;
 
     if (!smartMenu.isTrasparency()) {
