@@ -1195,14 +1195,15 @@ public final class Game {
 					getCurrentContextMenu().mouseWheelMoved(mouseWheelMoved);
 					continue;
 				}
+
+				if (handleWorldZoomMouseWheel()) {
+					return;
+				}
 				
 				if (mouseWheelMoved > 0) {
 					world.keyPressed(Keyboard.KEY_NONE, UtilsKeyboard.FN_LEVEL_UP);
 				} else if (mouseWheelMoved < 0) {
 					world.keyPressed(Keyboard.KEY_NONE, UtilsKeyboard.FN_LEVEL_DOWN);
-				}
-				if (handleWorldZoomMouseWheel()) {
-					return;
 				}
 			}
 		}
