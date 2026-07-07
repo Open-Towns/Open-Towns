@@ -5,8 +5,7 @@ import xaos.commands.CommandDispatcher;
 
 import xaos.panels.menus.ContextMenu;
 
-import xaos.panels.menus.MenuDefinition;
-import xaos.panels.menus.MenuManager;
+
 import xaos.panels.menus.SmartMenu;
 
 import xaos.tiles.Tile;

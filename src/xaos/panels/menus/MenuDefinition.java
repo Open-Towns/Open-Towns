@@ -8,12 +8,11 @@ public final class MenuDefinition {
     private final String id;
     private final String titleKey;
     private final List<MenuItemDefinition> items = new ArrayList<>();
-    private final boolean transparent;
+    private final boolean transparent = true;
 
-    public MenuDefinition(String id, String titleKey, boolean transparent) {
+    public MenuDefinition(String id, String titleKey) {
         this.id = id;
         this.titleKey = titleKey;
-        this.transparent = transparent;
     }
 
     public String getId() {

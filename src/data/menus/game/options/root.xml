@@ -1,4 +1,9 @@
 <menu id="game.options.root" titleKey="MainMenuPanel.4">
+     <item
+        id="game.options.graphics.spacer"
+        type="spacer"
+    />
+
     <item
         id="game.options.graphics"
         type="submenu"

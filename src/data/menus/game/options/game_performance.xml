@@ -1,11 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 
 <menu id="game.options.performance.root" titleKey="MainMenuPanel.8">
-    <item
-        id="game.options.performance.title"
-        type="text"
-        titleKey="MainMenuPanel.8"
-    />
+   
      <item
         id="game.options.performance.spacer"
         type="spacer"
@@ -42,7 +38,7 @@
     />
     <item
         id="game.options.performance.select"
-        type="toggle"
+        type="text"
         titleKey="MainMenuPanel.63"
         command="COMMAND_MM_SWITCH_PATHFINDING_LEVEL"
         dynamic="true"

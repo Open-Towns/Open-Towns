@@ -12,7 +12,6 @@ import xaos.Towns;
 import xaos.TownsProperties;
 import xaos.main.Game;
 import xaos.main.World;
-import xaos.panels.UI.UIPanel;
 import xaos.tiles.entities.living.LivingEntity;
 import xaos.utils.ColorGL;
 import xaos.utils.Log;
@@ -22,8 +21,7 @@ import xaos.utils.TextureData;
 import xaos.utils.UtilFont;
 import xaos.utils.UtilsGL;
 import static xaos.panels.UI.UIPanelState.*;
-import static xaos.panels.UI.UIPanelInputHandler.*;
-import static xaos.panels.UI.UIPanel.*;
+
 
 public final class MessagesPanel {
 

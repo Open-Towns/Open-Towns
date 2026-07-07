@@ -1,12 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 
-<menu id="game.options.graphics.root" titleKey="MainMenuPanel.4">
-    <item
-        id="game.options.graphics.title"
-        type="text"
-        titleKey="MainMenuPanel.4"
-
-       />
+<menu id="game.options.graphics.root" titleKey="MainMenuPanel.16">
+  
     <item
         id="game.options.graphics.spacer1"
         type="spacer"
@@ -18,7 +13,7 @@
         command="COMMAND_MM_TOGGLE_FULL_SCREEN"
 
        />
-       <item
+       <!-- <item
         id="game.options.graphics.spacer2"
         type="spacer"
     />
@@ -48,9 +43,13 @@
         id="game.options.graphics.UI_scale"
         type="slider"
         titleKey="MainMenuPanel.85"
-        command="COMMAND_MM_WORLD_ZOOM"
+        command="COMMAND_MM_WORLD_ZOOM" -->
 
-       />
+       <!-- /> -->
+         <item
+        id="game.options.graphics.spacer6"
+        type="spacer"
+    />
        <item
         id="game.options.graphics.back"
         type="back" />

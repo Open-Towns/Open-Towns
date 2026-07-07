@@ -12,8 +12,6 @@ import java.util.Locale;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import xaos.platform.lwjgl3.input.Mouse;
-import org.lwjgl.opengl.GL11;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -25,8 +23,10 @@ import xaos.actions.ActionManagerItem;
 import xaos.actions.QueueItem;
 import xaos.main.Game;
 import xaos.panels.CommandPanel;
-import xaos.panels.MainPanel;
-import xaos.panels.UI.UIPanelState;
+
+import xaos.panels.menus.rendering.MenuSliderRenderer;
+import xaos.panels.menus.rendering.SmartMenuLayout;
+import xaos.panels.menus.rendering.SmartMenuRenderer;
 import xaos.tiles.Tile;
 import xaos.tiles.entities.buildings.BuildingManager;
 import xaos.tiles.entities.buildings.BuildingManagerItem;
@@ -39,10 +39,8 @@ import xaos.utils.ColorGL;
 import xaos.utils.Log;
 import xaos.utils.Messages;
 import xaos.utils.Point3D;
-import xaos.utils.UtilFont;
 import xaos.utils.Utils;
 import xaos.utils.UtilsAL;
-import xaos.utils.UtilsGL;
 import xaos.utils.UtilsIniHeaders;
 import xaos.zones.ZoneManager;
 import xaos.zones.ZoneManagerItem;
@@ -51,14 +49,17 @@ public class SmartMenu implements Externalizable {
 
     private static final long serialVersionUID = -2274612491197616852L;
 
-    private static Tile RED_TILE = new Tile("ui_red"); //$NON-NLS-1$
-
     public final static int TYPE_NO_TYPE = -1;
     public final static int TYPE_TEXT = 0;
     public final static int TYPE_MENU = 1;
     public final static int TYPE_ITEM = 2;
-    public final static int TYPE_SLIDER = 3;
-    public final static int TYPE_TOGGLE = 4;
+    public final static int TYPE_SPACER = 3;
+    public static final int TYPE_CYCLE = 4;
+    public static final int TYPE_BUTTON = 5;
+    public static final int TYPE_TOGGLE = 6;
+    public static final int TYPE_SLIDER = 7;
+    public static final int TYPE_HEADING = 8;
+    public static final int TYPE_KEYBOARD = 9;
 
     public final static int ICON_TYPE_UI = 0;
     public final static int ICON_TYPE_ITEM = 1;
@@ -84,6 +85,11 @@ public class SmartMenu implements Externalizable {
     private ColorGL borderColor; // Si es distinto de null pinta un borde a los textos del color indicado
     private Tile icon; // Icono a usar en los menus
     private int iconType; // Tipo de icono (ui, items, ...)
+
+    private String stateKey;
+    private float sliderMin;
+    private float sliderMax;
+    private float sliderStep;
 
     private ArrayList<String> prerequisites;
     private ArrayList<ColorGL> prerequisitesColor;
@@ -115,7 +121,12 @@ public class SmartMenu implements Externalizable {
         this.parameter = parameter;
         this.parameter2 = parameter2;
         this.directCoordinates = directCoordinates;
-        this.color = new ColorGL(color);
+
+        if (color != null) {
+            this.color = new ColorGL(color);
+        } else {
+            this.color = new ColorGL(Color.WHITE);
+        }
     }
 
     public void refreshTransients() {
@@ -299,91 +310,202 @@ public class SmartMenu implements Externalizable {
         return prerequisitesColor;
     }
 
+    public String getStateKey() {
+        return stateKey;
+    }
+
+    public void setStateKey(String stateKey) {
+        this.stateKey = stateKey;
+    }
+
+    public float getSliderMin() {
+        return sliderMin;
+    }
+
+    public void setSliderMin(float sliderMin) {
+        this.sliderMin = sliderMin;
+    }
+
+    public float getSliderMax() {
+        return sliderMax;
+    }
+
+    public void setSliderMax(float sliderMax) {
+        this.sliderMax = sliderMax;
+    }
+
+    public float getSliderStep() {
+        return sliderStep;
+    }
+
+    public void setSliderStep(float sliderStep) {
+        this.sliderStep = sliderStep;
+    }
+
     public void render(int x, int y, int width, int height, boolean isContext) {
-        if (!isTrasparency()) {
-            GL11.glColor4f(1, 1, 1, 1);
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, UIPanelState.tileTooltipBackground.getTextureID());
-            UtilsGL.glBegin(GL11.GL_QUADS);
-            UtilsGL.drawTexture(x, y, x + width, y + height, UIPanelState.tileTooltipBackground.getTileSetTexX0(),
-                    UIPanelState.tileTooltipBackground.getTileSetTexY0(),
-                    UIPanelState.tileTooltipBackground.getTileSetTexX1(),
-                    UIPanelState.tileTooltipBackground.getTileSetTexY1());
-            UtilsGL.glEnd();
+        SmartMenuRenderer.render(this, x, y, width, height, isContext);
+    }
+
+    public int getContentHeight() {
+        return SmartMenuLayout.getContentHeight(this);
+    }
+
+    public int getRecommendedWidth() {
+        return SmartMenuLayout.getRecommendedWidth(this);
+    }
+
+    public SmartMenu mousePressed(int x, int y) {
+        int iMenuIndex = SmartMenuLayout.getItemIndexAtY(this, y);
+
+        if (iMenuIndex < 0 || iMenuIndex >= getItems().size()) {
+            return this;
         }
 
-        // Rectángulito rojo en el item marcado (excepto TYPE_TEXT)
-        int iY;
-        int mouseX = Mouse.getX();
-        int mouseY = UtilsGL.getHeight() - Mouse.getY() - 1;
-        int itemIndex = -1;
-        if (isContext) {
-            if (mouseX >= x && mouseX < (x + width) && mouseY >= y
-                    && mouseY < (y + getItems().size() * UtilFont.MAX_HEIGHT)) {
-                itemIndex = (mouseY - y) / UtilFont.MAX_HEIGHT;
-                if (getItems().get(itemIndex).getType() != TYPE_TEXT) {
-                    iY = y + itemIndex * UtilFont.MAX_HEIGHT + 1;
-                    GL11.glBindTexture(GL11.GL_TEXTURE_2D, RED_TILE.getTextureID());
-                    GL11.glColor3f(1, 0, 0);
-                    UtilsGL.glBegin(GL11.GL_QUADS);
-                    UtilsGL.drawTexture(x, iY, x + width, iY + UtilFont.MAX_HEIGHT, RED_TILE.getTileSetTexX0(),
-                            RED_TILE.getTileSetTexY0(), RED_TILE.getTileSetTexX1(), RED_TILE.getTileSetTexY1());
-                    UtilsGL.glEnd();
+        SmartMenu menu = getItems().get(iMenuIndex);
+
+        if (menu.getType() == SmartMenu.TYPE_TEXT || menu.getType() == SmartMenu.TYPE_HEADING) {
+            return this;
+        }
+
+        UtilsAL.play(UtilsAL.SOURCE_FX_CLICK);
+
+        switch (menu.getType())
+
+        {
+            case SmartMenu.TYPE_MENU:
+                return menu;
+
+            case SmartMenu.TYPE_BUTTON:
+                if (menu.getItems() != null && menu.getItems().size() > 0) {
+                    return menu;
                 }
-            }
+                return handleActionClick(menu);
+
+            case SmartMenu.TYPE_ITEM:
+                return handleActionClick(menu);
+
+            case SmartMenu.TYPE_TOGGLE:
+                return handleToggleClick(menu);
+
+            case SmartMenu.TYPE_SLIDER:
+                return handleSliderClick(menu, x);
+
+            case SmartMenu.TYPE_CYCLE:
+                return handleCycleClick(menu);
+
+            case SmartMenu.TYPE_KEYBOARD:
+                return handleActionClick(menu);
+
+            default:
+                return this;
+        }
+    }
+
+    private SmartMenu handleCycleClick(SmartMenu item) {
+        if (item == null || item.getCommand() == null) {
+            return this;
         }
 
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, Game.TEXTURE_FONT_ID);
-        GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
+        CommandPanel.executeCommand(
+                item.getCommand(),
+                item.getParameter(),
+                item.getParameter2(),
+                item.getDirectCoordinates(),
+                null,
+                0);
 
-        // Menú
-        UtilsGL.glBegin(GL11.GL_QUADS);
-        String sTexto;
-        SmartMenu item;
-        for (int i = 0; i < getItems().size(); i++) {
-            item = getItems().get(i);
-            iY = y + (i * UtilFont.MAX_HEIGHT) + 1;
-            if (item.isDynamic()) {
-                sTexto = Utils.getDynamicString(item.getName());
-            } else {
-                sTexto = item.getName();
-            }
+        return this;
+    }
 
-            ColorGL itemColor = item.getColor();
+    public SmartMenu mousePressed(int x, int y, int menuWidth) {
+        int iMenuIndex = SmartMenuLayout.getItemIndexAtY(this, y);
 
-            if (itemColor == null) {
-                if (item.getType() == TYPE_MENU) {
-                    itemColor = COLORGL_SUBMENU;
-                } else {
-                    itemColor = new ColorGL((Color) null);
-                }
-            }
-
-            if (item.getBorderColor() != null) {
-                UtilsGL.drawString(sTexto, x, iY - 1, item.getBorderColor());
-                UtilsGL.drawString(sTexto, x + 1, iY - 1, item.getBorderColor());
-                UtilsGL.drawString(sTexto, x + 2, iY - 1, item.getBorderColor());
-                UtilsGL.drawString(sTexto, x, iY, item.getBorderColor());
-                UtilsGL.drawString(sTexto, x + 2, iY, item.getBorderColor());
-                UtilsGL.drawString(sTexto, x, iY + 1, item.getBorderColor());
-                UtilsGL.drawString(sTexto, x + 1, iY + 1, item.getBorderColor());
-                UtilsGL.drawString(sTexto, x + 2, iY + 1, item.getBorderColor());
-
-                UtilsGL.drawString(sTexto, x + 1, iY, itemColor);
-            } else {
-                UtilsGL.drawString(sTexto, x, iY, itemColor);
-            }
-
+        if (iMenuIndex < 0 || iMenuIndex >= getItems().size()) {
+            return this;
         }
-        UtilsGL.glEnd();
 
-        // Tooltip
-        if (itemIndex != -1) {
-            SmartMenu menuItem = getItems().get(itemIndex);
-            if (menuItem.getPrerequisites() != null && menuItem.getPrerequisites().size() > 0) {
-                MainPanel.renderMessages(mouseX, mouseY + Tile.TERRAIN_ICON_HEIGHT / 2, UtilsGL.getWidth(),
-                        UtilsGL.getHeight(), Tile.TERRAIN_ICON_WIDTH / 2, menuItem.getPrerequisites(),
-                        menuItem.getPrerequisitesColor());
-            }
+        SmartMenu menu = getItems().get(iMenuIndex);
+
+        if (menu.getType() == SmartMenu.TYPE_SLIDER) {
+            return handleSliderClick(menu, x, menuWidth);
+        }
+
+        return mousePressed(x, y);
+    }
+
+    public String getEffectiveStateKey() {
+        if (stateKey != null && stateKey.trim().length() > 0) {
+            return stateKey;
+        }
+
+        return command;
+    }
+
+    private SmartMenu handleSliderClick(SmartMenu slider, int mouseX, int rowWidth) {
+        if (slider == null) {
+            return this;
+        }
+
+        int rowX = 2;
+        int rowActualWidth = rowWidth - 4;
+
+        int sliderX = rowX + rowActualWidth
+                - MenuSliderRenderer.SLIDER_WIDTH
+                - MenuSliderRenderer.SLIDER_RIGHT_PADDING;
+
+        int trackX = sliderX;
+        int trackWidth = MenuSliderRenderer.SLIDER_WIDTH
+                - MenuSliderRenderer.VALUE_TEXT_WIDTH
+                - MenuSliderRenderer.VALUE_TEXT_GAP;
+
+        if (mouseX < trackX) {
+            mouseX = trackX;
+        }
+
+        if (mouseX > trackX + trackWidth) {
+            mouseX = trackX + trackWidth;
+        }
+
+        int value = Math.round(((mouseX - trackX) / (float) trackWidth) * 100f);
+
+        if (value < 0) {
+            value = 0;
+        }
+
+        if (value > 100) {
+            value = 100;
+        }
+
+        applySliderValue(slider, value);
+
+        return this;
+    }
+
+    private void applySliderValue(SmartMenu slider, int value) {
+        if (slider.getCommand() == null) {
+            return;
+        }
+
+        int gameVolume = Math.round(value / 10f);
+
+        if (gameVolume < 0) {
+            gameVolume = 0;
+        }
+
+        if (gameVolume > 10) {
+            gameVolume = 10;
+        }
+
+        if (slider.getCommand().equals(CommandPanel.COMMAND_MM_ADD_MUSIC_VOLUME)) {
+            Game.setVolumeMusic(gameVolume);
+            Utils.saveOptions();
+            return;
+        }
+
+        if (slider.getCommand().equals(CommandPanel.COMMAND_MM_ADD_FX_VOLUME)) {
+            Game.setVolumeFX(gameVolume);
+            Utils.saveOptions();
+            return;
         }
     }
 
@@ -988,51 +1110,82 @@ public class SmartMenu implements Externalizable {
         }
     }
 
-    /**
-     * Comprueba si se ha clicado en un submenu o en un item En el primer caso
-     * devuelve dicho submenú En el segundo caso ejecuta la acción
-     * correspondiente y se devuelve él mismo
-     *
-     * @param x X Relativa al menú
-     * @param y Y relativa al menú
-     * @return
-     */
-    public SmartMenu mousePressed(int x, int y) {
-        // Miramos donde ha clicado
-        int iMenuIndex = y / UtilFont.MAX_HEIGHT; // Posición donde ha clicado
-
-        if (iMenuIndex >= getItems().size() || y < 0) {
+    private SmartMenu handleActionClick(SmartMenu menu) {
+        if (menu.getCommand() == null) {
             return this;
         }
 
-        UtilsAL.play(UtilsAL.SOURCE_FX_CLICK);
+        if (menu.getCommand().equals(CommandPanel.COMMAND_BACK)) {
+            return getParent();
+        }
 
-        SmartMenu menu = getItems().get(iMenuIndex);
-        if (menu.getType() == SmartMenu.TYPE_MENU) {
-            return menu;
-        } else if (menu.getType() == SmartMenu.TYPE_ITEM) {
-            if (menu.getCommand().equals(CommandPanel.COMMAND_BACK)) {
-                return getParent();
-            } else if (menu.getCommand().equals(CommandPanel.COMMAND_CLOSE_CONTEXT)) {
-                Game.deleteCurrentContextMenu();
-                return null;
-            } else {
-                CommandPanel.executeCommand(menu.getCommand(), menu.getParameter(), menu.getParameter2(),
-                        menu.getDirectCoordinates(), menu.getIcon(), menu.getIconType());
-                if (Game.getCurrentState() == Game.STATE_SHOWING_CONTEXT_MENU
-                        && !menu.getCommand().equals(CommandPanel.COMMAND_EXIT_TO_MAIN_MENU)) {
-                    if (menu.isMaintainOpen()) {
-                        return this;
-                    }
-                    Game.deleteCurrentContextMenu();
-                    return null;
-                    // } else if (menu.getCommand ().equals (CommandPanel.COMMAND_SAVE_OPTIONS)) {
-                    // return getParent ();
-                }
+        if (menu.getCommand().equals(CommandPanel.COMMAND_CLOSE_CONTEXT)) {
+            Game.deleteCurrentContextMenu();
+            return null;
+        }
+
+        CommandPanel.executeCommand(
+                menu.getCommand(),
+                menu.getParameter(),
+                menu.getParameter2(),
+                menu.getDirectCoordinates(),
+                menu.getIcon(),
+                menu.getIconType());
+
+        if (Game.getCurrentState() == Game.STATE_SHOWING_CONTEXT_MENU
+                && !menu.getCommand().equals(CommandPanel.COMMAND_EXIT_TO_MAIN_MENU)) {
+            if (menu.isMaintainOpen()) {
+                return this;
             }
+
+            Game.deleteCurrentContextMenu();
+            return null;
         }
 
         return this;
+    }
+
+    private SmartMenu handleToggleClick(SmartMenu menu) {
+        if (menu.getCommand() == null) {
+            return this;
+        }
+
+        CommandPanel.executeCommand(
+                menu.getCommand(),
+                menu.getParameter(),
+                menu.getParameter2(),
+                menu.getDirectCoordinates(),
+                menu.getIcon(),
+                menu.getIconType());
+
+        return this;
+    }
+
+    private SmartMenu handleSliderClick(SmartMenu menu, int mouseX) {
+        if (menu.getCommand() == null) {
+            return this;
+        }
+
+        CommandPanel.executeCommand(
+                menu.getCommand(),
+                menu.getParameter(),
+                menu.getParameter2(),
+                menu.getDirectCoordinates(),
+                menu.getIcon(),
+                menu.getIconType());
+
+        return this;
+    }
+
+    public void renderScrollable(
+            int x,
+            int y,
+            int width,
+            int height,
+            int scrollY,
+            boolean isContext) {
+
+        SmartMenuRenderer.renderScrollable(this, x, y, width, height, scrollY, isContext);
     }
 
     /**
@@ -1102,6 +1255,10 @@ public class SmartMenu implements Externalizable {
         iconType = in.readInt();
         prerequisites = (ArrayList<String>) in.readObject();
         prerequisitesColor = (ArrayList<ColorGL>) in.readObject();
+        stateKey = (String) in.readObject();
+        sliderMin = in.readFloat();
+        sliderMax = in.readFloat();
+        sliderStep = in.readFloat();
     }
 
     public void writeExternal(ObjectOutput out) throws IOException {
@@ -1122,5 +1279,9 @@ public class SmartMenu implements Externalizable {
         out.writeInt(iconType);
         out.writeObject(prerequisites);
         out.writeObject(prerequisitesColor);
+        out.writeObject(stateKey);
+        out.writeFloat(sliderMin);
+        out.writeFloat(sliderMax);
+        out.writeFloat(sliderStep);
     }
 }
