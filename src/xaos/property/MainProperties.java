@@ -32,6 +32,7 @@ public class MainProperties {
     public static Property<Boolean> MOUSE_SCROLL = new Property<Boolean>(PropertyFile.PROPERTY_FILE_MAIN, "MOUSE_SCROLL", BooleanPropertyWrapper.INSTANCE);
     public static Property<Boolean> MOUSE_SCROLL_EARS = new Property<Boolean>(PropertyFile.PROPERTY_FILE_MAIN, "MOUSE_SCROLL_EARS", BooleanPropertyWrapper.INSTANCE);
     public static Property<Boolean> MOUSE_2D_CUBES = new Property<Boolean>(PropertyFile.PROPERTY_FILE_MAIN, "MOUSE_2D_CUBES", BooleanPropertyWrapper.INSTANCE);
+    public static Property<Boolean> ZOOM_ON_CURSOR = new Property<Boolean>(PropertyFile.PROPERTY_FILE_MAIN, "ZOOM_ON_CURSOR", BooleanPropertyWrapper.INSTANCE);
     public static Property<Boolean> DISABLED_ITEMS = new Property<Boolean>(PropertyFile.PROPERTY_FILE_MAIN, "DISABLED_ITEMS", BooleanPropertyWrapper.INSTANCE);
     public static Property<Boolean> DISABLED_GODS = new Property<Boolean>(PropertyFile.PROPERTY_FILE_MAIN, "DISABLED_GODS", BooleanPropertyWrapper.INSTANCE);
     public static Property<Boolean> PAUSE_START = new Property<Boolean>(PropertyFile.PROPERTY_FILE_MAIN, "PAUSE_START", BooleanPropertyWrapper.INSTANCE);

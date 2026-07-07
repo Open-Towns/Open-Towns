@@ -115,6 +115,7 @@ public final class MainPanel {
 
 	private static int worldZoomIndex = 9;
 	private static float worldZoom = WORLD_ZOOM_VALUES[worldZoomIndex];
+	private static boolean zoomOnCursor = true;
 
 	public static float getWorldZoom() {
 		return worldZoom;
@@ -133,17 +134,85 @@ public final class MainPanel {
 	}
 
 	public static void zoomWorldIn() {
-		if (worldZoomIndex < WORLD_ZOOM_VALUES.length - 1) {
-			worldZoomIndex++;
-			worldZoom = WORLD_ZOOM_VALUES[worldZoomIndex];
-		}
+		zoomWorldIn(0, 0);
 	}
 
 	public static void zoomWorldOut() {
+		zoomWorldOut(0, 0);
+	}
+
+	public static void zoomWorldIn(int mouseX, int mouseY) {
+		zoomWorldIn(mouseX, mouseY, zoomOnCursor);
+	}
+
+	public static void zoomWorldOut(int mouseX, int mouseY) {
+		zoomWorldOut(mouseX, mouseY, zoomOnCursor);
+	}
+
+	public static boolean isZoomOnCursor() {
+		return zoomOnCursor;
+	}
+
+	public static void setZoomOnCursor(boolean zoomOnCursor) {
+		MainPanel.zoomOnCursor = zoomOnCursor;
+	}
+
+	private static void zoomWorldIn(int mouseX, int mouseY, boolean adjustCamera) {
+		if (worldZoomIndex < WORLD_ZOOM_VALUES.length - 1) {
+			float oldZoom = worldZoom;
+
+			worldZoomIndex++;
+			worldZoom = WORLD_ZOOM_VALUES[worldZoomIndex];
+
+			if (adjustCamera) {
+				adjustCameraForZoom(mouseX, mouseY, oldZoom);
+			}
+		}
+	}
+
+	private static void zoomWorldOut(int mouseX, int mouseY, boolean adjustCamera) {
 		if (worldZoomIndex > 0) {
+			float oldZoom = worldZoom;
+
 			worldZoomIndex--;
 			worldZoom = WORLD_ZOOM_VALUES[worldZoomIndex];
+
+			if (adjustCamera) {
+				adjustCameraForZoom(mouseX, mouseY, oldZoom);
+			}
 		}
+	}
+
+	private static void adjustCameraForZoom(int mouseX, int mouseY, float oldZoom) {
+		int xView = Game.getWorld().getView().x;
+		int yView = Game.getWorld().getView().y;
+
+		float oldTw = Math.round((Tile.TERRAIN_ICON_WIDTH / 2f) * oldZoom);
+		float oldTh = Math.round((Tile.TERRAIN_ICON_HEIGHT / 2f) * oldZoom);
+		float newTw = Math.round((Tile.TERRAIN_ICON_WIDTH / 2f) * worldZoom);
+		float newTh = Math.round((Tile.TERRAIN_ICON_HEIGHT / 2f) * worldZoom);
+
+		int offsetX = mouseX - xCentro;
+		int offsetY = mouseY - yCentro;
+
+		float invOldTw = (oldTw != 0) ? 1f / oldTw : 0;
+		float invOldTh = (oldTh != 0) ? 1f / oldTh : 0;
+		float invNewTw = (newTw != 0) ? 1f / newTw : 0;
+		float invNewTh = (newTh != 0) ? 1f / newTh : 0;
+
+		float u = (offsetX * invOldTw - offsetY * invOldTh) / 2f;
+		float v = (offsetX * invOldTw + offsetY * invOldTh) / 2f;
+
+		float uNew = (offsetX * invNewTw - offsetY * invNewTh) / 2f;
+		float vNew = (offsetX * invNewTw + offsetY * invNewTh) / 2f;
+
+		float deltaXView = u - uNew;
+		float deltaYView = v - vNew;
+
+		int newXView = Math.round(xView + deltaXView);
+		int newYView = Math.round(yView + deltaYView);
+
+		Game.getWorld().setView(newXView, newYView);
 	}
 
 	public static void cycleWorldZoom() {
