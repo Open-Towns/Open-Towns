@@ -109,14 +109,11 @@ public final class MainPanel {
 
 	// LOCKED WALLCONNECTOR
 	private static Tile lockedConnectorTile = new Tile("lockedconnector"); //$NON-NLS-1$
-	private static final float WORLD_ZOOM_MIN = 0.1f;
-	private static final float WORLD_ZOOM_MAX = 3.0f;
-	private static final float WORLD_ZOOM_STEP = 0.1f;
 	private static final float[] WORLD_ZOOM_VALUES = {
-			0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 1.75f, 2.0f
+			1/24f, 1/16f, 1/12f, 1/8f, 1/6f, 1/4f, 1/3f, 1/2f, 3/4f, 1.0f, 1.25f, 1.5f, 1.75f, 2.0f, 3.0f, 4.0f, 6.0f, 8.0f, 12.0f, 16.0f, 24.0f
 	};
 
-	private static int worldZoomIndex = 2;
+	private static int worldZoomIndex = 9;
 	private static float worldZoom = WORLD_ZOOM_VALUES[worldZoomIndex];
 
 	public static float getWorldZoom() {
@@ -124,10 +121,10 @@ public final class MainPanel {
 	}
 
 	public static void setWorldZoom(float zoom) {
-		if (zoom < 0.5f) {
-			worldZoom = 0.5f;
-		} else if (zoom > 2.0f) {
-			worldZoom = 2.0f;
+		if (zoom < WORLD_ZOOM_VALUES[0]) {
+			worldZoom = WORLD_ZOOM_VALUES[0];
+		} else if (zoom > WORLD_ZOOM_VALUES[WORLD_ZOOM_VALUES.length -1]) {
+			worldZoom = WORLD_ZOOM_VALUES[WORLD_ZOOM_VALUES.length -1];
 		} else {
 			worldZoom = zoom;
 		}
