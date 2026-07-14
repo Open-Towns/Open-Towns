@@ -1,11 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <menu id="main.mod_manager.root" titleKey="MainMenuPanel.58">
-    <item
-        id="title"
-        type="text"
-        titleKey="MainMenuPanel.58" 
-        textColor ="black"
-        />
+  
 
     <item
         id="main.mod_manager.spacer1"

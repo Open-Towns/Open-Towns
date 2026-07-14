@@ -2,10 +2,6 @@
 
 <menu id="main.options.controls.root" titleKey="MainMenuPanel.41">
     <item
-        id="main.options.controls.title"
-        type="text"
-        titleKey="MainMenuPanel.41"
-    /><item
         id="main.options.controls.spacer"
         type="spacer"
     />

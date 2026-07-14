@@ -1,5 +1,9 @@
  <menu id="game.just_quit.root" titleKey="CommandPanel.1">
     <item
+        id="game.options.graphics.spacer"
+        type="spacer"
+    />
+    <item
         id="game.just_quit.exit_without_save"
         type="item"
         titleKey="CommandPanel.3"
@@ -17,11 +21,10 @@
         id="game.options.graphics.spacer"
         type="spacer"
     />
-       <item
-        id="game.just_quit.bury"
-        type="item"
-        titleKey="CommandPanel.5"
-        command="COMMAND_BACK"/>
+        <item
+        id="game.options.game.back"
+        type="back"
+    />
  </menu>
  
  

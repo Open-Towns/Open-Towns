@@ -1,7 +1,13 @@
-<menu id="game.root" titleKey="MainMenuPanel.4" >
+<menu id="game.root" titleKey="MainMenuPanel.90" >
+
+    <item
+        id="game.spacer"
+        type="spacer"
+        condition="debug_mode"
+    />
     <item
         id="game.save_no_misson_DEBUG"
-        type="item"
+        type="button"
         titleKey="CommandPanel.10"
         command="COMMAND_SAVE_NO_MISSIONDATA"
         condition="debug_mode"
@@ -13,7 +19,7 @@
     />
     <item
         id="game.save"
-        type="item"
+        type="button"
         titleKey="CommandPanel.4"
         command="COMMAND_SAVE"
     />
@@ -23,7 +29,7 @@
     />
     <item
         id="game.save_and_exit_main_menu"
-        type="item"
+        type="button"
         titleKey="CommandPanel.0"
         command="COMMAND_EXIT_TO_MAIN_MENU_SAVE"
     />
@@ -54,7 +60,7 @@
     />
     <item
         id="game.save_and_exit_main_menu"
-        type="item"
+        type="button"
         titleKey="CommandPanel.0"
         command="COMMAND_EXIT_TO_MAIN_MENU_SAVE"
     />

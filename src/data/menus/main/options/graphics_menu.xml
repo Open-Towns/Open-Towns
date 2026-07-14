@@ -1,12 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 
 <menu id="main.options.graphics.root" titleKey="MainMenuPanel.16">
-    <item
-        id="main.options.graphics.title"
-        type="text"
-        titleKey="MainMenuPanel.16"
-
-    />
+    
     <item
         id="main.options.graphics.spacer"
         type="spacer"
@@ -20,43 +15,7 @@
         
         />
         <item
-        id="main.options.graphics.spacer2"
-        type="spacer"
-        />
-
-    <item
-        id="main.options.graphics.ui_scale"
-        type="slider"
-        titleKey="MainMenuPanel.83"
-        command="COMMAND_MM_UI_SCALE"
-        maintainOpen="true"
-        />
-    <item
-        id="main.options.graphics.spacer3"
-        type="spacer"
-        />
-
-    <item
-        id="main.options.graphics.tooltip_scale"
-        type="slider"
-        titleKey="MainMenuPanel.84"
-        command="COMMAND_MM_TOOLTIP_SCALE"
-        maintainOpen="true"
-        />
-    <item
-        id="main.options.graphics.spacer4"
-        type="spacer"
-        />
-
-    <item
-        id="main.options.graphics.world_zoom"
-        type="slider"
-        titleKey="MainMenuPanel.85"
-        command="COMMAND_MM_WORLD_ZOOM"
-        maintainOpen="true"
-        />
-    <item
-        id="main.options.graphics.spacer5"
+        id="main.options.graphics.spacer"
         type="spacer"
         />
 

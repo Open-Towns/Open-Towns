@@ -2,10 +2,14 @@
 
 <menu id="main.options.root" titleKey="MainMenuPanel.4">
     <item
+        id="main.options.graphics.spacer"
+        type="spacer"
+    />
+    <item
         id="main.options.graphics"
         type="submenu"
         titleKey="MainMenuPanel.16"
-        targetMenu="main.options.graphics.root" />
+        targetMenu="main.options.graphics.root" transparent="false"/>
     <item
         id="main.options.graphics.spacer"
         type="spacer"
@@ -15,7 +19,7 @@
         id="main.options.game"
         type="submenu"
         titleKey="MainMenuPanel.19"
-        targetMenu="main.options.game.root" />
+        targetMenu="main.options.game.root" transparent="false"/>
     <item
         id="main.options.graphics.spacer"
         type="spacer"
@@ -24,7 +28,7 @@
         id="main.options.controls"
         type="submenu"
         titleKey="MainMenuPanel.41"
-        targetMenu="main.options.controls.root" />
+        targetMenu="main.options.controls.root" transparent="false" />
     <item
         id="main.options.graphics.spacer"
         type="spacer"
@@ -33,7 +37,7 @@
         id="main.options.language"
         type="submenu"
         titleKey="MainMenuPanel.14"
-        targetMenu="main.options.language.root" />
+        targetMenu="main.options.language.root" transparent="false"/>
     <item
         id="main.options.graphics.spacer"
         type="spacer"
@@ -43,7 +47,7 @@
         id="main.options.audio"
         type="submenu"
         titleKey="MainMenuPanel.13"
-        targetMenu="main.options.audio.root" />
+        targetMenu="main.options.audio.root" transparent="false" />
     <item
         id="main.options.graphics.spacer"
         type="spacer"
@@ -53,7 +57,7 @@
         id="main.options.performance"
         type="submenu"
         titleKey="MainMenuPanel.8"
-        targetMenu="main.options.performance.root" />
+        targetMenu="main.options.performance.root" transparent="false"/>
     <item
         id="main.options.graphics.spacer"
         type="spacer"

@@ -1,11 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 
 <menu id="game.options.audio.root" titleKey="MainMenuPanel.13">
-    <item
-        id="game.options.audio.title"
-        type="text"
-        titleKey="MainMenuPanel.13"
-    />
+   
     <item
         id="game.options.audio.spacer"
         type="spacer"

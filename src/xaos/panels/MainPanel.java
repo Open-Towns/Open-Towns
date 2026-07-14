@@ -109,25 +109,23 @@ public final class MainPanel {
 
 	// LOCKED WALLCONNECTOR
 	private static Tile lockedConnectorTile = new Tile("lockedconnector"); //$NON-NLS-1$
-	private static final float WORLD_ZOOM_MIN = 0.1f;
-	private static final float WORLD_ZOOM_MAX = 3.0f;
-	private static final float WORLD_ZOOM_STEP = 0.1f;
 	private static final float[] WORLD_ZOOM_VALUES = {
-			0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 1.75f, 2.0f
+			1/24f, 1/16f, 1/12f, 1/8f, 1/6f, 1/4f, 1/3f, 1/2f, 3/4f, 1.0f, 1.25f, 1.5f, 1.75f, 2.0f, 3.0f, 4.0f, 6.0f, 8.0f, 12.0f, 16.0f, 24.0f
 	};
 
-	private static int worldZoomIndex = 2;
+	private static int worldZoomIndex = 9;
 	private static float worldZoom = WORLD_ZOOM_VALUES[worldZoomIndex];
+	private static boolean zoomOnCursor = true;
 
 	public static float getWorldZoom() {
 		return worldZoom;
 	}
 
 	public static void setWorldZoom(float zoom) {
-		if (zoom < 0.5f) {
-			worldZoom = 0.5f;
-		} else if (zoom > 2.0f) {
-			worldZoom = 2.0f;
+		if (zoom < WORLD_ZOOM_VALUES[0]) {
+			worldZoom = WORLD_ZOOM_VALUES[0];
+		} else if (zoom > WORLD_ZOOM_VALUES[WORLD_ZOOM_VALUES.length -1]) {
+			worldZoom = WORLD_ZOOM_VALUES[WORLD_ZOOM_VALUES.length -1];
 		} else {
 			worldZoom = zoom;
 		}
@@ -136,17 +134,85 @@ public final class MainPanel {
 	}
 
 	public static void zoomWorldIn() {
-		if (worldZoomIndex < WORLD_ZOOM_VALUES.length - 1) {
-			worldZoomIndex++;
-			worldZoom = WORLD_ZOOM_VALUES[worldZoomIndex];
-		}
+		zoomWorldIn(0, 0);
 	}
 
 	public static void zoomWorldOut() {
+		zoomWorldOut(0, 0);
+	}
+
+	public static void zoomWorldIn(int mouseX, int mouseY) {
+		zoomWorldIn(mouseX, mouseY, zoomOnCursor);
+	}
+
+	public static void zoomWorldOut(int mouseX, int mouseY) {
+		zoomWorldOut(mouseX, mouseY, zoomOnCursor);
+	}
+
+	public static boolean isZoomOnCursor() {
+		return zoomOnCursor;
+	}
+
+	public static void setZoomOnCursor(boolean zoomOnCursor) {
+		MainPanel.zoomOnCursor = zoomOnCursor;
+	}
+
+	private static void zoomWorldIn(int mouseX, int mouseY, boolean adjustCamera) {
+		if (worldZoomIndex < WORLD_ZOOM_VALUES.length - 1) {
+			float oldZoom = worldZoom;
+
+			worldZoomIndex++;
+			worldZoom = WORLD_ZOOM_VALUES[worldZoomIndex];
+
+			if (adjustCamera) {
+				adjustCameraForZoom(mouseX, mouseY, oldZoom);
+			}
+		}
+	}
+
+	private static void zoomWorldOut(int mouseX, int mouseY, boolean adjustCamera) {
 		if (worldZoomIndex > 0) {
+			float oldZoom = worldZoom;
+
 			worldZoomIndex--;
 			worldZoom = WORLD_ZOOM_VALUES[worldZoomIndex];
+
+			if (adjustCamera) {
+				adjustCameraForZoom(mouseX, mouseY, oldZoom);
+			}
 		}
+	}
+
+	private static void adjustCameraForZoom(int mouseX, int mouseY, float oldZoom) {
+		int xView = Game.getWorld().getView().x;
+		int yView = Game.getWorld().getView().y;
+
+		float oldTw = Math.round((Tile.TERRAIN_ICON_WIDTH / 2f) * oldZoom);
+		float oldTh = Math.round((Tile.TERRAIN_ICON_HEIGHT / 2f) * oldZoom);
+		float newTw = Math.round((Tile.TERRAIN_ICON_WIDTH / 2f) * worldZoom);
+		float newTh = Math.round((Tile.TERRAIN_ICON_HEIGHT / 2f) * worldZoom);
+
+		int offsetX = mouseX - xCentro;
+		int offsetY = mouseY - yCentro;
+
+		float invOldTw = (oldTw != 0) ? 1f / oldTw : 0;
+		float invOldTh = (oldTh != 0) ? 1f / oldTh : 0;
+		float invNewTw = (newTw != 0) ? 1f / newTw : 0;
+		float invNewTh = (newTh != 0) ? 1f / newTh : 0;
+
+		float u = (offsetX * invOldTw - offsetY * invOldTh) / 2f;
+		float v = (offsetX * invOldTw + offsetY * invOldTh) / 2f;
+
+		float uNew = (offsetX * invNewTw - offsetY * invNewTh) / 2f;
+		float vNew = (offsetX * invNewTw + offsetY * invNewTh) / 2f;
+
+		float deltaXView = u - uNew;
+		float deltaYView = v - vNew;
+
+		int newXView = Math.round(xView + deltaXView);
+		int newYView = Math.round(yView + deltaYView);
+
+		Game.getWorld().setView(newXView, newYView);
 	}
 
 	public static void cycleWorldZoom() {

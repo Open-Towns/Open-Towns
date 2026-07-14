@@ -1,11 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 
 <menu id="game.options.game.root" titleKey="MainMenuPanel.19">
-    <item
-        id="game.options.game.title"
-        type="text"
-        titleKey="MainMenuPanel.19"
-    />
+   
     <item
         id="game.options.game.spacer"
         type="spacer"
@@ -62,7 +58,7 @@
     />
     <item
         id="game.options.game.autosave_days"
-        type="toggle"
+        type="cycle"
         titleKey="MainMenuPanel.31"
         command="COMMAND_MM_SWITCH_AUTOSAVE_DAYS"
         dynamic="true" />
@@ -78,7 +74,7 @@
         dynamic="true" /> -->
     <item
         id="game.options.game.sieges"
-        type="toggle"
+        type="cycle"
         titleKey="MainMenuPanel.32"
         command="COMMAND_MM_SWITCH_SIEGES"
         dynamic="true" />
@@ -97,10 +93,10 @@
         type="spacer"
     />
     <item
-        id="game.options.game.bury"
+        id="game.options.game.caravan_pause"
         type="toggle"
         titleKey="MainMenuPanel.66"
-        command="COMMAND_MM_SWITCH_BURY"
+        command="COMMAND_MM_SWITCH_CARAVAN_PAUSE"
         dynamic="true" />
     <item
         id="game.graphics.spacer"

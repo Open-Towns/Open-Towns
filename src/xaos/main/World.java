@@ -40,7 +40,6 @@ import xaos.panels.CommandPanel;
 import xaos.panels.MainPanel;
 import xaos.panels.MessagesPanel;
 import xaos.panels.MiniMapPanel;
-import xaos.panels.UI.UIPanel;
 import xaos.panels.UI.UIPanelState;
 import xaos.panels.menus.SmartMenu;
 import xaos.stockpiles.Stockpile;
@@ -95,9 +94,7 @@ import xaos.zones.ZoneManager;
 import xaos.zones.ZoneManagerItem;
 import xaos.zones.ZonePersonal;
 import xaos.panels.UI.UIPanelInputHandler;
-import static xaos.panels.UI.UIPanelState.*;
-import static xaos.panels.UI.UIPanelInputHandler.*;
-import static xaos.panels.UI.UIPanel.*;
+
 
 public final class World implements Externalizable {
 

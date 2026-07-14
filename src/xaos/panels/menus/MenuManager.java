@@ -124,7 +124,6 @@ public final class MenuManager {
 
         buildStack.remove(definition.getId());
 
-       
         menu.setTrasparency(definition.isTransparent());
 
         return menu;
@@ -293,14 +292,25 @@ public final class MenuManager {
         if ("item".equals(type)) {
             return SmartMenu.TYPE_ITEM;
         }
+        if ("submenu".equals(type)) {
+            return SmartMenu.TYPE_MENU;
+        }
+        if ("button".equals(type)) {
+            return SmartMenu.TYPE_BUTTON;
+        }
+        if ("keyboard".equals(type)) {
+            return SmartMenu.TYPE_KEYBOARD;
+        }
 
-        // TODO: create proper toggle and slider types in SmartMenu.
         if ("toggle".equals(type)) {
-            return SmartMenu.TYPE_ITEM;
+            return SmartMenu.TYPE_TOGGLE;
         }
 
         if ("slider".equals(type)) {
-            return SmartMenu.TYPE_ITEM;
+            return SmartMenu.TYPE_SLIDER;
+        }
+        if ("cycle".equals(type)) {
+            return SmartMenu.TYPE_CYCLE;
         }
 
         throw new IllegalArgumentException("Unknown menu item type: " + type);
@@ -378,21 +388,21 @@ public final class MenuManager {
         if ("savegames.exists".equals(condition)) {
             return hasSavegames();
         }
-        if("debug_mode".equals(condition)){
+        if ("debug_mode".equals(condition)) {
             return TownsProperties.DEBUG_MODE;
         }
 
         // if ("mods.exists".equals(condition)) {
-        //     return Game.getModsLoaded() != null && !Game.getModsLoaded().isEmpty();
+        // return Game.getModsLoaded() != null && !Game.getModsLoaded().isEmpty();
         // }
 
         // if ("servers.exists".equals(condition)) {
-        //     return Game.getServerNames() != null && !Game.getServerNames().isEmpty();
+        // return Game.getServerNames() != null && !Game.getServerNames().isEmpty();
         // }
 
         // if ("campaigns.exists".equals(condition)) {
-        //     return CampaignManager.getCampaigns() != null
-        //             && !CampaignManager.getCampaigns().isEmpty();
+        // return CampaignManager.getCampaigns() != null
+        // && !CampaignManager.getCampaigns().isEmpty();
         // }
 
         throw new IllegalArgumentException("Unknown menu condition: " + condition);
@@ -641,7 +651,7 @@ public final class MenuManager {
 
     private SmartMenu createSpacerItem() {
         return new SmartMenu(
-                SmartMenu.TYPE_TEXT,
+                SmartMenu.TYPE_SPACER,
                 null,
                 null,
                 null,
@@ -651,7 +661,7 @@ public final class MenuManager {
 
     private SmartMenu createBackItem(SmartMenu parent) {
         return new SmartMenu(
-                SmartMenu.TYPE_ITEM,
+                SmartMenu.TYPE_BUTTON,
                 Messages.getString("MainMenuPanel.7"),
                 parent,
                 CommandPanel.COMMAND_BACK,

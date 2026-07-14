@@ -73,6 +73,7 @@ public final class CommandDispatcher {
 
                 if (handler == null) {
                         handleUnknownCommand(context);
+                       
                         return;
                 }
 
@@ -610,3 +611,4 @@ public final class CommandDispatcher {
                                 "CommandPanel");
         }
 }
+
