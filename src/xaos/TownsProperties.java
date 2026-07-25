@@ -1,35 +1,44 @@
-
 package xaos;
 
 /**
- * Game properties that are getting filtered by maven
- * to create the right versions.
+ * Game properties.
  *
- * @author Florian Frankenberger
+ * These values used to be filtered by Maven.
+ * Runtime overrides can now be passed from Gradle using JVM system properties.
+ *
+ * Example:
+ * gradle run "-Popentowns.debug=true" "-Popentowns.testCommands=true"
+ *
+ * Production defaults should remain safe:
+ * - DEBUG_MODE = false
+ * - TEST_COMMANDS = false
  */
 public class TownsProperties {
 
-    public final static boolean GODS_ACTIVATED = false;
-    public final static boolean DEBUG_MODE = true; //${debugMode}; //should be false in production
-    public final static boolean DEMO_VERSION = false; //${demoVersion};
-    public final static boolean TEST_COMMANDS = true; //${testCommands}; //should be false in production
-    public final static String GAME_NAME = "Towns"; //$NON-NLS-1$
-    public final static String GAME_VERSION = "v14f";
-    public final static String GAME_VERSION_FULL = GAME_VERSION; //"${project.version}.${buildNumber} (" + "${buildRevision}".substring(0, 7) + ")"; //$NON-NLS-1$
-    public final static String GAME_VERSION_SHORT = GAME_VERSION; //"${project.version}";
-//    public final static String NAMED_VERSION_FOR = "${namedVersionFor}";
-//
-//    static {
-//        String[] parts = GAME_VERSION_SHORT.split("\\.");
-//        if (parts.length != 3) {
-//            GAME_VERSION = "vUnknown";
-//        } else {
-//            if (!NAMED_VERSION_FOR.isEmpty()) {
-//                GAME_VERSION = "v" + parts[1] + (char)('a' + Integer.valueOf(parts[2]) - 1) + " (" + NAMED_VERSION_FOR + ")";
-//            } else {
-//                GAME_VERSION = "v" + parts[1] + (char)('a' + Integer.valueOf(parts[2]) - 1);
-//            }
-//        }
-//    }
+    public static final boolean GODS_ACTIVATED = false;
+
+    public static boolean DEBUG_MODE = getBooleanProperty("opentowns.debug", false);
+
+    public static final boolean DEMO_VERSION = false;
+
+    public static boolean TEST_COMMANDS = getBooleanProperty("opentowns.testCommands", false);
+
+    public static final String GAME_NAME = "Towns"; //$NON-NLS-1$
+    public static final String GAME_VERSION = "v14f";
+    public static final String GAME_VERSION_FULL = GAME_VERSION;
+    public static final String GAME_VERSION_SHORT = GAME_VERSION;
+
+    private static boolean getBooleanProperty(String key, boolean defaultValue) {
+        String value = System.getProperty(key);
+
+        if (value == null || value.trim().isEmpty()) {
+            return defaultValue;
+        }
+
+        return value.equalsIgnoreCase("true")
+                || value.equalsIgnoreCase("yes")
+                || value.equalsIgnoreCase("1")
+                || value.equalsIgnoreCase("on");
+    }
 
 }

@@ -462,7 +462,7 @@ public final class Game {
 		// Terrain slopes
 		Terrain.changeSlopes(cells);
 
-		long lTime;
+		long lTime = TownsProperties.DEBUG_MODE ? System.currentTimeMillis() : 0L;
 		String sLog = null;
 
 		// Aquí mismo borro los alphas

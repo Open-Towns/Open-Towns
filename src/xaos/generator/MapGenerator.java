@@ -241,7 +241,7 @@ public class MapGenerator extends Generator {
 			}
 		}
 
-		long lTime;
+		long lTime = TownsProperties.DEBUG_MODE ? System.currentTimeMillis() : 0L;
 		// Ya tenemos todo inicializado, procedemos a recorrer el generator y ir haciendo las cosas
 		for (int i = 0; i < generator.getList ().size (); i++) {
 			item = generator.getList ().get (i);
