@@ -209,7 +209,12 @@ artifacts-*/
 # ------------------------------------------------------------
 /src/data/audio/
 /src/data/fonts/
-/src/data/graphics/
+/src/data/graphics/*
+
+!/src/data/graphics/
+!/src/data/graphics/mainmenubg1.png
+!/src/data/graphics/mainmenubg2.png
+!/src/data/graphics/mainmenubg3.png
 
 # Optional local save/debug/runtime folders
 /saves/
