@@ -90,6 +90,7 @@ import xaos.panels.UI.UiDispatcher;
 import xaos.internal.api.selection.SelectionManager;
 import xaos.internal.api.mods.ModSaveDataRegistry;
 import xaos.internal.api.inventory.ItemReservationRegistry;
+import xaos.internal.api.definitions.DefinitionOwnershipRegistry;
 
 public final class Game {
 
@@ -469,7 +470,7 @@ public final class Game {
 		 */
 		ModSaveDataRegistry.clear();
 		ItemReservationRegistry.clear();
-		
+
 		world = new World(campaignID, missionID);
 		world.generateAll(campaignID, missionID);
 
@@ -2461,6 +2462,7 @@ public final class Game {
 		CampaignManager.clear();
 		LivingEntityManager.clear();
 		TerrainManager.clear();
+		EventManager.clear();
 		SkillManager.clear();
 		ZoneManager.clear();
 		Type.clear();
@@ -2472,6 +2474,15 @@ public final class Game {
 		PrefixSuffixManager.clear();
 		PricesManager.clear();
 		MatsPanelData.clear();
+
+		/*
+		 * Definition managers have now been cleared, so discard
+		 * their namespace ownership metadata as well.
+		 *
+		 * Definitions will register ownership again when they are
+		 * loaded for the next game.
+		 */
+		DefinitionOwnershipRegistry.clear();
 
 		DungeonManager.clear();
 
@@ -2486,7 +2497,7 @@ public final class Game {
 	}
 
 	public static void exit() {
-		 JavaModLoader.shutdown();
+		JavaModLoader.shutdown();
 		UtilsGL.destroy();
 		UtilsAL.destroy();
 		System.exit(0);

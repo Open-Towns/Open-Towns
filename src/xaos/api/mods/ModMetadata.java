@@ -1,16 +1,24 @@
 package xaos.api.mods;
 
+import java.util.List;
+
 /**
  * Basic descriptive information about a loaded mod.
  */
 public record ModMetadata(
-        String id,
+       String id,
         String name,
         String version,
-        String author
+        String author,
+        int apiVersion,
+         List<String> dependencies
 ) {
 
     public ModMetadata {
+
+         dependencies = dependencies == null
+                ? List.of()
+                : List.copyOf(dependencies);
         if (id == null || id.isBlank()) {
             throw new IllegalArgumentException(
                     "Mod ID cannot be empty"

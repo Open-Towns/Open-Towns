@@ -247,17 +247,82 @@ public class TerrainManager {
                         if (node.getAttributes() != null && node.getAttributes().getNamedItem("id") != null) {
                             String sIDToDelete = node.getAttributes().getNamedItem("id").getNodeValue();
                             if (sIDToDelete != null) {
-                                terrainList.remove(sIDToDelete);
+
+                                if (!bLoadingMain
+                                        && terrainList.containsKey(sIDToDelete)
+                                        && DefinitionOwnershipRegistry
+                                                .conflictsWithOwner(
+                                                        DefinitionKind.TERRAIN,
+                                                        sIDToDelete,
+                                                        namespace)) {
+
+                                    String existingNamespace = DefinitionOwnershipRegistry.namespaceFor(
+                                            DefinitionKind.TERRAIN,
+                                            sIDToDelete);
+
+                                    Log.log(
+                                            Log.LEVEL_ERROR,
+                                            "Definition delete collision for terrain ["
+                                                    + sIDToDelete
+                                                    + "]: mod namespace ["
+                                                    + namespace
+                                                    + "] attempted to delete a definition owned by ["
+                                                    + existingNamespace
+                                                    + "]. Delete ignored.",
+                                            "TerrainManager");
+
+                                    continue;
+                                }
+
+                                terrainList.remove(
+                                        sIDToDelete);
+
+                                DefinitionOwnershipRegistry.unregister(
+                                        DefinitionKind.TERRAIN,
+                                        sIDToDelete);
                             }
                         }
                         continue;
                     }
 
                     // Building
-                    // Obtenemos el nameID, width i height
                     sIniHeader = node.getNodeName();
-                    boolean bExists = terrainList.containsKey(sIniHeader);
-                    // Mod cambiando valores de un item que ya existe?
+
+                    boolean bExists = terrainList.containsKey(
+                            sIniHeader);
+
+                    /*
+                     * Mods may modify base-game terrain definitions, but must
+                     * not accidentally overwrite terrain owned by another mod.
+                     */
+                    if (bExists && !bLoadingMain) {
+
+                        if (DefinitionOwnershipRegistry
+                                .conflictsWithOwner(
+                                        DefinitionKind.TERRAIN,
+                                        sIniHeader,
+                                        namespace)) {
+
+                            String existingNamespace = DefinitionOwnershipRegistry.namespaceFor(
+                                    DefinitionKind.TERRAIN,
+                                    sIniHeader);
+
+                            Log.log(
+                                    Log.LEVEL_ERROR,
+                                    "Definition collision for terrain ["
+                                            + sIniHeader
+                                            + "]: mod namespace ["
+                                            + namespace
+                                            + "] attempted to use an ID already owned by ["
+                                            + existingNamespace
+                                            + "]. Definition ignored.",
+                                    "TerrainManager");
+
+                            continue;
+                        }
+                    }
+
+                    // Mod changing values of a terrain definition that already exists?
                     boolean bModChangingValues = (bExists && !bLoadingMain);
 
                     if (bModChangingValues) {

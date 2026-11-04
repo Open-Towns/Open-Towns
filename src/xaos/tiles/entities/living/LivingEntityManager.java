@@ -344,12 +344,57 @@ public class LivingEntityManager {
                         if (node.getAttributes() != null && node.getAttributes().getNamedItem("id") != null) {
                             String sIDToDelete = node.getAttributes().getNamedItem("id").getNodeValue();
                             if (sIDToDelete != null) {
-                                LivingEntityManagerItem lemi = hmLivingEntities.remove(sIDToDelete);
-                                if (lemi != null && lemi.getAltGraphics() != null && lemi.getAltGraphics().size() > 0) {
+
+                                if (!bLoadingMain
+                                        && hmLivingEntities.containsKey(sIDToDelete)
+                                        && DefinitionOwnershipRegistry
+                                                .conflictsWithOwner(
+                                                        DefinitionKind.LIVING,
+                                                        sIDToDelete,
+                                                        namespace)) {
+
+                                    String existingNamespace = DefinitionOwnershipRegistry.namespaceFor(
+                                            DefinitionKind.LIVING,
+                                            sIDToDelete);
+
+                                    Log.log(
+                                            Log.LEVEL_ERROR,
+                                            "Definition delete collision for living ["
+                                                    + sIDToDelete
+                                                    + "]: mod namespace ["
+                                                    + namespace
+                                                    + "] attempted to delete a definition owned by ["
+                                                    + existingNamespace
+                                                    + "]. Delete ignored.",
+                                            "LivingEntityManager");
+
+                                    continue;
+                                }
+
+                                LivingEntityManagerItem lemi = hmLivingEntities.remove(
+                                        sIDToDelete);
+
+                                DefinitionOwnershipRegistry.unregister(
+                                        DefinitionKind.LIVING,
+                                        sIDToDelete);
+
+                                if (lemi != null
+                                        && lemi.getAltGraphics() != null
+                                        && lemi.getAltGraphics().size() > 0) {
+
                                     String altG;
+
                                     for (int a = 0; a < lemi.getAltGraphics().size(); a++) {
-                                        altG = lemi.getAltGraphics().get(a);
-                                        hmLivingEntities.remove(altG);
+
+                                        altG = lemi.getAltGraphics()
+                                                .get(a);
+
+                                        hmLivingEntities.remove(
+                                                altG);
+
+                                        DefinitionOwnershipRegistry.unregister(
+                                                DefinitionKind.LIVING,
+                                                altG);
                                     }
                                 }
                             }
@@ -357,9 +402,41 @@ public class LivingEntityManager {
                         continue;
                     }
 
-                    boolean bExists = hmLivingEntities.containsKey(sIniHeader);
+                    boolean bExists = hmLivingEntities.containsKey(
+                            sIniHeader);
 
-                    // Mod cambiando valores de un item que ya existe?
+                    /*
+                     * Mods may modify base-game living definitions, but must
+                     * not accidentally overwrite one owned by another mod.
+                     */
+                    if (bExists && !bLoadingMain) {
+
+                        if (DefinitionOwnershipRegistry
+                                .conflictsWithOwner(
+                                        DefinitionKind.LIVING,
+                                        sIniHeader,
+                                        namespace)) {
+
+                            String existingNamespace = DefinitionOwnershipRegistry.namespaceFor(
+                                    DefinitionKind.LIVING,
+                                    sIniHeader);
+
+                            Log.log(
+                                    Log.LEVEL_ERROR,
+                                    "Definition collision for living ["
+                                            + sIniHeader
+                                            + "]: mod namespace ["
+                                            + namespace
+                                            + "] attempted to use an ID already owned by ["
+                                            + existingNamespace
+                                            + "]. Definition ignored.",
+                                    "LivingEntityManager");
+
+                            continue;
+                        }
+                    }
+
+                    // Mod changing values of a living definition that already exists?
                     boolean bModChangingValues = (bExists && !bLoadingMain);
 
                     LivingEntityManagerItem lemi;
@@ -926,6 +1003,36 @@ public class LivingEntityManager {
 
                             altG = lemi.getAltGraphics()
                                     .get(a);
+
+                            /*
+                             * Alternate graphics are also exposed as living
+                             * definition IDs, so they must obey the same collision
+                             * rules as normal living definitions.
+                             */
+                            if (hmLivingEntities.containsKey(altG)
+                                    && DefinitionOwnershipRegistry
+                                            .conflictsWithOwner(
+                                                    DefinitionKind.LIVING,
+                                                    altG,
+                                                    parentNamespace)) {
+
+                                String existingNamespace = DefinitionOwnershipRegistry.namespaceFor(
+                                        DefinitionKind.LIVING,
+                                        altG);
+
+                                Log.log(
+                                        Log.LEVEL_ERROR,
+                                        "Definition collision for living alternate graphics ["
+                                                + altG
+                                                + "]: namespace ["
+                                                + parentNamespace
+                                                + "] attempted to use an ID already owned by ["
+                                                + existingNamespace
+                                                + "]. Definition ignored.",
+                                        "LivingEntityManager");
+
+                                continue;
+                            }
 
                             LivingEntityManagerItem lemiCopia = new LivingEntityManagerItem(
                                     lemi);

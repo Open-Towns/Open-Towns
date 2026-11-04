@@ -235,7 +235,39 @@ public class EventManager {
                         if (node.getAttributes() != null && node.getAttributes().getNamedItem("id") != null) { //$NON-NLS-1$
                             String sIDToDelete = node.getAttributes().getNamedItem("id").getNodeValue(); //$NON-NLS-1$
                             if (sIDToDelete != null) {
-                                eventsList.remove(sIDToDelete);
+
+                                if (!bLoadingMain
+                                        && eventsList.containsKey(sIDToDelete)
+                                        && DefinitionOwnershipRegistry
+                                                .conflictsWithOwner(
+                                                        DefinitionKind.EVENT,
+                                                        sIDToDelete,
+                                                        namespace)) {
+
+                                    String existingNamespace = DefinitionOwnershipRegistry.namespaceFor(
+                                            DefinitionKind.EVENT,
+                                            sIDToDelete);
+
+                                    Log.log(
+                                            Log.LEVEL_ERROR,
+                                            "Definition delete collision for event ["
+                                                    + sIDToDelete
+                                                    + "]: mod namespace ["
+                                                    + namespace
+                                                    + "] attempted to delete a definition owned by ["
+                                                    + existingNamespace
+                                                    + "]. Delete ignored.",
+                                            "EventManager");
+
+                                    continue;
+                                }
+
+                                eventsList.remove(
+                                        sIDToDelete);
+
+                                DefinitionOwnershipRegistry.unregister(
+                                        DefinitionKind.EVENT,
+                                        sIDToDelete);
                             }
                         }
                         continue;
@@ -246,9 +278,41 @@ public class EventManager {
                         throw new Exception(Messages.getString("EventManager.31")); //$NON-NLS-1$
                     }
 
-                    boolean bExists = eventsList.containsKey(sIniHeader);
+                    boolean bExists = eventsList.containsKey(
+                            sIniHeader);
 
-                    // Mod cambiando valores de un item que ya existe?
+                    /*
+                     * Mods may modify base-game events, but must not
+                     * accidentally overwrite an event owned by another mod.
+                     */
+                    if (bExists && !bLoadingMain) {
+
+                        if (DefinitionOwnershipRegistry
+                                .conflictsWithOwner(
+                                        DefinitionKind.EVENT,
+                                        sIniHeader,
+                                        namespace)) {
+
+                            String existingNamespace = DefinitionOwnershipRegistry.namespaceFor(
+                                    DefinitionKind.EVENT,
+                                    sIniHeader);
+
+                            Log.log(
+                                    Log.LEVEL_ERROR,
+                                    "Definition collision for event ["
+                                            + sIniHeader
+                                            + "]: mod namespace ["
+                                            + namespace
+                                            + "] attempted to use an ID already owned by ["
+                                            + existingNamespace
+                                            + "]. Definition ignored.",
+                                    "EventManager");
+
+                            continue;
+                        }
+                    }
+
+                    // Mod changing values of an event that already exists?
                     boolean bModChangingValues = (bExists && !bLoadingMain);
 
                     if (bModChangingValues) {

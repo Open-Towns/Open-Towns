@@ -123,7 +123,35 @@ public class ActionManager {
                         if (node.getAttributes() != null && node.getAttributes().getNamedItem("id") != null) {
                             String sIDToDelete = node.getAttributes().getNamedItem("id").getNodeValue();
                             if (sIDToDelete != null) {
-                                itemList.remove(sIDToDelete);
+
+                                if (!bLoadingMain
+                                        && itemList.containsKey(sIDToDelete)
+                                        && DefinitionOwnershipRegistry
+                                                .conflictsWithOwner(
+                                                        DefinitionKind.ACTION,
+                                                        sIDToDelete,
+                                                        namespace)) {
+
+                                    String existingNamespace = DefinitionOwnershipRegistry.namespaceFor(
+                                            DefinitionKind.ACTION,
+                                            sIDToDelete);
+
+                                    Log.log(
+                                            Log.LEVEL_ERROR,
+                                            "Definition delete collision for action ["
+                                                    + sIDToDelete
+                                                    + "]: mod namespace ["
+                                                    + namespace
+                                                    + "] attempted to delete a definition owned by ["
+                                                    + existingNamespace
+                                                    + "]. Delete ignored.",
+                                            "ActionManager");
+
+                                    continue;
+                                }
+
+                                itemList.remove(
+                                        sIDToDelete);
 
                                 DefinitionOwnershipRegistry.unregister(
                                         DefinitionKind.ACTION,
@@ -136,10 +164,48 @@ public class ActionManager {
                     sID = UtilsXML.getChildValue(node.getChildNodes(), "id"); //$NON-NLS-1$
 
                     boolean bExists = itemList.containsKey(sID);
+
                     if (bLoadingMain && bExists) {
-                        Log.log(Log.LEVEL_ERROR, Messages.getString("ActionManager.1") + sID + "]", "ActionManager"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                        Log.log(
+                                Log.LEVEL_ERROR,
+                                Messages.getString("ActionManager.1")
+                                        + sID
+                                        + "]",
+                                "ActionManager");
                     }
-                    // Mod cambiando valores de un item que ya existe?
+
+                    /*
+                     * Mods may modify base-game actions, but must not
+                     * accidentally overwrite an action owned by another mod.
+                     */
+                    if (bExists && !bLoadingMain) {
+
+                        if (DefinitionOwnershipRegistry
+                                .conflictsWithOwner(
+                                        DefinitionKind.ACTION,
+                                        sID,
+                                        namespace)) {
+
+                            String existingNamespace = DefinitionOwnershipRegistry.namespaceFor(
+                                    DefinitionKind.ACTION,
+                                    sID);
+
+                            Log.log(
+                                    Log.LEVEL_ERROR,
+                                    "Definition collision for action ["
+                                            + sID
+                                            + "]: mod namespace ["
+                                            + namespace
+                                            + "] attempted to use an ID already owned by ["
+                                            + existingNamespace
+                                            + "]. Definition ignored.",
+                                    "ActionManager");
+
+                            continue;
+                        }
+                    }
+
+                    // Mod changing values of an action that already exists?
                     boolean bModChangingValues = (bExists && !bLoadingMain);
 
                     if (bModChangingValues) {

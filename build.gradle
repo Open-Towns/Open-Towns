@@ -717,4 +717,15 @@ tasks.register('apiJar', Jar) {
     from sourceSets.main.output
 
     include 'xaos/api/**'
+
+    /*
+     * Runtime mod-loader implementation.
+     *
+     * These classes currently live beneath xaos.api for historical
+     * reasons, but are not part of the public SDK surface.
+     */
+    exclude 'xaos/api/mods/JavaModLoader*.class'
+    exclude 'xaos/api/mods/LoadedJavaMod*.class'
+    exclude 'xaos/api/mods/DefaultModLogger*.class'
+    exclude 'xaos/api/mods/ModResourceScope*.class'
 }

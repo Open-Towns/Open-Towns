@@ -99,15 +99,79 @@ public class BuildingManager {
                         if (node.getAttributes() != null && node.getAttributes().getNamedItem("id") != null) {
                             String sIDToDelete = node.getAttributes().getNamedItem("id").getNodeValue();
                             if (sIDToDelete != null) {
-                                itemList.remove(sIDToDelete);
+
+                                if (!bLoadingMain
+                                        && itemList.containsKey(sIDToDelete)
+                                        && DefinitionOwnershipRegistry
+                                                .conflictsWithOwner(
+                                                        DefinitionKind.BUILDING,
+                                                        sIDToDelete,
+                                                        namespace)) {
+
+                                    String existingNamespace = DefinitionOwnershipRegistry.namespaceFor(
+                                            DefinitionKind.BUILDING,
+                                            sIDToDelete);
+
+                                    Log.log(
+                                            Log.LEVEL_ERROR,
+                                            "Definition delete collision for building ["
+                                                    + sIDToDelete
+                                                    + "]: mod namespace ["
+                                                    + namespace
+                                                    + "] attempted to delete a definition owned by ["
+                                                    + existingNamespace
+                                                    + "]. Delete ignored.",
+                                            "BuildingManager");
+
+                                    continue;
+                                }
+
+                                itemList.remove(
+                                        sIDToDelete);
+
+                                DefinitionOwnershipRegistry.unregister(
+                                        DefinitionKind.BUILDING,
+                                        sIDToDelete);
                             }
                         }
                         continue;
                     }
 
-                    boolean bExists = itemList.containsKey(sIniHeader);
+                    boolean bExists = itemList.containsKey(
+                            sIniHeader);
 
-                    // Mod cambiando valores de un item que ya existe?
+                    /*
+                     * Mods may modify base-game buildings, but must not
+                     * accidentally overwrite a building owned by another mod.
+                     */
+                    if (bExists && !bLoadingMain) {
+
+                        if (DefinitionOwnershipRegistry
+                                .conflictsWithOwner(
+                                        DefinitionKind.BUILDING,
+                                        sIniHeader,
+                                        namespace)) {
+
+                            String existingNamespace = DefinitionOwnershipRegistry.namespaceFor(
+                                    DefinitionKind.BUILDING,
+                                    sIniHeader);
+
+                            Log.log(
+                                    Log.LEVEL_ERROR,
+                                    "Definition collision for building ["
+                                            + sIniHeader
+                                            + "]: mod namespace ["
+                                            + namespace
+                                            + "] attempted to use an ID already owned by ["
+                                            + existingNamespace
+                                            + "]. Definition ignored.",
+                                    "BuildingManager");
+
+                            continue;
+                        }
+                    }
+
+                    // Mod changing values of a building that already exists?
                     boolean bModChangingValues = (bExists && !bLoadingMain);
 
                     /*

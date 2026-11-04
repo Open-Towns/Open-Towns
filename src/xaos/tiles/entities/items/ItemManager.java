@@ -360,7 +360,41 @@ public class ItemManager {
                         if (node.getAttributes() != null && node.getAttributes().getNamedItem("id") != null) { //$NON-NLS-1$
                             String sIDToDelete = node.getAttributes().getNamedItem("id").getNodeValue(); //$NON-NLS-1$
                             if (sIDToDelete != null) {
-                                itemList.remove(sIDToDelete);
+
+                                /*
+                                 * Mods may delete base-game definitions or definitions
+                                 * owned by themselves, but must not delete definitions
+                                 * belonging to another mod.
+                                 */
+                                if (!bLoadingMain
+                                        && itemList.containsKey(sIDToDelete)
+                                        && DefinitionOwnershipRegistry
+                                                .conflictsWithOwner(
+                                                        DefinitionKind.ITEM,
+                                                        sIDToDelete,
+                                                        namespace)) {
+
+                                    String existingNamespace = DefinitionOwnershipRegistry.namespaceFor(
+                                            DefinitionKind.ITEM,
+                                            sIDToDelete);
+
+                                    Log.log(
+                                            Log.LEVEL_ERROR,
+                                            "Definition delete collision for item ["
+                                                    + sIDToDelete
+                                                    + "]: mod namespace ["
+                                                    + namespace
+                                                    + "] attempted to delete a definition owned by ["
+                                                    + existingNamespace
+                                                    + "]. Delete ignored.",
+                                            "ItemManager");
+
+                                    continue;
+                                }
+
+                                itemList.remove(
+                                        sIDToDelete);
+
                                 DefinitionOwnershipRegistry.unregister(
                                         DefinitionKind.ITEM,
                                         sIDToDelete);
@@ -369,12 +403,57 @@ public class ItemManager {
                         continue;
                     }
 
-                    boolean bExists = itemList.containsKey(sIniHeader);
+                    boolean bExists = itemList.containsKey(
+                            sIniHeader);
+
                     if (bLoadingMain && bExists) {
-                        Log.log(Log.LEVEL_ERROR, Messages.getString("ItemManager.0") + sIniHeader + "]", "ItemManager"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                        Log.log(
+                                Log.LEVEL_ERROR,
+                                Messages.getString("ItemManager.0")
+                                        + sIniHeader
+                                        + "]",
+                                "ItemManager");
                     }
 
-                    // Mod cambiando valores de un item que ya existe?
+                    /*
+                     * Mods are still allowed to override base-game definitions.
+                     *
+                     * However, if this ID was introduced by another mod, allowing
+                     * this mod to modify it would create a namespace collision:
+                     *
+                     * mod-a:conveyor
+                     * mod-b:conveyor
+                     *
+                     * both map internally to the legacy ID "conveyor".
+                     */
+                    if (bExists && !bLoadingMain) {
+
+                        if (DefinitionOwnershipRegistry
+                                .conflictsWithOwner(
+                                        DefinitionKind.ITEM,
+                                        sIniHeader,
+                                        namespace)) {
+
+                            String existingNamespace = DefinitionOwnershipRegistry.namespaceFor(
+                                    DefinitionKind.ITEM,
+                                    sIniHeader);
+
+                            Log.log(
+                                    Log.LEVEL_ERROR,
+                                    "Definition collision for item ["
+                                            + sIniHeader
+                                            + "]: mod namespace ["
+                                            + namespace
+                                            + "] attempted to use an ID already owned by ["
+                                            + existingNamespace
+                                            + "]. Definition ignored.",
+                                    "ItemManager");
+
+                            continue;
+                        }
+                    }
+
+                    // Mod changing values of an item that already exists?
                     boolean bModChangingValues = (bExists && !bLoadingMain);
 
                     // Tipo / subtipo

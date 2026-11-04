@@ -6,8 +6,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -20,6 +22,7 @@ import xaos.utils.Log;
 import xaos.api.mods.ModMetadata;
 
 import xaos.internal.api.mods.ModSaveDataRegistry;
+import xaos.api.SdkVersion;
 
 /**
  * Loads optional Java plugins from enabled Towns mod folders.
@@ -39,6 +42,12 @@ public final class JavaModLoader {
 
         private static final Set<String> worldActiveMods = new HashSet<>();
 
+        private enum LoadState {
+                VISITING,
+                LOADED,
+                FAILED
+        }
+
         private JavaModLoader() {
         }
 
@@ -51,13 +60,49 @@ public final class JavaModLoader {
 
                 if (enabledMods == null
                                 || enabledMods.isEmpty()) {
+
                         return;
                 }
 
-                for (String folderName : enabledMods) {
-                        if (!isFolderLoaded(folderName)) {
-                                loadMod(folderName);
+                Map<String, DiscoveredJavaMod> discovered = discoverEnabledJavaMods(
+                                enabledMods);
+
+                /*
+                 * Alphabetical ordering gives us deterministic behaviour
+                 * for unrelated mods.
+                 *
+                 * Dependencies will still always load before dependants.
+                 */
+                List<String> modIds = new ArrayList<>(
+                                discovered.keySet());
+
+                modIds.sort(
+                                String::compareTo);
+
+                Map<String, LoadState> states = new HashMap<>();
+
+                /*
+                 * Mods that were loaded during an earlier pass do not
+                 * need loading again.
+                 */
+                for (String modId : modIds) {
+
+                        if (isModIdLoaded(
+                                        modId)) {
+
+                                states.put(
+                                                modId,
+                                                LoadState.LOADED);
                         }
+                }
+
+                for (String modId : modIds) {
+
+                        loadDiscoveredMod(
+                                        modId,
+                                        discovered,
+                                        states,
+                                        new ArrayList<>());
                 }
 
                 Log.log(
@@ -68,6 +113,285 @@ public final class JavaModLoader {
                                 "JavaModLoader");
         }
 
+        private static Map<String, DiscoveredJavaMod> discoverEnabledJavaMods(
+                        List<String> enabledMods) {
+
+                Map<String, DiscoveredJavaMod> discovered = new HashMap<>();
+
+                Set<String> duplicateIds = new HashSet<>();
+
+                for (String folderName : enabledMods) {
+
+                        File modFolder = new File(
+                                        new File(
+                                                        Game.getUserFolder(),
+                                                        Game.MODS_FOLDER1),
+                                        folderName);
+
+                        File metadataFile = new File(
+                                        modFolder,
+                                        METADATA_FILE);
+
+                        /*
+                         * No mod.properties means this is an existing
+                         * content/XML-only mod.
+                         */
+                        if (!metadataFile.isFile()) {
+                                continue;
+                        }
+
+                        try {
+
+                                Properties properties = loadProperties(
+                                                metadataFile);
+
+                                String modId = requiredProperty(
+                                                properties,
+                                                "id");
+
+                                validateModId(
+                                                modId);
+
+                                List<String> dependencies = parseDependencies(
+                                                properties);
+                                Log.log(
+                                                Log.LEVEL_DEBUG,
+                                                "Discovered Java mod ["
+                                                                + modId
+                                                                + "] dependencies="
+                                                                + dependencies,
+                                                "JavaModLoader");
+                                validateDependencies(
+                                                modId,
+                                                dependencies);
+
+                                /*
+                                 * Once an ID has been found more than once,
+                                 * neither definition can safely win.
+                                 */
+                                if (duplicateIds.contains(
+                                                modId)) {
+
+                                        continue;
+                                }
+
+                                if (discovered.containsKey(
+                                                modId)) {
+
+                                        discovered.remove(
+                                                        modId);
+
+                                        duplicateIds.add(
+                                                        modId);
+
+                                        Log.log(
+                                                        Log.LEVEL_ERROR,
+                                                        "Duplicate Java mod ID ["
+                                                                        + modId
+                                                                        + "]. Mods using duplicate IDs "
+                                                                        + "will not be loaded.",
+                                                        "JavaModLoader");
+
+                                        continue;
+                                }
+
+                                discovered.put(
+                                                modId,
+                                                new DiscoveredJavaMod(
+                                                                folderName,
+                                                                modFolder,
+                                                                metadataFile,
+                                                                modId,
+                                                                dependencies));
+
+                        } catch (Exception exception) {
+
+                                Log.log(
+                                                Log.LEVEL_ERROR,
+                                                "Could not read Java mod metadata from folder ["
+                                                                + folderName
+                                                                + "]: "
+                                                                + exception,
+                                                "JavaModLoader");
+                        }
+                }
+
+                return discovered;
+        }
+
+        private static boolean isModIdLoaded(
+                        String modId) {
+                for (LoadedJavaMod loadedMod : loadedMods) {
+
+                        if (loadedMod.context()
+                                        .metadata()
+                                        .id()
+                                        .equals(modId)) {
+
+                                return true;
+                        }
+                }
+
+                return false;
+        }
+
+        private static boolean loadDiscoveredMod(
+                        String modId,
+                        Map<String, DiscoveredJavaMod> discovered,
+                        Map<String, LoadState> states,
+                        List<String> path) {
+
+                LoadState state = states.get(modId);
+
+                if (state == LoadState.LOADED) {
+                        return true;
+                }
+
+                if (state == LoadState.FAILED) {
+                        return false;
+                }
+
+                /*
+                 * Finding something we're already visiting means
+                 * we've found a dependency cycle.
+                 */
+                if (state == LoadState.VISITING) {
+
+                        List<String> cycle = new ArrayList<>();
+
+                        int cycleStart = path.indexOf(
+                                        modId);
+
+                        if (cycleStart >= 0) {
+
+                                cycle.addAll(
+                                                path.subList(
+                                                                cycleStart,
+                                                                path.size()));
+
+                        } else {
+
+                                cycle.addAll(
+                                                path);
+                        }
+
+                        cycle.add(
+                                        modId);
+
+                        Log.log(
+                                        Log.LEVEL_ERROR,
+                                        "Circular Java mod dependency detected: "
+                                                        + String.join(
+                                                                        " -> ",
+                                                                        cycle),
+                                        "JavaModLoader");
+
+                        states.put(
+                                        modId,
+                                        LoadState.FAILED);
+
+                        return false;
+                }
+
+                DiscoveredJavaMod mod = discovered.get(
+                                modId);
+
+                if (mod == null) {
+
+                        states.put(
+                                        modId,
+                                        LoadState.FAILED);
+
+                        return false;
+                }
+
+                states.put(
+                                modId,
+                                LoadState.VISITING);
+
+                path.add(
+                                modId);
+
+                /*
+                 * Resolve every dependency before loading this mod.
+                 */
+                for (String dependencyId : mod.dependencies()) {
+
+                        DiscoveredJavaMod dependency = discovered.get(
+                                        dependencyId);
+
+                        if (dependency == null) {
+
+                               
+
+                                states.put(
+                                                modId,
+                                                LoadState.FAILED);
+
+                                path.remove(
+                                                path.size() - 1);
+
+                                return false;
+                        }
+
+                        if (!loadDiscoveredMod(
+                                        dependencyId,
+                                        discovered,
+                                        states,
+                                        path)) {
+
+                                Log.log(
+                                                Log.LEVEL_ERROR,
+                                                "Cannot load Java mod ["
+                                                                + modId
+                                                                + "]: dependency ["
+                                                                + dependencyId
+                                                                + "] failed to load.",
+                                                "JavaModLoader");
+
+                                states.put(
+                                                modId,
+                                                LoadState.FAILED);
+
+                                path.remove(
+                                                path.size() - 1);
+
+                                return false;
+                        }
+                }
+
+                path.remove(
+                                path.size() - 1);
+
+                /*
+                 * Another dependency chain may already have caused
+                 * this mod to load.
+                 */
+                if (isModIdLoaded(
+                                modId)) {
+
+                        states.put(
+                                        modId,
+                                        LoadState.LOADED);
+
+                        return true;
+                }
+
+                loadMod(
+                                mod.folderName());
+
+                boolean loaded = isModIdLoaded(
+                                modId);
+
+                states.put(
+                                modId,
+                                loaded
+                                                ? LoadState.LOADED
+                                                : LoadState.FAILED);
+
+                return loaded;
+        }
+
         private static boolean isFolderLoaded(String folderName) {
                 for (LoadedJavaMod loadedMod : loadedMods) {
                         if (loadedMod.folderName().equals(folderName)) {
@@ -76,6 +400,14 @@ public final class JavaModLoader {
                 }
 
                 return false;
+        }
+
+        private record DiscoveredJavaMod(
+                        String folderName,
+                        File modFolder,
+                        File metadataFile,
+                        String modId,
+                        List<String> dependencies) {
         }
 
         private static void loadMod(String folderName) {
@@ -139,11 +471,24 @@ public final class JavaModLoader {
                                 properties,
                                 "author",
                                 "unknown");
+
+                int apiVersion = requiredIntProperty(
+                                properties,
+                                "apiVersion");
+
+                validateApiVersion(
+                                apiVersion);
+                List<String> dependencies = parseDependencies(
+                                properties);
+
+                validateDependencies(
+                                modId,
+                                dependencies);
                 ModMetadata metadata = new ModMetadata(
                                 modId,
                                 modName,
                                 version,
-                                author);
+                                author, apiVersion, dependencies);
                 validateModId(modId);
 
                 File jarFile = new File(modFolder, jarName);
@@ -231,6 +576,27 @@ public final class JavaModLoader {
                 return value.trim();
         }
 
+        private static int requiredIntProperty(
+                        Properties properties,
+                        String key) {
+                String value = requiredProperty(
+                                properties,
+                                key);
+
+                try {
+                        return Integer.parseInt(
+                                        value);
+
+                } catch (NumberFormatException exception) {
+
+                        throw new IllegalArgumentException(
+                                        "Invalid integer mod property ["
+                                                        + key
+                                                        + "]: "
+                                                        + value);
+                }
+        }
+
         private static void validateModId(String modId) {
 
                 if (!modId.matches("[a-z0-9_.-]+")) {
@@ -240,6 +606,76 @@ public final class JavaModLoader {
                                                         + "]. Mod IDs may contain "
                                                         + "lowercase letters, numbers, "
                                                         + "underscores, hyphens and dots.");
+                }
+        }
+
+        private static void validateApiVersion(
+                        int apiVersion) {
+                if (apiVersion > SdkVersion.API_VERSION) {
+
+                        throw new IllegalArgumentException(
+                                        "Mod requires Open Towns API version "
+                                                        + apiVersion
+                                                        + ", but this game provides API version "
+                                                        + SdkVersion.API_VERSION);
+                }
+
+                if (apiVersion < SdkVersion.MIN_SUPPORTED_API_VERSION) {
+
+                        throw new IllegalArgumentException(
+                                        "Mod requires Open Towns API version "
+                                                        + apiVersion
+                                                        + ", but the oldest supported API version is "
+                                                        + SdkVersion.MIN_SUPPORTED_API_VERSION);
+                }
+        }
+
+        private static List<String> parseDependencies(
+                        Properties properties) {
+                String value = optionalProperty(
+                                properties,
+                                "dependencies",
+                                "");
+
+                if (value.isBlank()) {
+                        return List.of();
+                }
+
+                List<String> dependencies = new ArrayList<>();
+
+                for (String part : value.split(",")) {
+
+                        String dependencyId = part.trim();
+
+                        if (dependencyId.isEmpty()) {
+                                continue;
+                        }
+
+                        validateModId(
+                                        dependencyId);
+
+                        if (!dependencies.contains(
+                                        dependencyId)) {
+
+                                dependencies.add(
+                                                dependencyId);
+                        }
+                }
+
+                return List.copyOf(
+                                dependencies);
+        }
+
+        private static void validateDependencies(
+                        String modId,
+                        List<String> dependencies) {
+                if (dependencies.contains(
+                                modId)) {
+
+                        throw new IllegalArgumentException(
+                                        "Mod ["
+                                                        + modId
+                                                        + "] cannot depend on itself");
                 }
         }
 
@@ -392,12 +828,9 @@ public final class JavaModLoader {
 
                 notifyWorldUnloaded();
 
-                for (int i = loadedMods.size() - 1;
-                                i >= 0;
-                                i--) {
+                for (int i = loadedMods.size() - 1; i >= 0; i--) {
 
-                        LoadedJavaMod loadedMod =
-                                        loadedMods.get(i);
+                        LoadedJavaMod loadedMod = loadedMods.get(i);
 
                         try {
                                 loadedMod.instance().onUnload(

@@ -11,6 +11,8 @@ import xaos.tiles.entities.Entity;
 import xaos.tiles.entities.buildings.Building;
 import xaos.tiles.entities.items.Item;
 import xaos.tiles.entities.living.LivingEntity;
+import xaos.internal.api.definitions.DefinitionKind;
+import xaos.internal.api.definitions.DefinitionOwnershipRegistry;
 
 /**
  * Default Entity API implementation backed by the existing
@@ -71,15 +73,13 @@ public final class DefaultEntityApi implements EntityApi {
         WorldPosition position = new WorldPosition(
                 entity.getX(),
                 entity.getY(),
-                entity.getZ()
-        );
+                entity.getZ());
 
         return new EntityView(
                 new EntityId(entity.getID()),
                 type,
                 definitionId,
-                position
-        );
+                position);
     }
 
     private static EntityType getEntityType(Entity entity) {
@@ -100,8 +100,7 @@ public final class DefaultEntityApi implements EntityApi {
 
     private static DefinitionId getDefinitionId(
             Entity entity,
-            EntityType type
-    ) {
+            EntityType type) {
         if (type == EntityType.SPECIAL
                 || type == EntityType.UNKNOWN) {
             return null;
@@ -113,6 +112,28 @@ public final class DefaultEntityApi implements EntityApi {
             return null;
         }
 
-        return DefinitionId.towns(iniHeader);
+        DefinitionKind kind;
+
+        switch (type) {
+
+            case ITEM:
+                kind = DefinitionKind.ITEM;
+                break;
+
+            case BUILDING:
+                kind = DefinitionKind.BUILDING;
+                break;
+
+            case LIVING:
+                kind = DefinitionKind.LIVING;
+                break;
+
+            default:
+                return null;
+        }
+
+        return DefinitionOwnershipRegistry.idFor(
+                kind,
+                iniHeader);
     }
 }
