@@ -727,5 +727,5 @@ tasks.register('apiJar', Jar) {
     exclude 'xaos/api/mods/JavaModLoader*.class'
     exclude 'xaos/api/mods/LoadedJavaMod*.class'
     exclude 'xaos/api/mods/DefaultModLogger*.class'
-    exclude 'xaos/api/mods/ModResourceScope*.class'
+    exclude 'xaos/api/GameApiBootstrap*.class'
 }

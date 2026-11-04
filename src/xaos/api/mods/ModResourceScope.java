@@ -9,7 +9,7 @@ import java.util.List;
  * Mods normally obtain a scope through ModContext rather than constructing
  * one directly.
  */
-public final class ModResourceScope {
+ final class ModResourceScope {
 
     private final List<ModResource> resources =
             new ArrayList<>();

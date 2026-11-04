@@ -1,37 +1,32 @@
 package xaos.api;
 
-import xaos.api.definitions.DefinitionsApi;
 import xaos.api.world.WorldApi;
-import xaos.internal.api.definitions.DefaultDefinitionsApi;
-import xaos.internal.api.entity.DefaultEntityApi;
-import xaos.internal.api.ui.DefaultUiApi;
-import xaos.internal.api.world.DefaultWorldApi;
+
 import xaos.api.entity.EntityApi;
 import xaos.api.ui.UiApi;
 import xaos.api.tasks.TaskApi;
-import xaos.internal.api.tasks.DefaultTaskApi;
+
 import xaos.api.selection.SelectionApi;
-import xaos.internal.api.selection.DefaultSelectionApi;
+
 import xaos.api.events.EventApi;
-import xaos.internal.api.events.DefaultEventApi;
+
 import xaos.api.inventory.InventoryApi;
-import xaos.internal.api.inventory.DefaultInventoryApi;
+
 import xaos.api.stockpiles.StockpileApi;
-import xaos.internal.api.stockpiles.DefaultStockpileApi;
+
 import xaos.api.items.ItemBehaviourApi;
 import xaos.api.items.ItemQueryApi;
-import xaos.internal.api.items.DefaultItemBehaviourApi;
-import xaos.internal.api.items.DefaultItemQueryApi;
+
 import xaos.api.buildings.BuildingApi;
-import xaos.internal.api.buildings.DefaultBuildingApi;
+
 import xaos.api.fluids.FluidApi;
-import xaos.internal.api.fluids.DefaultFluidApi;
+
 import xaos.api.production.ProductionApi;
-import xaos.internal.api.production.DefaultProductionApi;
+
 import xaos.api.actions.ActionApi;
-import xaos.internal.api.actions.DefaultActionApi;
+
 import xaos.api.buildings.BuildingBehaviourApi;
-import xaos.internal.api.buildings.DefaultBuildingBehaviourApi;
+import xaos.api.definitions.DefinitionsApi;
 
 /**
  * Main entry point for the public Open Towns API.
@@ -41,34 +36,76 @@ import xaos.internal.api.buildings.DefaultBuildingBehaviourApi;
  */
 public final class GameApi {
 
-    private static final GameApi INSTANCE = new GameApi();
+    private static GameApi instance;
 
-    private final DefinitionsApi definitions = new DefaultDefinitionsApi();
-    private final WorldApi world = new DefaultWorldApi();
-    private final EntityApi entities = new DefaultEntityApi();
-    private final UiApi ui = new DefaultUiApi();
-    private final TaskApi tasks = new DefaultTaskApi();
-    private final SelectionApi selection = new DefaultSelectionApi();
-    private final EventApi events = new DefaultEventApi();
-    private final InventoryApi inventory = new DefaultInventoryApi();
-    private final StockpileApi stockpiles = new DefaultStockpileApi();
-    private final ItemQueryApi items = new DefaultItemQueryApi();
-    private final ItemBehaviourApi itemBehaviours =
-        new DefaultItemBehaviourApi();
-    private final BuildingApi buildings = new DefaultBuildingApi();
-    private final BuildingBehaviourApi buildingBehaviours = new DefaultBuildingBehaviourApi();
-    private final FluidApi fluids = new DefaultFluidApi();
-    private final ProductionApi production = new DefaultProductionApi();
-    private final ActionApi actions = new DefaultActionApi();
+    private final DefinitionsApi definitions;
+    private final WorldApi world;
+    private final EntityApi entities;
+    private final UiApi ui;
+    private final TaskApi tasks;
+    private final SelectionApi selection;
+    private final EventApi events;
+    private final InventoryApi inventory;
+    private final StockpileApi stockpiles;
+    private final ItemQueryApi items;
+    private final ItemBehaviourApi itemBehaviours;
+    private final BuildingApi buildings;
+    private final BuildingBehaviourApi buildingBehaviours;
+    private final FluidApi fluids;
+    private final ProductionApi production;
+    private final ActionApi actions;
 
-    private GameApi() {
+    GameApi(
+            DefinitionsApi definitions,
+            WorldApi world,
+            EntityApi entities,
+            UiApi ui,
+            TaskApi tasks,
+            SelectionApi selection,
+            EventApi events,
+            InventoryApi inventory,
+            StockpileApi stockpiles,
+            ItemQueryApi items,
+            ItemBehaviourApi itemBehaviours,
+            BuildingApi buildings,
+            BuildingBehaviourApi buildingBehaviours,
+            FluidApi fluids,
+            ProductionApi production,
+            ActionApi actions) {
+        this.definitions = definitions;
+        this.world = world;
+        this.entities = entities;
+        this.ui = ui;
+        this.tasks = tasks;
+        this.selection = selection;
+        this.events = events;
+        this.inventory = inventory;
+        this.stockpiles = stockpiles;
+        this.items = items;
+        this.itemBehaviours = itemBehaviours;
+        this.buildings = buildings;
+        this.buildingBehaviours = buildingBehaviours;
+        this.fluids = fluids;
+        this.production = production;
+        this.actions = actions;
     }
 
     /**
      * Returns the shared game API instance.
      */
     public static GameApi get() {
-        return INSTANCE;
+        if (instance == null) {
+            throw new IllegalStateException(
+                    "Open Towns GameApi has not been initialised.");
+        }
+
+        return instance;
+    }
+
+    static void install(GameApi api) {
+        if (instance == null) {
+            instance = api;
+        }
     }
 
     /**
@@ -125,8 +162,8 @@ public final class GameApi {
     }
 
     public ItemBehaviourApi itemBehaviours() {
-    return itemBehaviours;
-}
+        return itemBehaviours;
+    }
 
     public BuildingApi buildings() {
         return buildings;

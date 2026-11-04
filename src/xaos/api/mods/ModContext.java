@@ -19,7 +19,7 @@ public final class ModContext {
 
     private final ModResourceScope modResources = new ModResourceScope();
 
-    public ModContext(
+   ModContext(
             ModMetadata metadata,
             GameApi api,
             ModLogger logger,

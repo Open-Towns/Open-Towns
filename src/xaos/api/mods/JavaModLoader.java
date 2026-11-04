@@ -13,13 +13,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import xaos.api.GameApi;
-import xaos.api.mods.ModContext;
-import xaos.api.mods.TownsMod;
+import xaos.api.GameApiBootstrap;
 import xaos.main.Game;
 import xaos.utils.Log;
-
-import xaos.api.mods.ModMetadata;
 
 import xaos.internal.api.mods.ModSaveDataRegistry;
 import xaos.api.SdkVersion;
@@ -322,8 +318,6 @@ public final class JavaModLoader {
 
                         if (dependency == null) {
 
-                               
-
                                 states.put(
                                                 modId,
                                                 LoadState.FAILED);
@@ -512,7 +506,7 @@ public final class JavaModLoader {
 
                         ModContext context = new ModContext(
                                         metadata,
-                                        GameApi.get(),
+                                        GameApiBootstrap.get(),
                                         new DefaultModLogger(
                                                         modId),
                                         ModSaveDataRegistry.forMod(
