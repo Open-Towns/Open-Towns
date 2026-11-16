@@ -16,7 +16,7 @@ import java.util.Set;
 import xaos.api.GameApiBootstrap;
 import xaos.main.Game;
 import xaos.utils.Log;
-
+import xaos.internal.api.mods.ModDependencyResolver;
 import xaos.internal.api.mods.ModSaveDataRegistry;
 import xaos.api.SdkVersion;
 
@@ -38,10 +38,10 @@ public final class JavaModLoader {
 
         private static final Set<String> worldActiveMods = new HashSet<>();
 
-        private enum LoadState {
-                VISITING,
-                LOADED,
-                FAILED
+        enum DiscoveryRegistrationResult {
+                ADDED,
+                DUPLICATE_DETECTED,
+                ALREADY_DUPLICATE
         }
 
         private JavaModLoader() {
@@ -63,42 +63,81 @@ public final class JavaModLoader {
                 Map<String, DiscoveredJavaMod> discovered = discoverEnabledJavaMods(
                                 enabledMods);
 
+                Map<String, List<String>> dependencyGraph = new HashMap<>();
+
+                for (Map.Entry<String, DiscoveredJavaMod> entry : discovered.entrySet()) {
+
+                        dependencyGraph.put(
+                                        entry.getKey(),
+                                        entry.getValue()
+                                                        .dependencies());
+                }
+
+                ModDependencyResolver.Result resolution = ModDependencyResolver.resolve(
+                                dependencyGraph);
+
                 /*
-                 * Alphabetical ordering gives us deterministic behaviour
-                 * for unrelated mods.
-                 *
-                 * Dependencies will still always load before dependants.
+                 * Report structural dependency failures such as
+                 * missing dependencies and dependency cycles.
                  */
-                List<String> modIds = new ArrayList<>(
-                                discovered.keySet());
+                for (String message : resolution.failures()
+                                .values()) {
 
-                modIds.sort(
-                                String::compareTo);
-
-                Map<String, LoadState> states = new HashMap<>();
+                        Log.log(
+                                        Log.LEVEL_ERROR,
+                                        message,
+                                        "JavaModLoader");
+                }
 
                 /*
-                 * Mods that were loaded during an earlier pass do not
-                 * need loading again.
+                 * The resolver guarantees dependencies appear
+                 * before their dependants.
                  */
-                for (String modId : modIds) {
+                for (String modId : resolution.loadOrder()) {
 
                         if (isModIdLoaded(
                                         modId)) {
 
-                                states.put(
-                                                modId,
-                                                LoadState.LOADED);
+                                continue;
                         }
-                }
 
-                for (String modId : modIds) {
+                        DiscoveredJavaMod mod = discovered.get(
+                                        modId);
 
-                        loadDiscoveredMod(
-                                        modId,
-                                        discovered,
-                                        states,
-                                        new ArrayList<>());
+                        /*
+                         * A dependency may have been structurally valid
+                         * but then failed while its JAR was actually loading.
+                         *
+                         * Do not load dependants in that case.
+                         */
+                        boolean dependenciesLoaded = true;
+
+                        for (String dependencyId : mod.dependencies()) {
+
+                                if (!isModIdLoaded(
+                                                dependencyId)) {
+
+                                        Log.log(
+                                                        Log.LEVEL_ERROR,
+                                                        "Cannot load Java mod ["
+                                                                        + modId
+                                                                        + "]: dependency ["
+                                                                        + dependencyId
+                                                                        + "] failed to load.",
+                                                        "JavaModLoader");
+
+                                        dependenciesLoaded = false;
+
+                                        break;
+                                }
+                        }
+
+                        if (!dependenciesLoaded) {
+                                continue;
+                        }
+
+                        loadMod(
+                                        mod.folderName());
                 }
 
                 Log.log(
@@ -161,24 +200,18 @@ public final class JavaModLoader {
                                                 modId,
                                                 dependencies);
 
-                                /*
-                                 * Once an ID has been found more than once,
-                                 * neither definition can safely win.
-                                 */
-                                if (duplicateIds.contains(
-                                                modId)) {
+                                DiscoveryRegistrationResult registrationResult = registerDiscovered(
+                                                discovered,
+                                                duplicateIds,
+                                                modId,
+                                                new DiscoveredJavaMod(
+                                                                folderName,
+                                                                modFolder,
+                                                                metadataFile,
+                                                                modId,
+                                                                dependencies));
 
-                                        continue;
-                                }
-
-                                if (discovered.containsKey(
-                                                modId)) {
-
-                                        discovered.remove(
-                                                        modId);
-
-                                        duplicateIds.add(
-                                                        modId);
+                                if (registrationResult == DiscoveryRegistrationResult.DUPLICATE_DETECTED) {
 
                                         Log.log(
                                                         Log.LEVEL_ERROR,
@@ -187,8 +220,6 @@ public final class JavaModLoader {
                                                                         + "]. Mods using duplicate IDs "
                                                                         + "will not be loaded.",
                                                         "JavaModLoader");
-
-                                        continue;
                                 }
 
                                 discovered.put(
@@ -229,161 +260,6 @@ public final class JavaModLoader {
                 }
 
                 return false;
-        }
-
-        private static boolean loadDiscoveredMod(
-                        String modId,
-                        Map<String, DiscoveredJavaMod> discovered,
-                        Map<String, LoadState> states,
-                        List<String> path) {
-
-                LoadState state = states.get(modId);
-
-                if (state == LoadState.LOADED) {
-                        return true;
-                }
-
-                if (state == LoadState.FAILED) {
-                        return false;
-                }
-
-                /*
-                 * Finding something we're already visiting means
-                 * we've found a dependency cycle.
-                 */
-                if (state == LoadState.VISITING) {
-
-                        List<String> cycle = new ArrayList<>();
-
-                        int cycleStart = path.indexOf(
-                                        modId);
-
-                        if (cycleStart >= 0) {
-
-                                cycle.addAll(
-                                                path.subList(
-                                                                cycleStart,
-                                                                path.size()));
-
-                        } else {
-
-                                cycle.addAll(
-                                                path);
-                        }
-
-                        cycle.add(
-                                        modId);
-
-                        Log.log(
-                                        Log.LEVEL_ERROR,
-                                        "Circular Java mod dependency detected: "
-                                                        + String.join(
-                                                                        " -> ",
-                                                                        cycle),
-                                        "JavaModLoader");
-
-                        states.put(
-                                        modId,
-                                        LoadState.FAILED);
-
-                        return false;
-                }
-
-                DiscoveredJavaMod mod = discovered.get(
-                                modId);
-
-                if (mod == null) {
-
-                        states.put(
-                                        modId,
-                                        LoadState.FAILED);
-
-                        return false;
-                }
-
-                states.put(
-                                modId,
-                                LoadState.VISITING);
-
-                path.add(
-                                modId);
-
-                /*
-                 * Resolve every dependency before loading this mod.
-                 */
-                for (String dependencyId : mod.dependencies()) {
-
-                        DiscoveredJavaMod dependency = discovered.get(
-                                        dependencyId);
-
-                        if (dependency == null) {
-
-                                states.put(
-                                                modId,
-                                                LoadState.FAILED);
-
-                                path.remove(
-                                                path.size() - 1);
-
-                                return false;
-                        }
-
-                        if (!loadDiscoveredMod(
-                                        dependencyId,
-                                        discovered,
-                                        states,
-                                        path)) {
-
-                                Log.log(
-                                                Log.LEVEL_ERROR,
-                                                "Cannot load Java mod ["
-                                                                + modId
-                                                                + "]: dependency ["
-                                                                + dependencyId
-                                                                + "] failed to load.",
-                                                "JavaModLoader");
-
-                                states.put(
-                                                modId,
-                                                LoadState.FAILED);
-
-                                path.remove(
-                                                path.size() - 1);
-
-                                return false;
-                        }
-                }
-
-                path.remove(
-                                path.size() - 1);
-
-                /*
-                 * Another dependency chain may already have caused
-                 * this mod to load.
-                 */
-                if (isModIdLoaded(
-                                modId)) {
-
-                        states.put(
-                                        modId,
-                                        LoadState.LOADED);
-
-                        return true;
-                }
-
-                loadMod(
-                                mod.folderName());
-
-                boolean loaded = isModIdLoaded(
-                                modId);
-
-                states.put(
-                                modId,
-                                loaded
-                                                ? LoadState.LOADED
-                                                : LoadState.FAILED);
-
-                return loaded;
         }
 
         private static boolean isFolderLoaded(String folderName) {
@@ -553,7 +429,7 @@ public final class JavaModLoader {
                 return properties;
         }
 
-        private static String requiredProperty(
+        static String requiredProperty(
                         Properties properties,
                         String key) {
 
@@ -570,7 +446,7 @@ public final class JavaModLoader {
                 return value.trim();
         }
 
-        private static int requiredIntProperty(
+        static int requiredIntProperty(
                         Properties properties,
                         String key) {
                 String value = requiredProperty(
@@ -591,7 +467,7 @@ public final class JavaModLoader {
                 }
         }
 
-        private static void validateModId(String modId) {
+        static void validateModId(String modId) {
 
                 if (!modId.matches("[a-z0-9_.-]+")) {
                         throw new IllegalArgumentException(
@@ -603,7 +479,7 @@ public final class JavaModLoader {
                 }
         }
 
-        private static void validateApiVersion(
+        static void validateApiVersion(
                         int apiVersion) {
                 if (apiVersion > SdkVersion.API_VERSION) {
 
@@ -624,7 +500,7 @@ public final class JavaModLoader {
                 }
         }
 
-        private static List<String> parseDependencies(
+        static List<String> parseDependencies(
                         Properties properties) {
                 String value = optionalProperty(
                                 properties,
@@ -660,7 +536,7 @@ public final class JavaModLoader {
                                 dependencies);
         }
 
-        private static void validateDependencies(
+        static void validateDependencies(
                         String modId,
                         List<String> dependencies) {
                 if (dependencies.contains(
@@ -859,5 +735,33 @@ public final class JavaModLoader {
 
                 loadedMods.clear();
                 worldActiveMods.clear();
+        }
+
+        static <T> DiscoveryRegistrationResult registerDiscovered(
+                        Map<String, T> discovered,
+                        Set<String> duplicateIds,
+                        String modId,
+                        T value) {
+                if (duplicateIds.contains(modId)) {
+                        return DiscoveryRegistrationResult.ALREADY_DUPLICATE;
+                }
+
+                if (discovered.containsKey(modId)) {
+
+                        /*
+                         * Neither mod is allowed to win when two enabled
+                         * Java mods declare the same ID.
+                         */
+                        discovered.remove(modId);
+                        duplicateIds.add(modId);
+
+                        return DiscoveryRegistrationResult.DUPLICATE_DETECTED;
+                }
+
+                discovered.put(
+                                modId,
+                                value);
+
+                return DiscoveryRegistrationResult.ADDED;
         }
 }

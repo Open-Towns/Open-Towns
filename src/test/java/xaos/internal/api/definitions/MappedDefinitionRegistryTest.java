@@ -59,11 +59,14 @@ class MappedDefinitionRegistryTest {
         assertNull(registry.get("bad:id:format"));
     }
 
-    private static DefinitionRegistry<TestDefinition> registry(Map<String, String> source) {
+    private static DefinitionRegistry<TestDefinition> registry(
+            Map<String, String> source) {
         return new MappedDefinitionRegistry<>(
-                source::get,
+                DefinitionKind.ITEM,
                 () -> source,
-                value -> new TestDefinition(value.toLowerCase(), value));
+                (id, value) -> new TestDefinition(
+                        id,
+                        value));
     }
 
     private static final class TestDefinition implements Definition {
@@ -71,9 +74,11 @@ class MappedDefinitionRegistryTest {
         private final String legacyId;
         private final String name;
 
-        private TestDefinition(String legacyId, String name) {
-            this.id = DefinitionId.towns(legacyId);
-            this.legacyId = legacyId;
+        private TestDefinition(
+                DefinitionId id,
+                String name) {
+            this.id = id;
+            this.legacyId = id.path();
             this.name = name;
         }
 
