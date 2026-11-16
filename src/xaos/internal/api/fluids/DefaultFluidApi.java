@@ -1,6 +1,7 @@
 package xaos.internal.api.fluids;
 
-import xaos.api.GameApi;
+
+import xaos.api.GameApiBootstrap;
 import xaos.api.definitions.DefinitionId;
 import xaos.api.fluids.FluidApi;
 import xaos.api.fluids.FluidMutationResult;
@@ -181,14 +182,20 @@ public final class DefaultFluidApi
 
         return FluidMutationResult.success();
     }
+    @Override
+public boolean supports(
+        DefinitionId fluidId) {
+
+    return toInternalType(fluidId) >= 0;
+}
 
     private static boolean isValid(
             WorldPosition position) {
 
         return position != null
-                && GameApi.get()
-                        .world()
-                        .isValidPosition(position);
+        && GameApiBootstrap.get()
+                .world()
+                .isValidPosition(position);
     }
 
     /*
@@ -223,11 +230,11 @@ public final class DefaultFluidApi
             int type) {
 
         if (type == Terrain.FLUIDS_WATER) {
-            return DefinitionId.towns("water");
+            return FluidApi.WATER;
         }
 
         if (type == Terrain.FLUIDS_LAVA) {
-            return DefinitionId.towns("lava");
+            return FluidApi.LAVA;
         }
 
         return null;

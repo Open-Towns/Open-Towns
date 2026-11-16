@@ -18,7 +18,7 @@ public final class LivingDefinition extends AbstractDefinition {
      *
      * Unqualified IDs are treated as Towns definitions.
      */
-    public LivingDefinition(
+     LivingDefinition(
             String legacyId,
             String name,
             int type,
@@ -47,7 +47,7 @@ public final class LivingDefinition extends AbstractDefinition {
     /**
      * Namespaced constructor.
      */
-    public LivingDefinition(
+    LivingDefinition(
             DefinitionId id,
             String name,
             int type,

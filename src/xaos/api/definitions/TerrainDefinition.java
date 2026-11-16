@@ -23,7 +23,7 @@ public final class TerrainDefinition extends AbstractDefinition {
      * Unqualified IDs are treated as base Towns
      * terrain definitions.
      */
-    public TerrainDefinition(
+     TerrainDefinition(
             String legacyId,
             String name,
             int terrainId,
@@ -56,7 +56,7 @@ public final class TerrainDefinition extends AbstractDefinition {
     /**
      * Namespaced constructor.
      */
-    public TerrainDefinition(
+     TerrainDefinition(
             DefinitionId id,
             String name,
             int terrainId,

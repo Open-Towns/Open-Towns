@@ -5,7 +5,8 @@ import xaos.actions.ActionManager;
 import xaos.actions.ActionManagerItem;
 import xaos.actions.QueueData;
 
-import xaos.api.GameApi;
+
+import xaos.api.GameApiBootstrap;
 import xaos.api.actions.ActionApi;
 import xaos.api.actions.ActionResult;
 import xaos.api.definitions.DefinitionId;
@@ -36,9 +37,9 @@ public final class DefaultActionApi
             );
         }
 
-        if (!GameApi.get()
-                .world()
-                .isValidPosition(position)) {
+       if (!GameApiBootstrap.get()
+        .world()
+        .isValidPosition(position)) {
 
             return ActionResult.rejected(
                     "Position is outside the world"

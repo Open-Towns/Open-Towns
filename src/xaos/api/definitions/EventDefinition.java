@@ -21,7 +21,7 @@ public final class EventDefinition extends AbstractDefinition {
      *
      * Unqualified IDs are treated as base Towns events.
      */
-    public EventDefinition(
+     EventDefinition(
             String legacyId,
             String name,
             int order,
@@ -54,7 +54,7 @@ public final class EventDefinition extends AbstractDefinition {
     /**
      * Namespaced constructor.
      */
-    public EventDefinition(
+     EventDefinition(
             DefinitionId id,
             String name,
             int order,

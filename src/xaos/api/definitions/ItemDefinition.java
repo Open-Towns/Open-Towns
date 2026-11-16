@@ -25,7 +25,7 @@ public final class ItemDefinition
      * Existing Towns definitions continue to default
      * to the "towns" namespace.
      */
-    public ItemDefinition(
+     ItemDefinition(
             String legacyId,
             String name,
             String type,
@@ -62,7 +62,7 @@ public final class ItemDefinition
     /*
      * Namespaced constructor.
      */
-    public ItemDefinition(
+     ItemDefinition(
             DefinitionId id,
             String name,
             String type,

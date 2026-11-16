@@ -2,6 +2,7 @@ package xaos.internal.api.ui;
 
 import java.util.List;
 
+import xaos.api.ui.UiActionRegistration;
 import xaos.api.ui.UiApi;
 import xaos.api.ui.UiMessageType;
 import xaos.main.Game;
@@ -79,11 +80,12 @@ public final class DefaultUiApi implements UiApi {
     }
 
     @Override
-    public void registerGameAction(
+    public UiActionRegistration registerGameAction(
             String id,
             String label,
             Runnable action) {
-        UiActionRegistry.register(
+
+        return UiActionRegistry.register(
                 id,
                 label,
                 action);

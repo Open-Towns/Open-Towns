@@ -17,7 +17,7 @@ public final class BuildingDefinition extends AbstractDefinition {
      * Treats an unqualified building ID as belonging to
      * the base Towns namespace.
      */
-    public BuildingDefinition(
+     BuildingDefinition(
             String legacyId,
             String name,
             String type,
@@ -42,7 +42,7 @@ public final class BuildingDefinition extends AbstractDefinition {
      * Used by the public definitions API so definitions
      * introduced by mods retain their owning namespace.
      */
-    public BuildingDefinition(
+     BuildingDefinition(
             DefinitionId id,
             String name,
             String type,

@@ -36,7 +36,13 @@ public interface UiApi {
                         String title,
                         List<String> lines);
 
-        void registerGameAction(
+        /**
+         * Registers an action that can be exposed through the game UI.
+         *
+         * The returned registration should normally be tracked using
+         * ModContext.worldResource() or ModContext.resource().
+         */
+        UiActionRegistration registerGameAction(
                         String id,
                         String label,
                         Runnable action);

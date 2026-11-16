@@ -17,7 +17,7 @@ public final class ActionDefinition
      * Existing Towns actions default to the "towns"
      * namespace.
      */
-    public ActionDefinition(
+     ActionDefinition(
             String legacyId,
             String name,
             String priorityId,
@@ -42,7 +42,7 @@ public final class ActionDefinition
     /*
      * Namespaced constructor.
      */
-    public ActionDefinition(
+     ActionDefinition(
             DefinitionId id,
             String name,
             String priorityId,

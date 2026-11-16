@@ -1,6 +1,7 @@
 package xaos.internal.api.tasks;
 
-import xaos.api.GameApi;
+
+import xaos.api.GameApiBootstrap;
 import xaos.api.definitions.DefinitionId;
 import xaos.api.tasks.TaskApi;
 import xaos.api.tasks.TaskResult;
@@ -29,7 +30,7 @@ public final class DefaultTaskApi implements TaskApi {
                                         "Position cannot be null");
                 }
 
-                if (!GameApi.get()
+                if (!GameApiBootstrap.get()
                                 .world()
                                 .isValidPosition(position)) {
 
@@ -93,7 +94,7 @@ public final class DefaultTaskApi implements TaskApi {
                                         "Position cannot be null");
                 }
 
-                if (!GameApi.get()
+                if (!GameApiBootstrap.get()
                                 .world()
                                 .isValidPosition(position)) {
 
@@ -170,7 +171,7 @@ public final class DefaultTaskApi implements TaskApi {
                                         "Position cannot be null");
                 }
 
-                if (!GameApi.get()
+                if (!GameApiBootstrap.get()
                                 .world()
                                 .isValidPosition(position)) {
 
@@ -234,10 +235,10 @@ public final class DefaultTaskApi implements TaskApi {
                                         "Mining positions cannot be null");
                 }
 
-                if (!GameApi.get()
+                if (!GameApiBootstrap.get()
                                 .world()
                                 .isValidPosition(first)
-                                || !GameApi.get()
+                                || !GameApiBootstrap.get()
                                                 .world()
                                                 .isValidPosition(second)) {
 

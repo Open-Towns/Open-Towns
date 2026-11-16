@@ -49,7 +49,6 @@ public final class GameApiBootstrap {
     }
 
     public static GameApi get() {
-        GameApi.install(INSTANCE);
-        return INSTANCE;
-    }
+    return INSTANCE;
+}
 }

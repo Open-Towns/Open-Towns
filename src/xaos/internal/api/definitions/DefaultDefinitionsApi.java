@@ -22,6 +22,7 @@ import xaos.tiles.entities.living.LivingEntityManagerItem;
 
 import xaos.tiles.terrain.TerrainManager;
 import xaos.tiles.terrain.TerrainManagerItem;
+import xaos.api.definitions.DefinitionSnapshotFactory;
 
 /** Default bridge from Towns' existing XML managers to the public API. */
 public final class DefaultDefinitionsApi implements DefinitionsApi {
@@ -88,7 +89,7 @@ public final class DefaultDefinitionsApi implements DefinitionsApi {
         private static ItemDefinition mapItem(
                         DefinitionId id,
                         ItemManagerItem item) {
-                return new ItemDefinition(
+                return DefinitionSnapshotFactory.item(
                                 id,
                                 item.getName(),
                                 item.getType(),
@@ -108,7 +109,7 @@ public final class DefaultDefinitionsApi implements DefinitionsApi {
         private static LivingDefinition mapLiving(
                         DefinitionId id,
                         LivingEntityManagerItem living) {
-                return new LivingDefinition(
+                return DefinitionSnapshotFactory.living(
                                 id,
                                 living.getName(),
                                 living.getType(),
@@ -121,7 +122,7 @@ public final class DefaultDefinitionsApi implements DefinitionsApi {
         }
 
         private static BuildingDefinition mapBuilding(DefinitionId id, BuildingManagerItem building) {
-                return new BuildingDefinition(
+                return DefinitionSnapshotFactory.building(
                                 id,
                                 building.getName(),
                                 building.getType(),
@@ -134,7 +135,7 @@ public final class DefaultDefinitionsApi implements DefinitionsApi {
         private static ActionDefinition mapAction(
                         DefinitionId id,
                         ActionManagerItem action) {
-                return new ActionDefinition(
+                return DefinitionSnapshotFactory.action(
                                 id,
                                 action.getName(),
                                 action.getPriorityID(),
@@ -148,7 +149,7 @@ public final class DefaultDefinitionsApi implements DefinitionsApi {
         private static EventDefinition mapEvent(
                         DefinitionId id,
                         EventManagerItem event) {
-                return new EventDefinition(
+                return DefinitionSnapshotFactory.event(
                                 id,
                                 event.getName(),
                                 event.getOrder(),
@@ -166,7 +167,7 @@ public final class DefaultDefinitionsApi implements DefinitionsApi {
         private static TerrainDefinition mapTerrain(
                         DefinitionId id,
                         TerrainManagerItem terrain) {
-                return new TerrainDefinition(
+                return DefinitionSnapshotFactory.terrain(
                                 id,
                                 terrain.getName(),
                                 terrain.getTerrainID(),

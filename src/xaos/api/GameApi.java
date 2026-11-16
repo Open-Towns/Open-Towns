@@ -36,7 +36,7 @@ import xaos.api.definitions.DefinitionsApi;
  */
 public final class GameApi {
 
-    private static GameApi instance;
+   
 
     private final DefinitionsApi definitions;
     private final WorldApi world;
@@ -90,23 +90,6 @@ public final class GameApi {
         this.actions = actions;
     }
 
-    /**
-     * Returns the shared game API instance.
-     */
-    public static GameApi get() {
-        if (instance == null) {
-            throw new IllegalStateException(
-                    "Open Towns GameApi has not been initialised.");
-        }
-
-        return instance;
-    }
-
-    static void install(GameApi api) {
-        if (instance == null) {
-            instance = api;
-        }
-    }
 
     /**
      * Access to game content definitions such as items,

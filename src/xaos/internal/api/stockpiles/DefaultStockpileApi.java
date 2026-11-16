@@ -16,162 +16,146 @@ import xaos.stockpiles.Stockpile;
 import xaos.tiles.entities.items.Item;
 import xaos.utils.Point3DShort;
 
+import xaos.internal.api.definitions.DefinitionKind;
+import xaos.internal.api.definitions.DefinitionOwnershipRegistry;
+import xaos.internal.api.definitions.DefinitionResolver;
+
 public final class DefaultStockpileApi
-        implements StockpileApi {
+                implements StockpileApi {
 
-    @Override
-    public StockpileView get(
-            StockpileId id
-    ) {
-        if (id == null) {
-            return null;
+        @Override
+        public StockpileView get(
+                        StockpileId id) {
+                if (id == null) {
+                        return null;
+                }
+
+                Stockpile stockpile = Stockpile.getStockpile(
+                                id.value());
+
+                return map(stockpile);
         }
 
-        Stockpile stockpile =
-                Stockpile.getStockpile(
-                        id.value()
-                );
+        @Override
+        public StockpileView at(
+                        WorldPosition position) {
+                if (position == null) {
+                        return null;
+                }
 
-        return map(stockpile);
-    }
+                Stockpile stockpile = Stockpile.getStockpile(
+                                position.x(),
+                                position.y(),
+                                position.z());
 
-    @Override
-    public StockpileView at(
-            WorldPosition position
-    ) {
-        if (position == null) {
-            return null;
+                return map(stockpile);
         }
 
-        Stockpile stockpile =
-                Stockpile.getStockpile(
-                        position.x(),
-                        position.y(),
-                        position.z()
-                );
+        @Override
+        public List<StockpileView> all() {
+                List<StockpileView> result = new ArrayList<>();
 
-        return map(stockpile);
-    }
+                for (Stockpile stockpile : Game.getWorld()
+                                .getStockpiles()) {
 
-    @Override
-    public List<StockpileView> all() {
-        List<StockpileView> result =
-                new ArrayList<>();
+                        StockpileView view = map(stockpile);
 
-        for (Stockpile stockpile
-                : Game.getWorld()
-                        .getStockpiles()) {
+                        if (view != null) {
+                                result.add(view);
+                        }
+                }
 
-            StockpileView view =
-                    map(stockpile);
-
-            if (view != null) {
-                result.add(view);
-            }
+                return List.copyOf(result);
         }
 
-        return List.copyOf(result);
-    }
+        @Override
+        public List<StockpileView> accepting(
+                        DefinitionId itemDefinitionId) {
+                /*
+                 * Resolve the public namespaced ID back to the legacy
+                 * engine ID used internally by the stockpile system.
+                 *
+                 * This also verifies that the requested namespace is
+                 * actually the current owner of the definition.
+                 */
+                String legacyItemId = DefinitionResolver.resolveItem(
+                                itemDefinitionId);
 
-    @Override
-    public List<StockpileView> accepting(
-            DefinitionId itemDefinitionId
-    ) {
-        if (itemDefinitionId == null
-                || !itemDefinitionId
-                        .isDefaultNamespace()) {
+                if (legacyItemId == null) {
+                        return List.of();
+                }
 
-            return List.of();
+                List<StockpileView> result = new ArrayList<>();
+
+                for (Stockpile stockpile : Game.getWorld()
+                                .getStockpiles()) {
+
+                        if (!stockpile.itemAllowed(
+                                        legacyItemId)) {
+                                continue;
+                        }
+
+                        StockpileView view = map(stockpile);
+
+                        if (view != null) {
+                                result.add(view);
+                        }
+                }
+
+                return List.copyOf(result);
         }
 
-        List<StockpileView> result =
-                new ArrayList<>();
+        private static StockpileView map(
+                        Stockpile stockpile) {
+                if (stockpile == null) {
+                        return null;
+                }
 
-        for (Stockpile stockpile
-                : Game.getWorld()
-                        .getStockpiles()) {
+                List<WorldPosition> positions = new ArrayList<>();
 
-            if (!stockpile.itemAllowed(
-                    itemDefinitionId.path())) {
-                continue;
-            }
+                List<EntityId> itemIds = new ArrayList<>();
 
-            StockpileView view =
-                    map(stockpile);
+                for (Point3DShort point : stockpile.getPoints()) {
 
-            if (view != null) {
-                result.add(view);
-            }
+                        positions.add(
+                                        new WorldPosition(
+                                                        point.x,
+                                                        point.y,
+                                                        point.z));
+
+                        Item item = World.getCell(point)
+                                        .getItem();
+
+                        if (item != null) {
+                                itemIds.add(
+                                                new EntityId(
+                                                                item.getID()));
+                        }
+                }
+
+                List<DefinitionId> allowedItems = new ArrayList<>();
+
+                for (String itemId : stockpile.getType()
+                                .getElements()) {
+
+                        if (itemId != null
+                                        && !itemId.isBlank()) {
+
+                                allowedItems.add(
+                                                DefinitionOwnershipRegistry.idFor(
+                                                                DefinitionKind.ITEM,
+                                                                itemId));
+                        }
+                }
+
+                return new StockpileView(
+                                new StockpileId(
+                                                stockpile.getID()),
+                                stockpile.getType().getID(),
+                                positions,
+                                itemIds,
+                                allowedItems,
+                                stockpile.getFilledPoints(),
+                                stockpile.isLockedToCopy());
         }
-
-        return List.copyOf(result);
-    }
-
-    private static StockpileView map(
-            Stockpile stockpile
-    ) {
-        if (stockpile == null) {
-            return null;
-        }
-
-        List<WorldPosition> positions =
-                new ArrayList<>();
-
-        List<EntityId> itemIds =
-                new ArrayList<>();
-
-        for (Point3DShort point
-                : stockpile.getPoints()) {
-
-            positions.add(
-                    new WorldPosition(
-                            point.x,
-                            point.y,
-                            point.z
-                    )
-            );
-
-            Item item =
-                    World.getCell(point)
-                            .getItem();
-
-            if (item != null) {
-                itemIds.add(
-                        new EntityId(
-                                item.getID()
-                        )
-                );
-            }
-        }
-
-        List<DefinitionId> allowedItems =
-                new ArrayList<>();
-
-        for (String itemId
-                : stockpile.getType()
-                        .getElements()) {
-
-            if (itemId != null
-                    && !itemId.isBlank()) {
-
-                allowedItems.add(
-                        DefinitionId.towns(
-                                itemId
-                        )
-                );
-            }
-        }
-
-        return new StockpileView(
-                new StockpileId(
-                        stockpile.getID()
-                ),
-                stockpile.getType().getID(),
-                positions,
-                itemIds,
-                allowedItems,
-                stockpile.getFilledPoints(),
-                stockpile.isLockedToCopy()
-        );
-    }
 }
