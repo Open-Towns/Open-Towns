@@ -57,6 +57,7 @@ import xaos.utils.UtilsIniHeaders;
 import xaos.zones.Zone;
 import xaos.zones.ZoneManager;
 import xaos.zones.ZoneManagerItem;
+import xaos.tiles.terrain.Terrain;
 
 public class Citizen extends LivingEntity implements Externalizable {
 
@@ -2846,6 +2847,161 @@ public class Citizen extends LivingEntity implements Externalizable {
                 getCurrentCustomAction().getQueue().remove(0);
                 getCurrentCustomAction().getQueueData().setLastQueueItem(null);
             }
+        } else if (qi.getType() == QueueItem.TYPE_PLACE_FLUID) {
+
+            Point3DShort terrainPoint = getCurrentCustomAction()
+                    .getTerrainPoint();
+
+            if (terrainPoint == null) {
+                getCurrentCustomAction()
+                        .getQueue()
+                        .remove(0);
+
+                getCurrentCustomAction()
+                        .getQueueData()
+                        .setLastQueueItem(null);
+
+                return;
+            }
+
+            int fluidType = -1;
+
+            if ("water".equalsIgnoreCase(
+                    qi.getValue())) {
+
+                fluidType = Terrain.FLUIDS_WATER;
+
+            } else if ("lava".equalsIgnoreCase(
+                    qi.getValue())) {
+
+                fluidType = Terrain.FLUIDS_LAVA;
+            }
+
+            if (fluidType < 0) {
+
+                Log.log(
+                        Log.LEVEL_ERROR,
+                        "Unknown fluid type in action: "
+                                + qi.getValue(),
+                        getClass().toString());
+
+                /*
+                 * The action can no longer complete at this
+                 * terrain point, so remove its order marker.
+                 */
+                Game.getWorld()
+                        .getTaskManager()
+                        .clearCustomActionOrderFlag(
+                                getCurrentCustomAction());
+
+                getCurrentCustomAction()
+                        .getQueue()
+                        .remove(0);
+
+                getCurrentCustomAction()
+                        .getQueueData()
+                        .setLastQueueItem(null);
+
+                return;
+            }
+
+            Cell cell = World.getCell(
+                    terrainPoint);
+
+            /*
+             * Only allow fluid in open/mined cells.
+             */
+            if (!cell.isMined()) {
+
+                Game.getWorld()
+                        .getTaskManager()
+                        .clearCustomActionOrderFlag(
+                                getCurrentCustomAction());
+
+                getCurrentCustomAction()
+                        .getQueue()
+                        .remove(0);
+
+                getCurrentCustomAction()
+                        .getQueueData()
+                        .setLastQueueItem(null);
+
+                return;
+            }
+
+            int existingCount = cell.getTerrain()
+                    .getFluidCount();
+
+            int existingType = cell.getTerrain()
+                    .getFluidType();
+
+            /*
+             * Don't overwrite another type of fluid.
+             */
+            if (existingCount > 0
+                    && existingType != fluidType) {
+
+                Game.getWorld()
+                        .getTaskManager()
+                        .clearCustomActionOrderFlag(
+                                getCurrentCustomAction());
+
+                getCurrentCustomAction()
+                        .getQueue()
+                        .remove(0);
+
+                getCurrentCustomAction()
+                        .getQueueData()
+                        .setLastQueueItem(null);
+
+                return;
+            }
+
+            /*
+             * Reuse Towns' normal fluid task rather than
+             * modifying Terrain directly.
+             */
+            Task fluidTask = new Task(
+                    Task.TASK_TERRAIN_ADD_FLUID);
+
+            fluidTask.setPointIni(
+                    terrainPoint.toPoint3D());
+
+            fluidTask.setParameter(
+                    Integer.toString(
+                            fluidType));
+
+            fluidTask.setParameter2(
+                    Integer.toString(
+                            Terrain.FLUIDS_COUNT_MAX));
+
+            Game.getWorld()
+                    .getTaskManager()
+                    .executeTaskImmediately(
+                            fluidTask);
+
+            /*
+             * The physical terrain operation is now complete.
+             *
+             * Remove the blue Towns order marker from this
+             * terrain cell immediately.
+             *
+             * The remainder of the custom action may still
+             * destroy/create the bucket, but there is no longer
+             * a terrain order waiting on this cell.
+             */
+            Game.getWorld()
+                    .getTaskManager()
+                    .clearCustomActionOrderFlag(
+                            getCurrentCustomAction());
+
+            getCurrentCustomAction()
+                    .getQueue()
+                    .remove(0);
+
+            getCurrentCustomAction()
+                    .getQueueData()
+                    .setLastQueueItem(null);
         } else if (qi.getType() == QueueItem.TYPE_CHANGE_TERRAIN) {
             // Se aplica a la cell de abajo (obviamente... ejem)
             if (getCoordinates().z < (World.MAP_DEPTH - 1)) {

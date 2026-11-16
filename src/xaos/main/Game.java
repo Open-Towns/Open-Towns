@@ -85,7 +85,12 @@ import xaos.zones.ZoneManager;
 import xaos.panels.UI.UIPanelInputHandler;
 import static xaos.panels.UI.UIPanelState.*;
 import static xaos.panels.UI.UIPanelInputHandler.*;
-
+import xaos.api.mods.JavaModLoader;
+import xaos.panels.UI.UiDispatcher;
+import xaos.internal.api.selection.SelectionManager;
+import xaos.internal.api.mods.ModSaveDataRegistry;
+import xaos.internal.api.inventory.ItemReservationRegistry;
+import xaos.internal.api.definitions.DefinitionOwnershipRegistry;
 
 public final class Game {
 
@@ -315,8 +320,21 @@ public final class Game {
 
 		// Esto aquí, después de cargar las texturas, que si no empieza el contador del
 		// SMP logo a bajar antes de tiempo
-		panelMainMenu = new MainMenuPanel(0, 0, UtilsGL.getWidth(), UtilsGL.getHeight());
+		panelMainMenu = new MainMenuPanel(
+				0,
+				0,
+				UtilsGL.getWidth(),
+				UtilsGL.getHeight());
+
 		panelMainMenu.setActive(true);
+
+		/*
+		 * Load optional Java plugins from enabled mod folders.
+		 *
+		 * This happens after the main engine/UI has been initialised,
+		 * but before the main game loop begins.
+		 */
+		JavaModLoader.loadEnabledMods();
 
 		// Main loop
 		run();
@@ -446,6 +464,12 @@ public final class Game {
 		if (fMapa.exists()) {
 			fMapa.delete();
 		}
+		/*
+		 * A newly generated world starts with fresh
+		 * per-mod persistent state.
+		 */
+		ModSaveDataRegistry.clear();
+		ItemReservationRegistry.clear();
 
 		world = new World(campaignID, missionID);
 		world.generateAll(campaignID, missionID);
@@ -713,6 +737,11 @@ public final class Game {
 		if (missionData != null && missionData.getTutorialFlows().size() > 0) {
 			UIPanel.toggleTutorialPanel(bNewGame || bForzedZip);
 		}
+		/*
+		 * The world, entities, UI and supporting game systems are now
+		 * ready for Java mods to query.
+		 */
+		JavaModLoader.notifyWorldLoaded();
 	}
 
 	public static void generateBury(Cell[][][] cells) {
@@ -1154,6 +1183,14 @@ public final class Game {
 						}
 					}
 				} else if (mouseButton == 1) {
+					/*
+					 * Right-click cancels an API selection just like
+					 * it cancels normal Towns task creation.
+					 */
+					if (SelectionManager.isSelecting()) {
+						SelectionManager.cancel();
+						continue;
+					}
 					if (typingPanel != null) {
 						if (UIPanelInputHandler.isMouseOnAPanel(mouseX, mouseY) != MOUSE_NONE) {
 							UIPanelInputHandler.mousePressed(mouseX, mouseY, mouseButton);
@@ -1206,7 +1243,7 @@ public final class Game {
 				if (handleWorldZoomMouseWheel()) {
 					return;
 				}
-				
+
 				if (mouseWheelMoved > 0) {
 					world.keyPressed(Keyboard.KEY_NONE, UtilsKeyboard.FN_LEVEL_UP);
 				} else if (mouseWheelMoved < 0) {
@@ -1452,6 +1489,15 @@ public final class Game {
 			checkMouseEvents();
 			// Tratamos los eventos del teclado
 			checkKeyboardEvents();
+
+			/*
+			 * Process UI work requested during the current input cycle.
+			 *
+			 * Doing this after mouse/keyboard handling prevents newly
+			 * created context menus from being removed by the command
+			 * that requested them.
+			 */
+			UiDispatcher.processPending();
 
 			// Game logic
 			if (!getPanelMainMenu().isActive()) {
@@ -2261,21 +2307,30 @@ public final class Game {
 	}
 
 	public static void setServers(String sServers) {
-		// Servers and names
 		alServers.clear();
 		alServerNames.clear();
 
-		if (sServers != null && sServers.trim().length() > 0) {
-			StringTokenizer tokenizer = new StringTokenizer(sServers, ","); //$NON-NLS-1$
-			while (tokenizer.hasMoreTokens()) {
-				String sServerAddress = tokenizer.nextToken();
-				if (sServerAddress.length() > 0) {
-					alServers.add(sServerAddress.trim());
+		if (sServers != null
+				&& !sServers.trim().isEmpty()) {
 
-					// Buscamos el nombre
-					alServerNames.add(UtilsServer.getServerName(sServerAddress.trim()));
+			StringTokenizer tokenizer = new StringTokenizer(
+					sServers,
+					",");
+
+			while (tokenizer.hasMoreTokens()) {
+				String serverAddress = tokenizer.nextToken().trim();
+
+				if (!serverAddress.isEmpty()) {
+					alServers.add(serverAddress);
+
+					/*
+					 * Don't perform network access during startup.
+					 * Use the address as the temporary display name.
+					 */
+					alServerNames.add(serverAddress);
 				}
 			}
+
 			sortServers();
 		}
 	}
@@ -2407,6 +2462,7 @@ public final class Game {
 		CampaignManager.clear();
 		LivingEntityManager.clear();
 		TerrainManager.clear();
+		EventManager.clear();
 		SkillManager.clear();
 		ZoneManager.clear();
 		Type.clear();
@@ -2418,6 +2474,15 @@ public final class Game {
 		PrefixSuffixManager.clear();
 		PricesManager.clear();
 		MatsPanelData.clear();
+
+		/*
+		 * Definition managers have now been cleared, so discard
+		 * their namespace ownership metadata as well.
+		 *
+		 * Definitions will register ownership again when they are
+		 * loaded for the next game.
+		 */
+		DefinitionOwnershipRegistry.clear();
 
 		DungeonManager.clear();
 
@@ -2432,6 +2497,7 @@ public final class Game {
 	}
 
 	public static void exit() {
+		JavaModLoader.shutdown();
 		UtilsGL.destroy();
 		UtilsAL.destroy();
 		System.exit(0);

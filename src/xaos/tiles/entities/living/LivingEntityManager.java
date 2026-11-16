@@ -23,6 +23,11 @@ import xaos.utils.Utils;
 import xaos.utils.UtilsIniHeaders;
 import xaos.utils.UtilsXML;
 
+import xaos.api.definitions.DefinitionId;
+import xaos.internal.api.definitions.DefinitionKind;
+import xaos.internal.api.definitions.DefinitionOwnershipRegistry;
+import xaos.internal.api.mods.ModNamespaceResolver;
+
 public class LivingEntityManager {
 
     /**
@@ -39,7 +44,8 @@ public class LivingEntityManager {
             hmLivingEntities = new HashMap<String, LivingEntityManagerItem>();
 
             // Cargar de fichero
-            loadXML(Towns.getPropertiesString("DATA_FOLDER") + "livingentities.xml", true); //$NON-NLS-1$ //$NON-NLS-2$
+            loadXML(Towns.getPropertiesString("DATA_FOLDER") + "livingentities.xml", true, //$NON-NLS-1$ //$NON-NLS-2$
+                    DefinitionId.DEFAULT_NAMESPACE);
 
             // Mods
             File fUserFolder = new File(Game.getUserFolder());
@@ -50,10 +56,20 @@ public class LivingEntityManager {
             ArrayList<String> alMods = Game.getModsLoaded();
             if (alMods != null && alMods.size() > 0) {
                 for (int i = 0; i < alMods.size(); i++) {
-                    String sModActionsPath = fUserFolder.getAbsolutePath() + System.getProperty("file.separator") + Game.MODS_FOLDER1 + System.getProperty("file.separator") + alMods.get(i) + System.getProperty("file.separator") + Towns.getPropertiesString("DATA_FOLDER") + "livingentities.xml"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+                    String sModActionsPath = fUserFolder.getAbsolutePath() + System.getProperty("file.separator") //$NON-NLS-1$
+                            + Game.MODS_FOLDER1 + System.getProperty("file.separator") + alMods.get(i) //$NON-NLS-1$
+                            + System.getProperty("file.separator") + Towns.getPropertiesString("DATA_FOLDER") //$NON-NLS-1$ //$NON-NLS-2$
+                            + "livingentities.xml"; //$NON-NLS-1$
                     File fIni = new File(sModActionsPath);
                     if (fIni.exists()) {
-                        loadXML(sModActionsPath, false);
+
+                        String namespace = ModNamespaceResolver.resolve(
+                                alMods.get(i));
+
+                        loadXML(
+                                sModActionsPath,
+                                false,
+                                namespace);
                     }
                 }
             }
@@ -75,8 +91,12 @@ public class LivingEntityManager {
                 // Steal living
                 if (lemi.getStealLivings() != null && lemi.getStealLivings().length > 0) {
                     for (int i = 0; i < lemi.getStealLivings().length; i++) {
-                        if (hmLivingEntities.get(UtilsIniHeaders.getStringIniHeader(lemi.getStealLivings()[i])) == null) {
-                            Log.log(Log.LEVEL_ERROR, "Wrong stealLivings" + " [" + UtilsIniHeaders.getStringIniHeader(lemi.getStealLivings()[i]) + "]", "LivingEntityManager");
+                        if (hmLivingEntities
+                                .get(UtilsIniHeaders.getStringIniHeader(lemi.getStealLivings()[i])) == null) {
+                            Log.log(Log.LEVEL_ERROR,
+                                    "Wrong stealLivings" + " ["
+                                            + UtilsIniHeaders.getStringIniHeader(lemi.getStealLivings()[i]) + "]",
+                                    "LivingEntityManager");
                             Game.exit();
                         }
                     }
@@ -160,7 +180,8 @@ public class LivingEntityManager {
             loadLivingEntities();
         }
 
-        // Recorremos todas las livings y vamos metiendo en una lista las que tengan el type pasado
+        // Recorremos todas las livings y vamos metiendo en una lista las que tengan el
+        // type pasado
         ArrayList<LivingEntityManagerItem> alLivings = new ArrayList<LivingEntityManagerItem>();
         Iterator<LivingEntityManagerItem> iterator = hmLivingEntities.values().iterator();
         LivingEntityManagerItem lemi;
@@ -221,9 +242,11 @@ public class LivingEntityManager {
         while (iterator.hasNext()) {
             lemi = hmLivingEntities.get(iterator.next());
             if (lemi.getLevel() >= iLevelMin && lemi.getLevel() <= iLevelMax && lemi.getType() == iType) {
-                if (bSteal && ((lemi.getSteal() != null && lemi.getSteal().length > 0) || (lemi.getStealLivings() != null && lemi.getStealLivings().length > 0))) {
+                if (bSteal && ((lemi.getSteal() != null && lemi.getSteal().length > 0)
+                        || (lemi.getStealLivings() != null && lemi.getStealLivings().length > 0))) {
                     alLemi.add(lemi);
-                } else if (!bSteal && ((lemi.getSteal() == null || lemi.getSteal().length == 0) && (lemi.getStealLivings() == null || lemi.getStealLivings().length == 0))) {
+                } else if (!bSteal && ((lemi.getSteal() == null || lemi.getSteal().length == 0)
+                        && (lemi.getStealLivings() == null || lemi.getStealLivings().length == 0))) {
                     alLemi.add(lemi);
                 }
             }
@@ -236,13 +259,13 @@ public class LivingEntityManager {
         }
     }
 
-
     /**
      * Devuelve una lista de enemigos a partir de 2 niveles
      *
      * @return una lista de enemigos a partir de 2 niveles
      */
-    public static ArrayList<LivingEntityManagerItem> getItemByLevelList(int iLevelMin, int iLevelMax, int iType, boolean bSteal) {
+    public static ArrayList<LivingEntityManagerItem> getItemByLevelList(int iLevelMin, int iLevelMax, int iType,
+            boolean bSteal) {
         if (hmLivingEntities == null) {
             loadLivingEntities();
         }
@@ -258,9 +281,11 @@ public class LivingEntityManager {
         while (iterator.hasNext()) {
             lemi = hmLivingEntities.get(iterator.next());
             if (lemi.getLevel() >= iLevelMin && lemi.getLevel() <= iLevelMax && lemi.getType() == iType) {
-                if (bSteal && ((lemi.getSteal() != null && lemi.getSteal().length > 0) || (lemi.getStealLivings() != null && lemi.getStealLivings().length > 0))) {
+                if (bSteal && ((lemi.getSteal() != null && lemi.getSteal().length > 0)
+                        || (lemi.getStealLivings() != null && lemi.getStealLivings().length > 0))) {
                     alLemi.add(lemi);
-                } else if (!bSteal && ((lemi.getSteal() == null || lemi.getSteal().length == 0) && (lemi.getStealLivings() == null || lemi.getStealLivings().length == 0))) {
+                } else if (!bSteal && ((lemi.getSteal() == null || lemi.getSteal().length == 0)
+                        && (lemi.getStealLivings() == null || lemi.getStealLivings().length == 0))) {
                     alLemi.add(lemi);
                 }
             }
@@ -272,7 +297,6 @@ public class LivingEntityManager {
             return alLemi;
         }
     }
-
 
     /**
      * Devuelve una lista con todos los living que pueden spawnear en el
@@ -288,7 +312,8 @@ public class LivingEntityManager {
 
         ArrayList<LivingEntityManagerItem> alReturn = new ArrayList<LivingEntityManagerItem>();
 
-        // Recorremos todos los items buscando el que tenga building = "parámetro pasado"
+        // Recorremos todos los items buscando el que tenga building = "parámetro
+        // pasado"
         Iterator<String> it = hmLivingEntities.keySet().iterator();
         LivingEntityManagerItem lemi;
         while (it.hasNext()) {
@@ -301,11 +326,11 @@ public class LivingEntityManager {
         return alReturn;
     }
 
-    private static void loadXML(String sXMLName, boolean bLoadingMain) {
+    private static void loadXML(String sXMLName, boolean bLoadingMain, String namespace) {
         try {
             Document doc = UtilsXML.loadXMLFile(sXMLName);
 
-			// Tenemos el documento XML parseado
+            // Tenemos el documento XML parseado
             // Lo recorremos entero y vamos añadiendo los livingEntities a la hash
             NodeList nodeList = doc.getDocumentElement().getChildNodes();
             Node node;
@@ -319,12 +344,57 @@ public class LivingEntityManager {
                         if (node.getAttributes() != null && node.getAttributes().getNamedItem("id") != null) {
                             String sIDToDelete = node.getAttributes().getNamedItem("id").getNodeValue();
                             if (sIDToDelete != null) {
-                                LivingEntityManagerItem lemi = hmLivingEntities.remove(sIDToDelete);
-                                if (lemi != null && lemi.getAltGraphics() != null && lemi.getAltGraphics().size() > 0) {
+
+                                if (!bLoadingMain
+                                        && hmLivingEntities.containsKey(sIDToDelete)
+                                        && DefinitionOwnershipRegistry
+                                                .conflictsWithOwner(
+                                                        DefinitionKind.LIVING,
+                                                        sIDToDelete,
+                                                        namespace)) {
+
+                                    String existingNamespace = DefinitionOwnershipRegistry.namespaceFor(
+                                            DefinitionKind.LIVING,
+                                            sIDToDelete);
+
+                                    Log.log(
+                                            Log.LEVEL_ERROR,
+                                            "Definition delete collision for living ["
+                                                    + sIDToDelete
+                                                    + "]: mod namespace ["
+                                                    + namespace
+                                                    + "] attempted to delete a definition owned by ["
+                                                    + existingNamespace
+                                                    + "]. Delete ignored.",
+                                            "LivingEntityManager");
+
+                                    continue;
+                                }
+
+                                LivingEntityManagerItem lemi = hmLivingEntities.remove(
+                                        sIDToDelete);
+
+                                DefinitionOwnershipRegistry.unregister(
+                                        DefinitionKind.LIVING,
+                                        sIDToDelete);
+
+                                if (lemi != null
+                                        && lemi.getAltGraphics() != null
+                                        && lemi.getAltGraphics().size() > 0) {
+
                                     String altG;
+
                                     for (int a = 0; a < lemi.getAltGraphics().size(); a++) {
-                                        altG = lemi.getAltGraphics().get(a);
-                                        hmLivingEntities.remove(altG);
+
+                                        altG = lemi.getAltGraphics()
+                                                .get(a);
+
+                                        hmLivingEntities.remove(
+                                                altG);
+
+                                        DefinitionOwnershipRegistry.unregister(
+                                                DefinitionKind.LIVING,
+                                                altG);
                                     }
                                 }
                             }
@@ -332,9 +402,41 @@ public class LivingEntityManager {
                         continue;
                     }
 
-                    boolean bExists = hmLivingEntities.containsKey(sIniHeader);
+                    boolean bExists = hmLivingEntities.containsKey(
+                            sIniHeader);
 
-                    // Mod cambiando valores de un item que ya existe?
+                    /*
+                     * Mods may modify base-game living definitions, but must
+                     * not accidentally overwrite one owned by another mod.
+                     */
+                    if (bExists && !bLoadingMain) {
+
+                        if (DefinitionOwnershipRegistry
+                                .conflictsWithOwner(
+                                        DefinitionKind.LIVING,
+                                        sIniHeader,
+                                        namespace)) {
+
+                            String existingNamespace = DefinitionOwnershipRegistry.namespaceFor(
+                                    DefinitionKind.LIVING,
+                                    sIniHeader);
+
+                            Log.log(
+                                    Log.LEVEL_ERROR,
+                                    "Definition collision for living ["
+                                            + sIniHeader
+                                            + "]: mod namespace ["
+                                            + namespace
+                                            + "] attempted to use an ID already owned by ["
+                                            + existingNamespace
+                                            + "]. Definition ignored.",
+                                    "LivingEntityManager");
+
+                            continue;
+                        }
+                    }
+
+                    // Mod changing values of a living definition that already exists?
                     boolean bModChangingValues = (bExists && !bLoadingMain);
 
                     LivingEntityManagerItem lemi;
@@ -447,7 +549,8 @@ public class LivingEntityManager {
                         }
                     } else {
                         lemi.setAttackVerb(UtilsXML.getChildValue(node.getChildNodes(), "attackVerb")); //$NON-NLS-1$
-                        lemi.setAttackVerbInfinitive(UtilsXML.getChildValue(node.getChildNodes(), "attackVerbInfinitive")); //$NON-NLS-1$
+                        lemi.setAttackVerbInfinitive(
+                                UtilsXML.getChildValue(node.getChildNodes(), "attackVerbInfinitive")); //$NON-NLS-1$
                     }
 
                     // Damage
@@ -685,15 +788,21 @@ public class LivingEntityManager {
                                 lemi.setHeroSkills(sAux);
                             }
                         } else {
-                            String sHeroComePrerequisite = UtilsXML.getChildValue(node.getChildNodes(), "heroComePrerequisite"); //$NON-NLS-1$
-                            if (sHeroComePrerequisite == null || HeroManager.getComePrerequisites(sHeroComePrerequisite) == null) {
-                                throw new Exception(Messages.getString("LivingEntityManager.0") + sHeroComePrerequisite + "]"); //$NON-NLS-1$ //$NON-NLS-2$
+                            String sHeroComePrerequisite = UtilsXML.getChildValue(node.getChildNodes(),
+                                    "heroComePrerequisite"); //$NON-NLS-1$
+                            if (sHeroComePrerequisite == null
+                                    || HeroManager.getComePrerequisites(sHeroComePrerequisite) == null) {
+                                throw new Exception(
+                                        Messages.getString("LivingEntityManager.0") + sHeroComePrerequisite + "]"); //$NON-NLS-1$ //$NON-NLS-2$
                             }
                             lemi.setHeroComePrerequisite(sHeroComePrerequisite);
 
-                            String sHeroStayPrerequisite = UtilsXML.getChildValue(node.getChildNodes(), "heroStayPrerequisite"); //$NON-NLS-1$
-                            if (sHeroStayPrerequisite == null || HeroManager.getStayPrerequisites(sHeroStayPrerequisite) == null) {
-                                throw new Exception(Messages.getString("LivingEntityManager.0") + sHeroStayPrerequisite + "]"); //$NON-NLS-1$ //$NON-NLS-2$
+                            String sHeroStayPrerequisite = UtilsXML.getChildValue(node.getChildNodes(),
+                                    "heroStayPrerequisite"); //$NON-NLS-1$
+                            if (sHeroStayPrerequisite == null
+                                    || HeroManager.getStayPrerequisites(sHeroStayPrerequisite) == null) {
+                                throw new Exception(
+                                        Messages.getString("LivingEntityManager.0") + sHeroStayPrerequisite + "]"); //$NON-NLS-1$ //$NON-NLS-2$
                             }
                             lemi.setHeroStayPrerequisite(sHeroStayPrerequisite);
 
@@ -847,24 +956,105 @@ public class LivingEntityManager {
                         lemi.setIdleCounterPCT(UtilsXML.getChildValue(node.getChildNodes(), "idleCounterPCT")); //$NON-NLS-1$
                     }
 
-                    // Lo añadimos a la hash
-                    hmLivingEntities.put(sIniHeader, lemi);
+                    /*
+                     * New living definitions inherit the namespace of
+                     * the source that introduced them.
+                     *
+                     * Overrides retain the ownership of the original
+                     * definition.
+                     */
+                    if (!bModChangingValues) {
+                        DefinitionOwnershipRegistry.register(
+                                DefinitionKind.LIVING,
+                                sIniHeader,
+                                namespace);
+                    }
 
-					//System.out.println (lemi.getIniHeader () + "," + lemi.getName () + "," + lemi.getAttack () + "," + lemi.getAttackSpeed () + "," + lemi.getDamage () + "," + lemi.getDefense () + "," + lemi.getHealthPoints () + "," + lemi.getLevel ());
-                    // Miramos si tiene gráficos alternativos, en ese caso creamos un "lemi" igual con distinto ID
-                    if (lemi.getAltGraphics() != null && lemi.getAltGraphics().size() > 0) {
+                    /*
+                     * Keep the legacy manager keyed by the bare ID.
+                     */
+                    hmLivingEntities.put(
+                            sIniHeader,
+                            lemi);
+
+                    // System.out.println (lemi.getIniHeader () + "," + lemi.getName () + "," +
+                    // lemi.getAttack () + "," + lemi.getAttackSpeed () + "," + lemi.getDamage () +
+                    // "," + lemi.getDefense () + "," + lemi.getHealthPoints () + "," +
+                    // lemi.getLevel ());
+                    // Miramos si tiene gráficos alternativos, en ese caso creamos un "lemi" igual
+                    // con distinto ID
+                    /*
+                     * Alternative graphics are exposed internally as
+                     * additional living definition IDs.
+                     *
+                     * They should inherit the ownership of their parent
+                     * living definition.
+                     */
+                    if (lemi.getAltGraphics() != null
+                            && lemi.getAltGraphics().size() > 0) {
+
+                        String parentNamespace = DefinitionOwnershipRegistry.namespaceFor(
+                                DefinitionKind.LIVING,
+                                sIniHeader);
+
                         String altG;
+
                         for (int a = 0; a < lemi.getAltGraphics().size(); a++) {
-                            altG = lemi.getAltGraphics().get(a);
-                            LivingEntityManagerItem lemiCopia = new LivingEntityManagerItem(lemi);
-                            lemiCopia.setIniHeader(altG);
-                            hmLivingEntities.put(altG, lemiCopia);
+
+                            altG = lemi.getAltGraphics()
+                                    .get(a);
+
+                            /*
+                             * Alternate graphics are also exposed as living
+                             * definition IDs, so they must obey the same collision
+                             * rules as normal living definitions.
+                             */
+                            if (hmLivingEntities.containsKey(altG)
+                                    && DefinitionOwnershipRegistry
+                                            .conflictsWithOwner(
+                                                    DefinitionKind.LIVING,
+                                                    altG,
+                                                    parentNamespace)) {
+
+                                String existingNamespace = DefinitionOwnershipRegistry.namespaceFor(
+                                        DefinitionKind.LIVING,
+                                        altG);
+
+                                Log.log(
+                                        Log.LEVEL_ERROR,
+                                        "Definition collision for living alternate graphics ["
+                                                + altG
+                                                + "]: namespace ["
+                                                + parentNamespace
+                                                + "] attempted to use an ID already owned by ["
+                                                + existingNamespace
+                                                + "]. Definition ignored.",
+                                        "LivingEntityManager");
+
+                                continue;
+                            }
+
+                            LivingEntityManagerItem lemiCopia = new LivingEntityManagerItem(
+                                    lemi);
+
+                            lemiCopia.setIniHeader(
+                                    altG);
+
+                            DefinitionOwnershipRegistry.register(
+                                    DefinitionKind.LIVING,
+                                    altG,
+                                    parentNamespace);
+
+                            hmLivingEntities.put(
+                                    altG,
+                                    lemiCopia);
                         }
                     }
                 }
             }
         } catch (Exception e) {
-            Log.log(Log.LEVEL_ERROR, Messages.getString("LivingEntityManager.11") + sXMLName + Messages.getString("LivingEntityManager.12") + e.toString() + "]", "LivingEntityManager"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+            Log.log(Log.LEVEL_ERROR, Messages.getString("LivingEntityManager.11") + sXMLName //$NON-NLS-1$
+                    + Messages.getString("LivingEntityManager.12") + e.toString() + "]", "LivingEntityManager"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             Game.exit();
         }
     }

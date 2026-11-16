@@ -36,6 +36,7 @@ public class QueueItem implements Externalizable {
     private final static String TYPE_STR_DELETE_COINS = "deleteCoins"; //$NON-NLS-1$
     private final static String TYPE_STR_DELETE_COINS_PCT = "deleteCoinsPCT"; //$NON-NLS-1$
     private final static String TYPE_STR_ADD_GOD_STATUS = "addGodStatus"; //$NON-NLS-1$
+    private static final String TYPE_STR_PLACE_FLUID = "placeFluid";
 
     public final static int TYPE_PICK = 1;
     public final static int TYPE_MOVE = 2;
@@ -57,6 +58,7 @@ public class QueueItem implements Externalizable {
     public final static int TYPE_DELETE_COINS = 18;
     public final static int TYPE_DELETE_COINS_PCT = 19;
     public final static int TYPE_ADD_GOD_STATUS = 20;
+    public static final int TYPE_PLACE_FLUID = 21;
 
     private int type;
     private String value;
@@ -119,6 +121,10 @@ public class QueueItem implements Externalizable {
             setType(TYPE_DELETE_COINS_PCT);
         } else if (sType.equalsIgnoreCase(TYPE_STR_ADD_GOD_STATUS)) {
             setType(TYPE_ADD_GOD_STATUS);
+        } else if (sType.equalsIgnoreCase(
+                TYPE_STR_PLACE_FLUID)) {
+
+            setType(TYPE_PLACE_FLUID);
         } else {
             throw new Exception(Messages.getString("QueueItem.6") + sType + "]"); //$NON-NLS-1$ //$NON-NLS-2$
         }
@@ -139,7 +145,8 @@ public class QueueItem implements Externalizable {
                 if (ItemManager.getItem(value) == null) {
                     throw new Exception(Messages.getString("QueueItem.0") + value + "]"); //$NON-NLS-1$ //$NON-NLS-2$
                 }
-            } else if (getType() == TYPE_MOVE || getType() == TYPE_PICK || getType() == TYPE_PICK_FRIENDLY || getType() == TYPE_LOCK) {
+            } else if (getType() == TYPE_MOVE || getType() == TYPE_PICK || getType() == TYPE_PICK_FRIENDLY
+                    || getType() == TYPE_LOCK) {
                 ArrayList<String> alTokens = Utils.getArray(value);
 
                 if (alTokens != null) {

@@ -109,9 +109,12 @@ public class UtilsServer {
                                         // Tenemos un fichero, cargamos el nombre y el ID
                                         String sName = UtilsXML.getChildValue(nodeBurieds.getChildNodes(), "fileName"); //$NON-NLS-1$
                                         String sID = UtilsXML.getChildValue(nodeBurieds.getChildNodes(), "fileID"); //$NON-NLS-1$
-                                        if (sName != null && sID != null && sName.trim().length() > 0 && sID.trim().length() > 0) {
+                                        if (sName != null && sID != null && sName.trim().length() > 0
+                                                && sID.trim().length() > 0) {
                                             // Miramos que no tenga carácteres especiales
-                                            if (!sName.contains("/") && !sName.contains("\\") && !sName.contains(";") && !sName.contains("&") && !sName.contains("#") && !sName.contains("..")) {
+                                            if (!sName.contains("/") && !sName.contains("\\") && !sName.contains(";")
+                                                    && !sName.contains("&") && !sName.contains("#")
+                                                    && !sName.contains("..")) {
                                                 // Todo ok, aunque primero miramos que el fichero no exista en local
                                                 File fTest = new File(buryFolder + File.separator + sName);
                                                 if (!fTest.exists()) {
@@ -137,7 +140,8 @@ public class UtilsServer {
                     Log.log(Log.LEVEL_DEBUG, Messages.getString("UtilsServer.13"), "UtilsServer"); //$NON-NLS-1$ //$NON-NLS-2$
                 } else {
                     while (iIndexID != -1) {
-                        sDownloadURL = sDownloadURL.substring(0, iIndexID) + alIDs.get(iIndexRandom) + sDownloadURL.substring(iIndexID + "__ID__".length()); //$NON-NLS-1$
+                        sDownloadURL = sDownloadURL.substring(0, iIndexID) + alIDs.get(iIndexRandom)
+                                + sDownloadURL.substring(iIndexID + "__ID__".length()); //$NON-NLS-1$
                         iIndexID = sDownloadURL.indexOf("__ID__"); //$NON-NLS-1$
                     }
 
@@ -162,37 +166,33 @@ public class UtilsServer {
     }
 
     private static String getUrlSource(String url) throws Exception {
-        StringBuilder a = new StringBuilder();
-        if (!url.startsWith("http://")) { //$NON-NLS-1$
-            url = "http://" + url; //$NON-NLS-1$
+        StringBuilder result = new StringBuilder();
+
+        if (!url.startsWith("http://")
+                && !url.startsWith("https://")) {
+            url = "http://" + url;
         }
 
         URL urlObject = new URI(url).toURL();
-        URLConnection uc = urlObject.openConnection();
+        URLConnection connection = urlObject.openConnection();
 
-        try {
-            uc.setReadTimeout (1500);
+        connection.setConnectTimeout(1500);
+        connection.setReadTimeout(1500);
+
+        try (
+                InputStream inputStream = connection.getInputStream();
+                BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(
+                                inputStream,
+                                "UTF-8"))) {
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                result.append(line);
+            }
         }
-        catch (Exception e) {
-        }
 
-        InputStream iStream = uc.getInputStream();
-
-        try {
-        	uc.setReadTimeout (0);
-        }
-        catch (Exception e) {
-        }
-
-        BufferedReader br = new BufferedReader(new InputStreamReader(iStream, "UTF-8")); //$NON-NLS-1$
-        String inputLine;
-
-        while ((inputLine = br.readLine()) != null) {
-            a.append(inputLine);
-        }
-        br.close();
-
-        return a.toString();
+        return result.toString();
     }
 
     private static boolean downloadBuryFile(String dlURL, String sPathToFile) throws Exception {

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import xaos.platform.lwjgl3.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import xaos.TownsProperties;
-
+import xaos.api.world.WorldPosition;
 import xaos.campaign.TutorialFlow;
 import xaos.campaign.TutorialTrigger;
 import xaos.data.CitizenData;
@@ -65,6 +65,7 @@ import xaos.zones.ZoneManagerItem;
 import xaos.zones.ZonePersonal;
 import static xaos.panels.UI.UIPanelState.*;
 import xaos.panels.UI.TooltipRenderer;
+import xaos.internal.api.selection.SelectionManager;
 
 public final class MainPanel {
 
@@ -110,7 +111,8 @@ public final class MainPanel {
 	// LOCKED WALLCONNECTOR
 	private static Tile lockedConnectorTile = new Tile("lockedconnector"); //$NON-NLS-1$
 	private static final float[] WORLD_ZOOM_VALUES = {
-			1/24f, 1/16f, 1/12f, 1/8f, 1/6f, 1/4f, 1/3f, 1/2f, 3/4f, 1.0f, 1.25f, 1.5f, 1.75f, 2.0f, 3.0f, 4.0f, 6.0f, 8.0f, 12.0f, 16.0f, 24.0f
+			1 / 24f, 1 / 16f, 1 / 12f, 1 / 8f, 1 / 6f, 1 / 4f, 1 / 3f, 1 / 2f, 3 / 4f, 1.0f, 1.25f, 1.5f, 1.75f, 2.0f,
+			3.0f, 4.0f, 6.0f, 8.0f, 12.0f, 16.0f, 24.0f
 	};
 
 	private static int worldZoomIndex = 9;
@@ -124,8 +126,8 @@ public final class MainPanel {
 	public static void setWorldZoom(float zoom) {
 		if (zoom < WORLD_ZOOM_VALUES[0]) {
 			worldZoom = WORLD_ZOOM_VALUES[0];
-		} else if (zoom > WORLD_ZOOM_VALUES[WORLD_ZOOM_VALUES.length -1]) {
-			worldZoom = WORLD_ZOOM_VALUES[WORLD_ZOOM_VALUES.length -1];
+		} else if (zoom > WORLD_ZOOM_VALUES[WORLD_ZOOM_VALUES.length - 1]) {
+			worldZoom = WORLD_ZOOM_VALUES[WORLD_ZOOM_VALUES.length - 1];
 		} else {
 			worldZoom = zoom;
 		}
@@ -1277,8 +1279,143 @@ public final class MainPanel {
 		return iZ;
 	}
 
+	private static int renderApiAreaSelection(
+			int zView,
+			int iBaseXGeneral,
+			int iBaseYGeneral,
+			Point3D pointTileMouse,
+			int currentTextureID) {
+
+		WorldPosition first = SelectionManager.getFirstPoint();
+
+		if (first == null) {
+			return currentTextureID;
+		}
+
+		int x1 = first.x();
+		int y1 = first.y();
+
+		int x2 = pointTileMouse.x;
+		int y2 = pointTileMouse.y;
+
+		/*
+		 * Normalise the rectangle so selection works in
+		 * any drag/click direction.
+		 */
+		if (x1 > x2) {
+			int temp = x1;
+			x1 = x2;
+			x2 = temp;
+		}
+
+		if (y1 > y2) {
+			int temp = y1;
+			y1 = y2;
+			y2 = temp;
+		}
+
+		/*
+		 * API area selections remain on the Z level
+		 * where the first point was selected.
+		 */
+		int selectionZ = first.z();
+
+		for (int x = x1; x <= x2; x++) {
+			for (int y = y1; y <= y2; y++) {
+
+				if (x < 0
+						|| x >= World.MAP_WIDTH
+						|| y < 0
+						|| y >= World.MAP_HEIGHT) {
+					continue;
+				}
+
+				Cell cell = World.getCell(
+						x,
+						y,
+						selectionZ);
+
+				Tile tile;
+
+				/*
+				 * Use the same native cursor tiles as
+				 * normal Towns task-area selection.
+				 */
+				if (cell.isDiscovered()) {
+
+					if (bMiniBlocksON
+							&& selectionZ == zView
+							&& !cell.isMined()) {
+
+						tile = World.getTileMouseCursorMiniBlock();
+
+					} else {
+						tile = World.getTileMouseCursor(
+								cell.isMined());
+					}
+
+				} else {
+					tile = World.getTileMouseCursor(false);
+				}
+
+				int drawX = iBaseXGeneral
+						+ (x + y)
+								* (Tile.TERRAIN_ICON_WIDTH / 2)
+						+ tile.getTileWidthOffset();
+
+				int drawY = iBaseYGeneral
+						- (x - y)
+								* (Tile.TERRAIN_ICON_HEIGHT / 2)
+						- tile.getTileHeight()
+						- tile.getTileHeightOffset()
+						+ Tile.TERRAIN_ICON_HEIGHT;
+
+				currentTextureID = UtilsGL.setTexture(
+						tile,
+						currentTextureID);
+
+				UtilsGL.drawTextureZ(
+						drawX,
+						drawY
+								+ (selectionZ - zView)
+										* Tile.TERRAIN_ICON_HEIGHT,
+
+						drawX + tile.getTileWidth(),
+
+						drawY
+								+ tile.getTileHeight()
+								+ (selectionZ - zView)
+										* Tile.TERRAIN_ICON_HEIGHT,
+
+						tile.getTileSetTexX0(),
+						tile.getTileSetTexY0(),
+						tile.getTileSetTexX1(),
+						tile.getTileSetTexY1(),
+
+						Cell.getDepth(
+								x,
+								y,
+								selectionZ));
+			}
+		}
+
+		return currentTextureID;
+	}
+
 	public static void renderTask(int zView, int iBaseXGeneral, int iBaseYGeneral, Point3D pointTileMouse,
 			int currentTextureID, int cellXMin, int cellYMin) {
+
+		if (SelectionManager.isSelecting()
+				&& SelectionManager.hasFirstPoint()
+				&& pointTileMouse != null) {
+
+			currentTextureID = renderApiAreaSelection(
+					zView,
+					iBaseXGeneral,
+					iBaseYGeneral,
+					pointTileMouse,
+					currentTextureID);
+		}
 		// Tasks
 		if (pointTileMouse != null) {
 			if (Game.getCurrentState() == Game.STATE_CREATING_TASK
@@ -3715,6 +3852,14 @@ public final class MainPanel {
 		Point3D view = Game.getWorld().getView();
 		Point3D p3d = getTileMouse(x, y, view.x, view.y, view.z);
 		if (p3d == null) {
+			return;
+		}
+		/*
+		 * Public API area selection takes precedence over
+		 * normal world interaction while active.
+		 */
+		if (SelectionManager.isSelecting()) {
+			SelectionManager.selectPoint(p3d);
 			return;
 		}
 

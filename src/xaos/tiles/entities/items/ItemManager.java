@@ -20,6 +20,10 @@ import xaos.utils.Log;
 import xaos.utils.Messages;
 import xaos.utils.Utils;
 import xaos.utils.UtilsXML;
+import xaos.api.definitions.DefinitionId;
+import xaos.internal.api.definitions.DefinitionKind;
+import xaos.internal.api.definitions.DefinitionOwnershipRegistry;
+import xaos.internal.api.mods.ModNamespaceResolver;
 
 public class ItemManager {
 
@@ -31,7 +35,11 @@ public class ItemManager {
             itemList = new HashMap<String, ItemManagerItem>();
 
             // Cargar de fichero
-            loadXMLItems(Towns.getPropertiesString("DATA_FOLDER") + "items.xml", true); //$NON-NLS-1$ //$NON-NLS-2$
+            loadXMLItems(
+                    Towns.getPropertiesString("DATA_FOLDER")
+                            + "items.xml",
+                    true,
+                    DefinitionId.DEFAULT_NAMESPACE);
 
             // Mods
             File fUserFolder = new File(Game.getUserFolder());
@@ -42,15 +50,24 @@ public class ItemManager {
             ArrayList<String> alMods = Game.getModsLoaded();
             if (alMods != null && alMods.size() > 0) {
                 for (int i = 0; i < alMods.size(); i++) {
-                    String sModActionsPath = fUserFolder.getAbsolutePath() + System.getProperty("file.separator") + Game.MODS_FOLDER1 + System.getProperty("file.separator") + alMods.get(i) + System.getProperty("file.separator") + Towns.getPropertiesString("DATA_FOLDER") + "items.xml"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+                    String sModActionsPath = fUserFolder.getAbsolutePath() + System.getProperty("file.separator") //$NON-NLS-1$
+                            + Game.MODS_FOLDER1 + System.getProperty("file.separator") + alMods.get(i) //$NON-NLS-1$
+                            + System.getProperty("file.separator") + Towns.getPropertiesString("DATA_FOLDER") //$NON-NLS-1$ //$NON-NLS-2$
+                            + "items.xml"; //$NON-NLS-1$
                     File fIni = new File(sModActionsPath);
                     if (fIni.exists()) {
-                        loadXMLItems(sModActionsPath, false);
+                        String namespace = ModNamespaceResolver.resolve(
+                                alMods.get(i));
+
+                        loadXMLItems(
+                                sModActionsPath,
+                                false,
+                                namespace);
                     }
                 }
             }
 
-			// Comprobamos que todos los maxageItem existan
+            // Comprobamos que todos los maxageItem existan
             // De paso rellenamos la lista de mini items (_block)
             // Y de paso comprobamos los habitatGroup y rellenamos los habitat que toquen
             // Y DE PASO los buryItem
@@ -64,7 +81,8 @@ public class ItemManager {
                 // maxAgeItem
                 if (imi.getMaxAgeItem() != null && imi.getMaxAgeItem().length() > 0) {
                     if (itemList.get(imi.getMaxAgeItem()) == null) {
-                        Log.log(Log.LEVEL_ERROR, Messages.getString("ItemManager.1") + imi.getMaxAgeItem() + "]", "ItemManager"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                        Log.log(Log.LEVEL_ERROR, Messages.getString("ItemManager.1") + imi.getMaxAgeItem() + "]", //$NON-NLS-1$ //$NON-NLS-2$
+                                "ItemManager"); //$NON-NLS-1$
                         Game.exit();
                     }
                 }
@@ -73,7 +91,9 @@ public class ItemManager {
                 if (imi.getBuryItem() != null && imi.getBuryItem().size() > 0) {
                     for (int i = 0; i < imi.getBuryItem().size(); i++) {
                         if (itemList.get(imi.getBuryItem().get(i)) == null) {
-                            Log.log(Log.LEVEL_ERROR, Messages.getString("ItemManager.3") + " [" + imi.getBuryItem().get(i) + "]", "ItemManager"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                            Log.log(Log.LEVEL_ERROR,
+                                    Messages.getString("ItemManager.3") + " [" + imi.getBuryItem().get(i) + "]", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                                    "ItemManager"); //$NON-NLS-1$
                             Game.exit();
                         }
                     }
@@ -81,7 +101,8 @@ public class ItemManager {
 
                 // Miramos si existe
                 String sMiniItem = imi.getIniHeader() + "_block"; //$NON-NLS-1$
-                if (Towns.getPropertiesInt(PropertyFile.PROPERTY_FILE_GRAPHICS, "[" + sMiniItem + "]TILE_X", -666) != -666) { //$NON-NLS-1$ //$NON-NLS-2$
+                if (Towns.getPropertiesInt(PropertyFile.PROPERTY_FILE_GRAPHICS, "[" + sMiniItem + "]TILE_X", //$NON-NLS-1$ //$NON-NLS-2$
+                        -666) != -666) {
                     Tile tile = new Tile(sMiniItem);
                     miniItemList.put(imi.getIniHeader(), tile);
                 }
@@ -91,8 +112,9 @@ public class ItemManager {
                 if (imi.getHabitatAsString() != null) {
                     for (int i = 0; i < imi.getHabitatAsString().size(); i++) {
                         if (!habitat.contains(imi.getHabitatAsString().get(i))) {
-                            habitat.add(Integer.valueOf(TerrainManager.getItem(imi.getHabitatAsString().get(i)).getTerrainID()));
-                            //getHabitat ().add (habitat.get (i));
+                            habitat.add(Integer
+                                    .valueOf(TerrainManager.getItem(imi.getHabitatAsString().get(i)).getTerrainID()));
+                            // getHabitat ().add (habitat.get (i));
                         }
                     }
                 }
@@ -111,8 +133,10 @@ public class ItemManager {
 
                 // maxAgeTerrain
                 if (imi.getMaxAgeTerrain() != null && imi.getMaxAgeTerrain().length() > 0) {
-                	if (TerrainManager.getItem (imi.getMaxAgeTerrain ()) == null) {
-                        Log.log (Log.LEVEL_ERROR, Messages.getString("ItemManager.2") + " [" + imi.getMaxAgeTerrain () + "]", "ItemManager"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                    if (TerrainManager.getItem(imi.getMaxAgeTerrain()) == null) {
+                        Log.log(Log.LEVEL_ERROR,
+                                Messages.getString("ItemManager.2") + " [" + imi.getMaxAgeTerrain() + "]", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                                "ItemManager"); //$NON-NLS-1$
                         Game.exit();
                     }
                 }
@@ -159,7 +183,8 @@ public class ItemManager {
 
         ArrayList<ItemManagerItem> alReturn = new ArrayList<ItemManagerItem>();
 
-        // Recorremos todos los items buscando el que tenga building = "parámetro pasado"
+        // Recorremos todos los items buscando el que tenga building = "parámetro
+        // pasado"
         Iterator<String> it = itemList.keySet().iterator();
         ItemManagerItem imi;
         while (it.hasNext()) {
@@ -177,7 +202,7 @@ public class ItemManager {
      * null
      *
      * @return una lista con todos los items con el type pasado, nunca devuelve
-     * null
+     *         null
      */
     public static ArrayList<String> getItemsByType(String sType) {
         if (itemList == null) {
@@ -311,11 +336,14 @@ public class ItemManager {
         }
     }
 
-    private static void loadXMLItems(String sXMLName, boolean bLoadingMain) {
+    private static void loadXMLItems(
+            String sXMLName,
+            boolean bLoadingMain,
+            String namespace) {
         try {
             Document doc = UtilsXML.loadXMLFile(sXMLName);
 
-			// Tenemos el documento XML parseado
+            // Tenemos el documento XML parseado
             // Lo recorremos entero y vamos añadiendo los items (ItemManagerItem) a la hash
             NodeList nodeList = doc.getDocumentElement().getChildNodes();
             Node node;
@@ -332,18 +360,100 @@ public class ItemManager {
                         if (node.getAttributes() != null && node.getAttributes().getNamedItem("id") != null) { //$NON-NLS-1$
                             String sIDToDelete = node.getAttributes().getNamedItem("id").getNodeValue(); //$NON-NLS-1$
                             if (sIDToDelete != null) {
-                                itemList.remove(sIDToDelete);
+
+                                /*
+                                 * Mods may delete base-game definitions or definitions
+                                 * owned by themselves, but must not delete definitions
+                                 * belonging to another mod.
+                                 */
+                                if (!bLoadingMain
+                                        && itemList.containsKey(sIDToDelete)
+                                        && DefinitionOwnershipRegistry
+                                                .conflictsWithOwner(
+                                                        DefinitionKind.ITEM,
+                                                        sIDToDelete,
+                                                        namespace)) {
+
+                                    String existingNamespace = DefinitionOwnershipRegistry.namespaceFor(
+                                            DefinitionKind.ITEM,
+                                            sIDToDelete);
+
+                                    Log.log(
+                                            Log.LEVEL_ERROR,
+                                            "Definition delete collision for item ["
+                                                    + sIDToDelete
+                                                    + "]: mod namespace ["
+                                                    + namespace
+                                                    + "] attempted to delete a definition owned by ["
+                                                    + existingNamespace
+                                                    + "]. Delete ignored.",
+                                            "ItemManager");
+
+                                    continue;
+                                }
+
+                                itemList.remove(
+                                        sIDToDelete);
+
+                                DefinitionOwnershipRegistry.unregister(
+                                        DefinitionKind.ITEM,
+                                        sIDToDelete);
                             }
                         }
                         continue;
                     }
 
-                    boolean bExists = itemList.containsKey(sIniHeader);
+                    boolean bExists = itemList.containsKey(
+                            sIniHeader);
+
                     if (bLoadingMain && bExists) {
-                        Log.log(Log.LEVEL_ERROR, Messages.getString("ItemManager.0") + sIniHeader + "]", "ItemManager"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                        Log.log(
+                                Log.LEVEL_ERROR,
+                                Messages.getString("ItemManager.0")
+                                        + sIniHeader
+                                        + "]",
+                                "ItemManager");
                     }
 
-                    // Mod cambiando valores de un item que ya existe?
+                    /*
+                     * Mods are still allowed to override base-game definitions.
+                     *
+                     * However, if this ID was introduced by another mod, allowing
+                     * this mod to modify it would create a namespace collision:
+                     *
+                     * mod-a:conveyor
+                     * mod-b:conveyor
+                     *
+                     * both map internally to the legacy ID "conveyor".
+                     */
+                    if (bExists && !bLoadingMain) {
+
+                        if (DefinitionOwnershipRegistry
+                                .conflictsWithOwner(
+                                        DefinitionKind.ITEM,
+                                        sIniHeader,
+                                        namespace)) {
+
+                            String existingNamespace = DefinitionOwnershipRegistry.namespaceFor(
+                                    DefinitionKind.ITEM,
+                                    sIniHeader);
+
+                            Log.log(
+                                    Log.LEVEL_ERROR,
+                                    "Definition collision for item ["
+                                            + sIniHeader
+                                            + "]: mod namespace ["
+                                            + namespace
+                                            + "] attempted to use an ID already owned by ["
+                                            + existingNamespace
+                                            + "]. Definition ignored.",
+                                    "ItemManager");
+
+                            continue;
+                        }
+                    }
+
+                    // Mod changing values of an item that already exists?
                     boolean bModChangingValues = (bExists && !bLoadingMain);
 
                     // Tipo / subtipo
@@ -403,7 +513,8 @@ public class ItemManager {
                         item.setPrerequisites(UtilsXML.getChildValues(node.getChildNodes(), "prerequisite")); //$NON-NLS-1$
                     }
 
-                    // Obtenemos el tiempo que tarda en fabricarse (en el caso de que no haya prerequisitos)
+                    // Obtenemos el tiempo que tarda en fabricarse (en el caso de que no haya
+                    // prerequisitos)
                     if (bModChangingValues) {
                         String sAux = UtilsXML.getChildValue(node.getChildNodes(), "buildingTime"); //$NON-NLS-1$
                         if (sAux != null) {
@@ -483,9 +594,11 @@ public class ItemManager {
                         item.setMaxAgeItem(UtilsXML.getChildValue(node.getChildNodes(), "maxAgeItem")); //$NON-NLS-1$
                         item.setMaxAgeTerrain(UtilsXML.getChildValue(node.getChildNodes(), "maxAgeTerrain")); //$NON-NLS-1$
                         item.setMaxAgeNeedsWater(UtilsXML.getChildValue(node.getChildNodes(), "maxAgeNeedsWater")); //$NON-NLS-1$
-                        item.setMaxAgeNeedsWaterRadius(UtilsXML.getChildValue(node.getChildNodes(), "maxAgeNeedsWaterRadius")); //$NON-NLS-1$
+                        item.setMaxAgeNeedsWaterRadius(
+                                UtilsXML.getChildValue(node.getChildNodes(), "maxAgeNeedsWaterRadius")); //$NON-NLS-1$
                         item.setMaxAgeNeedsItems(UtilsXML.getChildValue(node.getChildNodes(), "maxAgeNeedsItems")); //$NON-NLS-1$
-                        item.setMaxAgeNeedsItemsRadius(UtilsXML.getChildValue(node.getChildNodes(), "maxAgeNeedsItemsRadius")); //$NON-NLS-1$
+                        item.setMaxAgeNeedsItemsRadius(
+                                UtilsXML.getChildValue(node.getChildNodes(), "maxAgeNeedsItemsRadius")); //$NON-NLS-1$
                     }
 
                     // Health points
@@ -1014,12 +1127,34 @@ public class ItemManager {
                         item.setBuildAction(UtilsXML.getChildValue(node.getChildNodes(), "buildAction")); //$NON-NLS-1$
                     }
 
-                    // Lo añadimos a la hash
-                    itemList.put(sIniHeader, item);
+                    /*
+                     * New definitions inherit the namespace of the
+                     * content source that introduced them.
+                     *
+                     * Overrides keep their existing owner.
+                     */
+                    if (!bModChangingValues) {
+                        DefinitionOwnershipRegistry.register(
+                                DefinitionKind.ITEM,
+                                sIniHeader,
+                                namespace);
+                    }
+
+                    /*
+                     * Keep the legacy Towns registry authoritative.
+                     *
+                     * Namespace ownership is metadata layered on top;
+                     * the engine continues storing definitions using
+                     * their original bare IDs.
+                     */
+                    itemList.put(
+                            sIniHeader,
+                            item);
                 }
             }
         } catch (Exception e) {
-            Log.log(Log.LEVEL_ERROR, Messages.getString("ItemManager.6") + sXMLName + Messages.getString("ItemManager.7") + e.toString() + "]", "ItemManager"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+            Log.log(Log.LEVEL_ERROR, Messages.getString("ItemManager.6") + sXMLName //$NON-NLS-1$
+                    + Messages.getString("ItemManager.7") + e.toString() + "]", "ItemManager"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             Game.exit();
         }
     }

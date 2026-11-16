@@ -5,7 +5,6 @@ import xaos.commands.CommandDispatcher;
 
 import xaos.panels.menus.ContextMenu;
 
-
 import xaos.panels.menus.SmartMenu;
 
 import xaos.tiles.Tile;
@@ -191,6 +190,9 @@ public final class CommandPanel {
     public static final String COMMAND_ADD_EVENT = "ADD_EVENT"; //$NON-NLS-1$
     public static final String COMMAND_GOD_STATUS_LOWER_5 = "GSLOW5"; //$NON-NLS-1$
     public static final String COMMAND_GOD_STATUS_RAISE_5 = "GSRAI5"; //$NON-NLS-1$
+
+    // Mod commands
+    public static final String COMMAND_MOD_ACTION = "MODACTION";
 
     private static SmartMenu currentMenu;
 

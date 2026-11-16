@@ -17,10 +17,24 @@ import xaos.utils.Log;
 import xaos.utils.Messages;
 import xaos.utils.UtilsXML;
 
+import java.util.Collections;
+import java.util.Map;
+
+import xaos.api.definitions.DefinitionId;
+import xaos.internal.api.definitions.DefinitionKind;
+import xaos.internal.api.definitions.DefinitionOwnershipRegistry;
+import xaos.internal.api.mods.ModNamespaceResolver;
+
 public class TerrainManager {
 
-    public final static String[] SLOPES_INIHEADER = {"", "_N", "_S", "_NS", "_E", "_NE", "_SE", "_W", "_NW", "_SW", "_EW", "_NSE", "_NSW", "_NEW", "_SEW", "_NSEW", "_nSEW", "_NsEW", "_NSeW", "_NSEw"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$ //$NON-NLS-9$ //$NON-NLS-10$ //$NON-NLS-11$ //$NON-NLS-12$ //$NON-NLS-13$ //$NON-NLS-14$ //$NON-NLS-15$ //$NON-NLS-16$ //$NON-NLS-17$ //$NON-NLS-18$ //$NON-NLS-19$ //$NON-NLS-20$
-//	public final static String[] SLOPES_INIHEADER = { "", "_N", "_S", "_NS", "_E", "_NE", "_SE", "_W", "_NW", "_SW", "_EW", "_NSE", "_NSW", "_NEW", "_SEW", "_NSEW"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$ //$NON-NLS-9$ //$NON-NLS-10$ //$NON-NLS-11$ //$NON-NLS-12$ //$NON-NLS-13$ //$NON-NLS-14$ //$NON-NLS-15$ //$NON-NLS-16$
+    public final static String[] SLOPES_INIHEADER = { "", "_N", "_S", "_NS", "_E", "_NE", "_SE", "_W", "_NW", "_SW", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$ //$NON-NLS-9$ //$NON-NLS-10$
+            "_EW", "_NSE", "_NSW", "_NEW", "_SEW", "_NSEW", "_nSEW", "_NsEW", "_NSeW", "_NSEw" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$ //$NON-NLS-9$ //$NON-NLS-10$
+    // public final static String[] SLOPES_INIHEADER = { "", "_N", "_S", "_NS",
+    // "_E", "_NE", "_SE", "_W", "_NW", "_SW", "_EW", "_NSE", "_NSW", "_NEW",
+    // "_SEW", "_NSEW"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+    // //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$ //$NON-NLS-9$
+    // //$NON-NLS-10$ //$NON-NLS-11$ //$NON-NLS-12$ //$NON-NLS-13$ //$NON-NLS-14$
+    // //$NON-NLS-15$ //$NON-NLS-16$
 
     private static HashMap<String, TerrainManagerItem> terrainList;
     private static ArrayList<Tile> terrainTiles;
@@ -33,7 +47,7 @@ public class TerrainManager {
 
         // Cargar de fichero
         TerrainManagerItem.CURRENT_TERRAIN_ID = 0;
-        loadXMLTerrain(Towns.getPropertiesString("DATA_FOLDER") + "terrain.xml", true); //$NON-NLS-1$ //$NON-NLS-2$
+        loadXMLTerrain(Towns.getPropertiesString("DATA_FOLDER") + "terrain.xml", true, DefinitionId.DEFAULT_NAMESPACE); //$NON-NLS-1$ //$NON-NLS-2$
 
         // Mods
         File fUserFolder = new File(Game.getUserFolder());
@@ -44,10 +58,20 @@ public class TerrainManager {
         ArrayList<String> alMods = Game.getModsLoaded();
         if (alMods != null && alMods.size() > 0) {
             for (int i = 0; i < alMods.size(); i++) {
-                String sModActionsPath = fUserFolder.getAbsolutePath() + System.getProperty("file.separator") + Game.MODS_FOLDER1 + System.getProperty("file.separator") + alMods.get(i) + System.getProperty("file.separator") + Towns.getPropertiesString("DATA_FOLDER") + "terrain.xml"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+                String sModActionsPath = fUserFolder.getAbsolutePath() + System.getProperty("file.separator") //$NON-NLS-1$
+                        + Game.MODS_FOLDER1 + System.getProperty("file.separator") + alMods.get(i) //$NON-NLS-1$
+                        + System.getProperty("file.separator") + Towns.getPropertiesString("DATA_FOLDER") //$NON-NLS-1$ //$NON-NLS-2$
+                        + "terrain.xml"; //$NON-NLS-1$
                 File fIni = new File(sModActionsPath);
                 if (fIni.exists()) {
-                    loadXMLTerrain(sModActionsPath, false);
+
+                    String namespace = ModNamespaceResolver.resolve(
+                            alMods.get(i));
+
+                    loadXMLTerrain(
+                            sModActionsPath,
+                            false,
+                            namespace);
                 }
             }
         }
@@ -104,7 +128,8 @@ public class TerrainManager {
             if (tmi.getLadderItem() != null) {
                 // El item tiene que existir
                 if (ItemManager.getItem(tmi.getLadderItem()) == null) {
-                    Log.log(Log.LEVEL_ERROR, Messages.getString("TerrainManager.1") + tmi.getLadderItem() + "]", "TerrainManager"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    Log.log(Log.LEVEL_ERROR, Messages.getString("TerrainManager.1") + tmi.getLadderItem() + "]", //$NON-NLS-1$ //$NON-NLS-2$
+                            "TerrainManager"); //$NON-NLS-1$
                     Game.exit();
                 }
             }
@@ -117,6 +142,17 @@ public class TerrainManager {
         }
 
         return terrainList;
+    }
+
+    /**
+     * Returns a read-only view of all loaded terrain definitions.
+     */
+    public static Map<String, TerrainManagerItem> getAllItems() {
+        if (terrainList == null) {
+            loadItems();
+        }
+
+        return Collections.unmodifiableMap(terrainList);
     }
 
     public static TerrainManagerItem getItem(String sIniHeader) {
@@ -163,23 +199,43 @@ public class TerrainManager {
         return terrainGroups.get(sGroup);
     }
 
-    private static void loadXMLTerrain(String sXMLName, boolean bLoadingMain) {
+    private static void loadXMLTerrain(String sXMLName, boolean bLoadingMain, String namespace) {
         try {
-            Document doc = UtilsXML.loadXMLFile(sXMLName); //$NON-NLS-1$
+            Document doc = UtilsXML.loadXMLFile(sXMLName); // $NON-NLS-1$
 
-			// Tenemos el documento XML parseado
-            // Lo recorremos entero y vamos añadiendo los terrenos (TerrainManagerItem) a la hash
+            // Tenemos el documento XML parseado
+            // Lo recorremos entero y vamos añadiendo los terrenos (TerrainManagerItem) a la
+            // hash
             NodeList nodeList = doc.getDocumentElement().getChildNodes();
             Node node;
             TerrainManagerItem item;
             String sName, sIniHeader;
 
-            // Primero de todo creamos el terrain AIR
             if (!terrainList.containsKey("_AIR")) {
-                TerrainManagerItem tmiAir = new TerrainManagerItem(TerrainManagerItem.TERRAIN_AIR_INIHEADER, Messages.getString("TerrainManager.2")); //$NON-NLS-1$
-                tmiAir.setActions(new ArrayList<String>());
-                tmiAir.setBlocky(false);
-                terrainList.put("_AIR", tmiAir); //$NON-NLS-1$
+
+                TerrainManagerItem tmiAir = new TerrainManagerItem(
+                        TerrainManagerItem.TERRAIN_AIR_INIHEADER,
+                        Messages.getString(
+                                "TerrainManager.2"));
+
+                tmiAir.setActions(
+                        new ArrayList<String>());
+
+                tmiAir.setBlocky(
+                        false);
+
+                /*
+                 * AIR is an engine-owned terrain definition rather
+                 * than something supplied by an XML content source.
+                 */
+                DefinitionOwnershipRegistry.register(
+                        DefinitionKind.TERRAIN,
+                        TerrainManagerItem.TERRAIN_AIR_INIHEADER,
+                        DefinitionId.DEFAULT_NAMESPACE);
+
+                terrainList.put(
+                        TerrainManagerItem.TERRAIN_AIR_INIHEADER,
+                        tmiAir);
             }
 
             for (int i = 0; i < nodeList.getLength(); i++) {
@@ -191,17 +247,82 @@ public class TerrainManager {
                         if (node.getAttributes() != null && node.getAttributes().getNamedItem("id") != null) {
                             String sIDToDelete = node.getAttributes().getNamedItem("id").getNodeValue();
                             if (sIDToDelete != null) {
-                                terrainList.remove(sIDToDelete);
+
+                                if (!bLoadingMain
+                                        && terrainList.containsKey(sIDToDelete)
+                                        && DefinitionOwnershipRegistry
+                                                .conflictsWithOwner(
+                                                        DefinitionKind.TERRAIN,
+                                                        sIDToDelete,
+                                                        namespace)) {
+
+                                    String existingNamespace = DefinitionOwnershipRegistry.namespaceFor(
+                                            DefinitionKind.TERRAIN,
+                                            sIDToDelete);
+
+                                    Log.log(
+                                            Log.LEVEL_ERROR,
+                                            "Definition delete collision for terrain ["
+                                                    + sIDToDelete
+                                                    + "]: mod namespace ["
+                                                    + namespace
+                                                    + "] attempted to delete a definition owned by ["
+                                                    + existingNamespace
+                                                    + "]. Delete ignored.",
+                                            "TerrainManager");
+
+                                    continue;
+                                }
+
+                                terrainList.remove(
+                                        sIDToDelete);
+
+                                DefinitionOwnershipRegistry.unregister(
+                                        DefinitionKind.TERRAIN,
+                                        sIDToDelete);
                             }
                         }
                         continue;
                     }
 
-					// Building
-                    // Obtenemos el nameID, width i height
+                    // Building
                     sIniHeader = node.getNodeName();
-                    boolean bExists = terrainList.containsKey(sIniHeader);
-                    // Mod cambiando valores de un item que ya existe?
+
+                    boolean bExists = terrainList.containsKey(
+                            sIniHeader);
+
+                    /*
+                     * Mods may modify base-game terrain definitions, but must
+                     * not accidentally overwrite terrain owned by another mod.
+                     */
+                    if (bExists && !bLoadingMain) {
+
+                        if (DefinitionOwnershipRegistry
+                                .conflictsWithOwner(
+                                        DefinitionKind.TERRAIN,
+                                        sIniHeader,
+                                        namespace)) {
+
+                            String existingNamespace = DefinitionOwnershipRegistry.namespaceFor(
+                                    DefinitionKind.TERRAIN,
+                                    sIniHeader);
+
+                            Log.log(
+                                    Log.LEVEL_ERROR,
+                                    "Definition collision for terrain ["
+                                            + sIniHeader
+                                            + "]: mod namespace ["
+                                            + namespace
+                                            + "] attempted to use an ID already owned by ["
+                                            + existingNamespace
+                                            + "]. Definition ignored.",
+                                    "TerrainManager");
+
+                            continue;
+                        }
+                    }
+
+                    // Mod changing values of a terrain definition that already exists?
                     boolean bModChangingValues = (bExists && !bLoadingMain);
 
                     if (bModChangingValues) {
@@ -256,8 +377,27 @@ public class TerrainManager {
                         item.setBlocky(UtilsXML.getChildValue(node.getChildNodes(), "blocky")); //$NON-NLS-1$
                     }
 
-                    // Lo añadimos a la hash
-                    terrainList.put(sIniHeader, item);
+                    /*
+                     * New terrain definitions inherit the namespace of
+                     * the content source that introduced them.
+                     *
+                     * Mods overriding an existing terrain retain the
+                     * ownership of the original definition.
+                     */
+                    if (!bModChangingValues) {
+                        DefinitionOwnershipRegistry.register(
+                                DefinitionKind.TERRAIN,
+                                sIniHeader,
+                                namespace);
+                    }
+
+                    /*
+                     * Keep the legacy TerrainManager keyed by the bare
+                     * terrain ID.
+                     */
+                    terrainList.put(
+                            sIniHeader,
+                            item);
                 }
             }
         } catch (Exception e) {

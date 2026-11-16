@@ -149,6 +149,66 @@ public final class TaskManager implements Externalizable {
         addCustomAction(newAction, checkDuplicate, true);
     }
 
+    /**
+     * Clears the visual order flag associated with a custom action.
+     *
+     * Custom actions can target:
+     * - a destination point
+     * - a terrain point
+     * - an entity
+     *
+     * The existing Towns code previously only reliably cleared
+     * destination-point actions, which left terrain-targeted actions
+     * such as modded fluid placement highlighted after completion.
+     *
+     * @param action custom action whose order flag should be cleared
+     */
+    public void clearCustomActionOrderFlag(Action action) {
+        if (action == null) {
+            return;
+        }
+
+        /*
+         * Queue-and-place / destination actions.
+         */
+        if (action.getDestinationPoint() != null) {
+            World.getCell(
+                    action.getDestinationPoint()).setFlagOrders(false);
+
+            return;
+        }
+
+        /*
+         * Terrain-targeted actions.
+         *
+         * This is what Lava Logistics uses for:
+         *
+         * <moveTerrain />
+         * <placeFluid>lava</placeFluid>
+         */
+        if (action.getTerrainPoint() != null) {
+            World.getCell(
+                    action.getTerrainPoint()).setFlagOrders(false);
+
+            return;
+        }
+
+        /*
+         * Entity-targeted actions.
+         */
+        if (action.getEntityID() != -1) {
+            Item item = Item.getItemByID(
+                    action.getEntityID());
+
+            if (item != null
+                    && item.getCoordinates() != null) {
+
+                World.getCell(
+                        item.getCoordinates()).setFlagOrders(false);
+            }
+        }
+    }
+
     public void addCustomAction(Action newAction, boolean checkDuplicate, boolean putOnProdPanel) {
         if (newAction == null) {
             return;
@@ -1414,8 +1474,6 @@ public final class TaskManager implements Externalizable {
         }
     }
 
-    
-
     /**
      * Elimina las tareas finalizadas
      */
@@ -2261,9 +2319,7 @@ public final class TaskManager implements Externalizable {
 
                 if (bDeleteTaskNoPicks) {
                     removeAction(iIndex, false, null);
-                    if (action.getDestinationPoint() != null) {
-                        World.getCell(action.getDestinationPoint()).setFlagOrders(false);
-                    }
+                    clearCustomActionOrderFlag(action);
                     continue;
                 }
 
@@ -2352,9 +2408,7 @@ public final class TaskManager implements Externalizable {
                             }
                         }
                         removeAction(iIndex, false, null);
-                        if (action.getDestinationPoint() != null) {
-                            World.getCell(action.getDestinationPoint()).setFlagOrders(false);
-                        }
+                        clearCustomActionOrderFlag(action);
                         continue;
                     }
                 }

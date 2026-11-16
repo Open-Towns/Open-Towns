@@ -40,6 +40,8 @@ import xaos.tiles.entities.items.ItemManager;
 import xaos.tiles.entities.items.ItemManagerItem;
 import xaos.tiles.entities.living.LivingEntity;
 import xaos.tiles.entities.living.LivingEntityManager;
+import xaos.internal.api.mods.ModSaveDataRegistry;
+import xaos.internal.api.inventory.ItemReservationRegistry;
 
 public final class Utils {
 
@@ -49,7 +51,8 @@ public final class Utils {
 
 	public static Random random = new Random();
 
-	private Utils() { /*static utility class*/ }
+	private Utils() {
+		/* static utility class */ }
 
 	// ************
 	// * 2D UTILS *
@@ -57,14 +60,15 @@ public final class Utils {
 	/**
 	 * Returns a point in the Bézier curve
 	 *
-	 * @param pointSource Source point
-	 * @param pointDest Dstination point
+	 * @param pointSource   Source point
+	 * @param pointDest     Dstination point
 	 * @param pointControlA A-control point
 	 * @param pointControlB B-control point
-	 * @param dIteration Iteration from 0.0 (first point) to 1.0 (last point)
+	 * @param dIteration    Iteration from 0.0 (first point) to 1.0 (last point)
 	 * @return
 	 */
-	public static Point getBezierPoint(Point pointSource, Point pointDest, Point pointControlA, Point pointControlB, double dIteration) {
+	public static Point getBezierPoint(Point pointSource, Point pointDest, Point pointControlA, Point pointControlB,
+			double dIteration) {
 		// Primeros puntos intermedios (3 puntos)
 		double dS_A_X = pointSource.x + ((pointControlA.x - pointSource.x) * dIteration);
 		double dS_A_Y = pointSource.y + ((pointControlA.y - pointSource.y) * dIteration);
@@ -89,9 +93,9 @@ public final class Utils {
 	/**
 	 * Returns true if point it's inside 0-(width-1),0-(height-1)
 	 *
-	 * @param iX Point X
-	 * @param iY Point Y
-	 * @param iWidth Width
+	 * @param iX      Point X
+	 * @param iY      Point Y
+	 * @param iWidth  Width
 	 * @param iHeight Height
 	 * @return true if point it's inside 0-(width-1),0-(height-1)
 	 */
@@ -118,15 +122,18 @@ public final class Utils {
 	 * @return
 	 */
 	public static boolean isInsideMap(Point3DShort p3d) {
-		return p3d.x >= 0 && p3d.x < World.MAP_WIDTH && p3d.y >= 0 && p3d.y < World.MAP_HEIGHT && p3d.z >= 0 && p3d.z < World.MAP_DEPTH;
+		return p3d.x >= 0 && p3d.x < World.MAP_WIDTH && p3d.y >= 0 && p3d.y < World.MAP_HEIGHT && p3d.z >= 0
+				&& p3d.z < World.MAP_DEPTH;
 	}
 
-	public static ArrayList<Point3DShort> bresenhamLine(Point3DShort p0, Point3DShort p1, short zLevel) { //, int livingType) {
-		return bresenhamLine(p0.x, p0.y, p1.x, p1.y, zLevel); //, livingType);
+	public static ArrayList<Point3DShort> bresenhamLine(Point3DShort p0, Point3DShort p1, short zLevel) { // , int
+																											// livingType)
+																											// {
+		return bresenhamLine(p0.x, p0.y, p1.x, p1.y, zLevel); // , livingType);
 	}
 
-	public static boolean bresenhamLineExists(int x0, int y0, int x1, int y1, int zLevel) { //, int livingType) {
-		ArrayList<Point3DShort> alBresenham = bresenhamLine(x0, y0, x1, y1, zLevel); //, livingType);
+	public static boolean bresenhamLineExists(int x0, int y0, int x1, int y1, int zLevel) { // , int livingType) {
+		ArrayList<Point3DShort> alBresenham = bresenhamLine(x0, y0, x1, y1, zLevel); // , livingType);
 		if (alBresenham == null) {
 			return false;
 		} else {
@@ -139,15 +146,16 @@ public final class Utils {
 	/**
 	 * Returns an array of Point's representing a line between 2 points
 	 *
-	 * @param x0 Ini X
-	 * @param y0 Ini Y
-	 * @param x1 End X
-	 * @param y1 End Y
+	 * @param x0     Ini X
+	 * @param y0     Ini Y
+	 * @param x1     End X
+	 * @param y1     End Y
 	 * @param zLevel Z
 	 * @return an array of Point's representing a line between 2 points, null if
-	 * found a not allowed point
+	 *         found a not allowed point
 	 */
-	public static ArrayList<Point3DShort> bresenhamLine(int x0, int y0, int x1, int y1, int zLevel) { //, int livingType) {
+	public static ArrayList<Point3DShort> bresenhamLine(int x0, int y0, int x1, int y1, int zLevel) { // , int
+																										// livingType) {
 		if (x0 == x1 && y0 == y1) {
 			return null;
 		}
@@ -223,10 +231,10 @@ public final class Utils {
 	/**
 	 * Descubre las celdas de la linea hasta que encuentra un no-mined
 	 *
-	 * @param x0 Ini X
-	 * @param y0 Ini Y
-	 * @param x1 End X
-	 * @param y1 End Y
+	 * @param x0     Ini X
+	 * @param y0     Ini Y
+	 * @param x1     End X
+	 * @param y1     End Y
 	 * @param zLevel Z
 	 */
 	public static void bresenhamLineDiscover(int x0, int y0, int x1, int y1, int zLevel) {
@@ -369,7 +377,7 @@ public final class Utils {
 	 * @param bNonMinedOrWall
 	 * @param cell
 	 * @param imiSource
-	 * @param iDirection 0 = misma casilla, 1-NW 2-N 3-NE 4-W 5-E 6-SW 7-S 8-SE
+	 * @param iDirection      0 = misma casilla, 1-NW 2-N 3-NE 4-W 5-E 6-SW 7-S 8-SE
 	 */
 	private static void checkSetLights(boolean bNonMinedOrWall, Cell cell, ItemManagerItem imiSource, int iDirection) {
 		if (!bNonMinedOrWall) {
@@ -382,7 +390,8 @@ public final class Utils {
 				} else if (iDirection == 8) {
 					// Hay que mirar la casilla oeste
 					if (cell.getCoordinates().x > 0) {
-						Cell cellTmp = World.getCell(cell.getCoordinates().x - 1, cell.getCoordinates().y, cell.getCoordinates().z);
+						Cell cellTmp = World.getCell(cell.getCoordinates().x - 1, cell.getCoordinates().y,
+								cell.getCoordinates().z);
 						if (!isCellBlockingLight(cellTmp)) {
 							cell.setLights(imiSource);
 						}
@@ -390,7 +399,8 @@ public final class Utils {
 				} else if (iDirection == 1) {
 					// Hay que mirar la casilla sur
 					if (cell.getCoordinates().y < (World.MAP_HEIGHT - 1)) {
-						Cell cellTmp = World.getCell(cell.getCoordinates().x, cell.getCoordinates().y + 1, cell.getCoordinates().z);
+						Cell cellTmp = World.getCell(cell.getCoordinates().x, cell.getCoordinates().y + 1,
+								cell.getCoordinates().z);
 						if (!isCellBlockingLight(cellTmp)) {
 							cell.setLights(imiSource);
 						}
@@ -406,10 +416,11 @@ public final class Utils {
 	 * @param bNonMinedOrWall
 	 * @param cell
 	 * @param imiSource
-	 * @param iDirection 0 = misma casilla, 1-NW 2-N 3-NE 4-W 5-E 6-SW 7-S 8-SE
+	 * @param iDirection      0 = misma casilla, 1-NW 2-N 3-NE 4-W 5-E 6-SW 7-S 8-SE
 	 * @return true si la luz se ha puesto
 	 */
-	private static boolean checkSetLightsUp(boolean bNonMinedOrWall, Cell cell, ItemManagerItem imiSource, int iDirection) {
+	private static boolean checkSetLightsUp(boolean bNonMinedOrWall, Cell cell, ItemManagerItem imiSource,
+			int iDirection) {
 		if (!bNonMinedOrWall) {
 			cell.setLights(imiSource);
 			return true;
@@ -419,7 +430,8 @@ public final class Utils {
 				if (iDirection == 2) {
 					// Hay que mirar la casilla sur
 					if (cell.getCoordinates().y < (World.MAP_HEIGHT - 1)) {
-						Cell cellTmp = World.getCell(cell.getCoordinates().x, cell.getCoordinates().y + 1, cell.getCoordinates().z);
+						Cell cellTmp = World.getCell(cell.getCoordinates().x, cell.getCoordinates().y + 1,
+								cell.getCoordinates().z);
 						if (!isCellBlockingLight(cellTmp)) {
 							cell.setLights(imiSource);
 							return true;
@@ -428,7 +440,8 @@ public final class Utils {
 				} else if (iDirection == 5) {
 					// Hay que mirar la casilla oeste
 					if (cell.getCoordinates().x > 0) {
-						Cell cellTmp = World.getCell(cell.getCoordinates().x - 1, cell.getCoordinates().y, cell.getCoordinates().z);
+						Cell cellTmp = World.getCell(cell.getCoordinates().x - 1, cell.getCoordinates().y,
+								cell.getCoordinates().z);
 						if (!isCellBlockingLight(cellTmp)) {
 							cell.setLights(imiSource);
 							return true;
@@ -437,14 +450,16 @@ public final class Utils {
 				} else if (iDirection == 3 || iDirection == 8) {
 					// Hay que mirar la casilla sur
 					if (cell.getCoordinates().y < (World.MAP_HEIGHT - 1)) {
-						Cell cellTmp = World.getCell(cell.getCoordinates().x, cell.getCoordinates().y + 1, cell.getCoordinates().z);
+						Cell cellTmp = World.getCell(cell.getCoordinates().x, cell.getCoordinates().y + 1,
+								cell.getCoordinates().z);
 						if (!isCellBlockingLight(cellTmp)) {
 							cell.setLights(imiSource);
 							return true;
 						} else {
 							// Hay que mirar la casilla oeste
 							if (cell.getCoordinates().x > 0) {
-								cellTmp = World.getCell(cell.getCoordinates().x - 1, cell.getCoordinates().y, cell.getCoordinates().z);
+								cellTmp = World.getCell(cell.getCoordinates().x - 1, cell.getCoordinates().y,
+										cell.getCoordinates().z);
 								if (!isCellBlockingLight(cellTmp)) {
 									cell.setLights(imiSource);
 									return true;
@@ -455,14 +470,16 @@ public final class Utils {
 				} else if (iDirection == 1) {
 					// Hay que mirar la casilla sur
 					if (cell.getCoordinates().y < (World.MAP_HEIGHT - 1)) {
-						Cell cellTmp = World.getCell(cell.getCoordinates().x, cell.getCoordinates().y + 1, cell.getCoordinates().z);
+						Cell cellTmp = World.getCell(cell.getCoordinates().x, cell.getCoordinates().y + 1,
+								cell.getCoordinates().z);
 						if (!isCellBlockingLight(cellTmp)) {
 							cell.setLights(imiSource);
 							return true;
 						} else {
 							// Hay que mirar la casilla este
 							if (cell.getCoordinates().x < (World.MAP_WIDTH - 1)) {
-								cellTmp = World.getCell(cell.getCoordinates().x + 1, cell.getCoordinates().y, cell.getCoordinates().z);
+								cellTmp = World.getCell(cell.getCoordinates().x + 1, cell.getCoordinates().y,
+										cell.getCoordinates().z);
 								if (!isCellBlockingLight(cellTmp)) {
 									cell.setLights(imiSource);
 									return true;
@@ -481,14 +498,15 @@ public final class Utils {
 	 * Pone luz a las celdas de la linea (y las de arriba y abajo teniendo en
 	 * cuenta el radio) hasta que encuentra un no-mined o un wall
 	 *
-	 * @param x0 Ini X
-	 * @param y0 Ini Y
-	 * @param x1 End X
-	 * @param y1 End Y
-	 * @param zLevel Z
+	 * @param x0       Ini X
+	 * @param y0       Ini Y
+	 * @param x1       End X
+	 * @param y1       End Y
+	 * @param zLevel   Z
 	 * @param iRadious Radio para poner luz a las casillas de arriba/abajo
 	 */
-	public static void bresenhamLineLight(int x0, int y0, int x1, int y1, int zLevel, int iRadious, ItemManagerItem imiSource) {
+	public static void bresenhamLineLight(int x0, int y0, int x1, int y1, int zLevel, int iRadious,
+			ItemManagerItem imiSource) {
 		if (x0 == x1 && y0 == y1) {
 			return;
 		}
@@ -608,7 +626,8 @@ public final class Utils {
 					}
 
 					bNonMinedOrWallUpDown = isCellBlockingLight(cellaux);
-					//checkSetLights (bNonMinedOrWallUpDown, cellaux, imiSource, true, iPaintWalls);
+					// checkSetLights (bNonMinedOrWallUpDown, cellaux, imiSource, true,
+					// iPaintWalls);
 					cellaux.setLights(imiSource);
 
 					if (bNonMinedOrWallUpDown) {
@@ -676,7 +695,8 @@ public final class Utils {
 					}
 
 					bNonMinedOrWallUpDown = isCellBlockingLight(cellaux);
-//					checkSetLights (bNonMinedOrWallUpDown, cellaux, imiSource, true, iPaintWalls);
+					// checkSetLights (bNonMinedOrWallUpDown, cellaux, imiSource, true,
+					// iPaintWalls);
 					cellaux.setLights(imiSource);
 
 					if (bNonMinedOrWallUpDown) {
@@ -711,27 +731,36 @@ public final class Utils {
 
 	public static int getDistance(int xs, int ys, int zs, int xd, int yd, int zd) {
 		return Math.abs(xs - xd) + Math.abs(ys - yd) + (Math.abs(zs - zd) * (32));
-//		int h = Math.max (Math.abs (xd - xs), Math.abs (yd - ys));
-//		if (zs >= (World.MAP_NUM_LEVELS_OUTSIDE - 1)) {
-//			if (zd >= (World.MAP_NUM_LEVELS_OUTSIDE - 1)) {
-//				// Los 2 puntos son underground
-//				h += ((World.MAP_WIDTH / 4) * Math.abs (zd - zs)); // Método Manhattan, funciona mejor incluso permitiendo movimiento diagonal que la "Distancia Chebyshev" (20% mejor)
-//			} else {
-//				// El origen es underground pero el destino no
-//				h += ((World.MAP_WIDTH / 4) * Math.abs (zs - (World.MAP_NUM_LEVELS_OUTSIDE - 1)) + 2 * (World.MAP_NUM_LEVELS_OUTSIDE - 1 - zd)); // Método Manhattan, funciona mejor incluso permitiendo movimiento diagonal que la "Distancia Chebyshev" (20% mejor)
-//			}
-//		} else {
-//			// El origen es outside
-//			if (zd >= (World.MAP_NUM_LEVELS_OUTSIDE - 1)) {
-//				// El destino es underground (y origen outside)
-//				h += ((World.MAP_WIDTH / 4) * Math.abs (zd - (World.MAP_NUM_LEVELS_OUTSIDE - 1)) + 2 * (World.MAP_NUM_LEVELS_OUTSIDE - 1 - zs)); // Método Manhattan, funciona mejor incluso permitiendo movimiento diagonal que la "Distancia Chebyshev" (20% mejor)
-//			} else {
-//				// El destino es outside, como el origen
-//				h += (2 * Math.abs (zd - zs)); // Método Manhattan, funciona mejor incluso permitiendo movimiento diagonal que la "Distancia Chebyshev" (20% mejor)
-//			}
-//		}
-//
-//		return h;
+		// int h = Math.max (Math.abs (xd - xs), Math.abs (yd - ys));
+		// if (zs >= (World.MAP_NUM_LEVELS_OUTSIDE - 1)) {
+		// if (zd >= (World.MAP_NUM_LEVELS_OUTSIDE - 1)) {
+		// // Los 2 puntos son underground
+		// h += ((World.MAP_WIDTH / 4) * Math.abs (zd - zs)); // Método Manhattan,
+		// funciona mejor incluso permitiendo movimiento diagonal que la "Distancia
+		// Chebyshev" (20% mejor)
+		// } else {
+		// // El origen es underground pero el destino no
+		// h += ((World.MAP_WIDTH / 4) * Math.abs (zs - (World.MAP_NUM_LEVELS_OUTSIDE -
+		// 1)) + 2 * (World.MAP_NUM_LEVELS_OUTSIDE - 1 - zd)); // Método Manhattan,
+		// funciona mejor incluso permitiendo movimiento diagonal que la "Distancia
+		// Chebyshev" (20% mejor)
+		// }
+		// } else {
+		// // El origen es outside
+		// if (zd >= (World.MAP_NUM_LEVELS_OUTSIDE - 1)) {
+		// // El destino es underground (y origen outside)
+		// h += ((World.MAP_WIDTH / 4) * Math.abs (zd - (World.MAP_NUM_LEVELS_OUTSIDE -
+		// 1)) + 2 * (World.MAP_NUM_LEVELS_OUTSIDE - 1 - zs)); // Método Manhattan,
+		// funciona mejor incluso permitiendo movimiento diagonal que la "Distancia
+		// Chebyshev" (20% mejor)
+		// } else {
+		// // El destino es outside, como el origen
+		// h += (2 * Math.abs (zd - zs)); // Método Manhattan, funciona mejor incluso
+		// permitiendo movimiento diagonal que la "Distancia Chebyshev" (20% mejor)
+		// }
+		// }
+		//
+		// return h;
 	}
 
 	// ****************
@@ -752,7 +781,9 @@ public final class Utils {
 		try {
 			return Integer.parseInt(sNumber);
 		} catch (NumberFormatException nfe) {
-			Log.log(Log.LEVEL_ERROR, Messages.getString("Utils.1") + sNumber + Messages.getString("Utils.2") + defaultNumber + "]", "Utils"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			Log.log(Log.LEVEL_ERROR,
+					Messages.getString("Utils.1") + sNumber + Messages.getString("Utils.2") + defaultNumber + "]", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					"Utils"); //$NON-NLS-1$
 		}
 
 		return defaultNumber;
@@ -823,7 +854,7 @@ public final class Utils {
 	 * @param iMin Min
 	 * @param iMax Max
 	 * @return a random number between the 2 params. If iMin > iMax then return
-	 * iMin
+	 *         iMin
 	 */
 	public static int getRandomBetween(int iMin, int iMax) {
 		if (iMin >= iMax) {
@@ -837,7 +868,7 @@ public final class Utils {
 	 * Launch a dice of N sides X times and return the result
 	 *
 	 * @param iNumber Number of times the dice was launched
-	 * @param iSides Number of sides of the dice
+	 * @param iSides  Number of sides of the dice
 	 * @return
 	 */
 	public static int launchDice(int iNumber, int iSides) {
@@ -848,8 +879,8 @@ public final class Utils {
 	 * Launch a dice of N sides X times and then adds a qtty
 	 *
 	 * @param iNumber Number of times the dice was launched
-	 * @param iSides Number of sides of the dice
-	 * @param add Number to add (or substract if negative) to the end result
+	 * @param iSides  Number of sides of the dice
+	 * @param add     Number to add (or substract if negative) to the end result
 	 * @return
 	 */
 	public static int launchDice(int iNumber, int iSides, int add) {
@@ -895,13 +926,18 @@ public final class Utils {
 						if (iIndexPlus == -1) {
 							return launchDice(iNumber, Integer.parseInt(sStr.substring(iIndexD + 1).trim()));
 						} else {
-							return launchDice(iNumber, Integer.parseInt(sStr.substring(iIndexD + 1, (iIndexPlus + 1 - iIndexD)).trim()), -Integer.parseInt(sStr.substring(iIndexPlus + 1)));
+							return launchDice(iNumber,
+									Integer.parseInt(sStr.substring(iIndexD + 1, (iIndexPlus + 1 - iIndexD)).trim()),
+									-Integer.parseInt(sStr.substring(iIndexPlus + 1)));
 						}
 					} else {
-						return launchDice(iNumber, Integer.parseInt(sStr.substring(iIndexD + 1, (iIndexPlus + 1 - iIndexD)).trim()), Integer.parseInt(sStr.substring(iIndexPlus + 1)));
+						return launchDice(iNumber,
+								Integer.parseInt(sStr.substring(iIndexD + 1, (iIndexPlus + 1 - iIndexD)).trim()),
+								Integer.parseInt(sStr.substring(iIndexPlus + 1)));
 					}
 				} catch (Exception e) {
-					Log.log(Log.LEVEL_ERROR, Messages.getString("Utils.0") + sStr + "] [" + e.toString() + "]", "Utils"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+					Log.log(Log.LEVEL_ERROR, Messages.getString("Utils.0") + sStr + "] [" + e.toString() + "]", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+							"Utils"); //$NON-NLS-1$
 					return 0;
 				}
 			} else {
@@ -917,7 +953,8 @@ public final class Utils {
 						}
 					}
 				} catch (Exception e) {
-					Log.log(Log.LEVEL_ERROR, Messages.getString("Utils.0") + sStr + "] [" + e.toString() + "]", "Utils"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+					Log.log(Log.LEVEL_ERROR, Messages.getString("Utils.0") + sStr + "] [" + e.toString() + "]", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+							"Utils"); //$NON-NLS-1$
 					return 0;
 				}
 			}
@@ -963,11 +1000,17 @@ public final class Utils {
 							return new Point(iNumber, iNumber * Integer.parseInt(sStr.substring(iIndexD + 1).trim()));
 						} else {
 							int iMinus = Integer.parseInt(sStr.substring(iIndexPlus + 1));
-							return new Point(iNumber - iMinus, (iNumber * Integer.parseInt(sStr.substring(iIndexD + 1, (iIndexPlus + 1 - iIndexD)).trim())) - iMinus);
+							return new Point(iNumber - iMinus,
+									(iNumber * Integer
+											.parseInt(sStr.substring(iIndexD + 1, (iIndexPlus + 1 - iIndexD)).trim()))
+											- iMinus);
 						}
 					} else {
 						int iAdd = Integer.parseInt(sStr.substring(iIndexPlus + 1));
-						return new Point(iNumber + iAdd, (iNumber * Integer.parseInt(sStr.substring(iIndexD + 1, (iIndexPlus + 1 - iIndexD)).trim())) + iAdd);
+						return new Point(iNumber + iAdd,
+								(iNumber * Integer
+										.parseInt(sStr.substring(iIndexD + 1, (iIndexPlus + 1 - iIndexD)).trim()))
+										+ iAdd);
 					}
 				} catch (Exception e) {
 					return new Point(0, 0);
@@ -988,7 +1031,8 @@ public final class Utils {
 						}
 					}
 				} catch (Exception e) {
-					Log.log(Log.LEVEL_ERROR, Messages.getString("Utils.3") + sStr + "] [" + e.toString() + "]", "Utils"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+					Log.log(Log.LEVEL_ERROR, Messages.getString("Utils.3") + sStr + "] [" + e.toString() + "]", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+							"Utils"); //$NON-NLS-1$
 					return new Point(0, 0);
 				}
 			}
@@ -1016,7 +1060,7 @@ public final class Utils {
 	 *
 	 * @param sColor Color string (ex: Green or GREEN)
 	 * @return a java.awt.Color from a String. Color.BLACK if parameter is null
-	 * or empty
+	 *         or empty
 	 */
 	public static ColorGL getColorFromString(String sColor) {
 		if (sColor == null || sColor.length() == 0) {
@@ -1086,7 +1130,7 @@ public final class Utils {
 	/**
 	 * Save the game
 	 */
-	public static void save (boolean bSaveMissionData) throws Exception {
+	public static void save(boolean bSaveMissionData) throws Exception {
 		// Pausamos el thread de pathfinding
 		AStarQueue.pause();
 		while (!AStarQueue.isPauseOK()) {
@@ -1099,7 +1143,8 @@ public final class Utils {
 
 		Game.SAVE_MISSION = bSaveMissionData;
 
-		String sSaveFolder = Game.getUserFolder() + Game.getFileSeparator() + Game.SAVE_FOLDER1 + Game.getFileSeparator();
+		String sSaveFolder = Game.getUserFolder() + Game.getFileSeparator() + Game.SAVE_FOLDER1
+				+ Game.getFileSeparator();
 		String sDestFileName = Game.getSavegameName() + ".zip"; //$NON-NLS-1$
 
 		String sTemporaryFileName = Long.toString(System.currentTimeMillis()) + ".zip"; //$NON-NLS-1$
@@ -1125,7 +1170,7 @@ public final class Utils {
 			// Version
 			oos.writeInt(Game.SAVEGAME_VERSION);
 
-			//POPOoos.writeObject (Game.getWorld ());
+			// POPOoos.writeObject (Game.getWorld ());
 			Game.getWorld().writeExternal(oos);
 			Game.iError = 12004;
 
@@ -1152,7 +1197,7 @@ public final class Utils {
 				Game.iError = Game.iError + 1;
 				out.putNextEntry(new ZipEntry("row" + x)); //$NON-NLS-1$
 				Game.iError = Game.iError + 1;
-				//POPOoos.writeObject (World.cells [x]);
+				// POPOoos.writeObject (World.cells [x]);
 				for (int y = 0; y < World.MAP_HEIGHT; y++) {
 					for (int z = 0; z < iDepth; z++) {
 						World.cells[x][y][z].writeExternal(oos);
@@ -1202,7 +1247,7 @@ public final class Utils {
 			oos.writeBoolean(Game.isPaused());
 
 			// Mission data
-			oos.writeObject (Game.getCurrentMissionData ());
+			oos.writeObject(Game.getCurrentMissionData());
 
 			Game.iError = 12018;
 			oos.flush();
@@ -1217,6 +1262,15 @@ public final class Utils {
 			// Complete the entry
 			out.closeEntry();
 			Game.iError = 12022;
+			ItemReservationRegistry.clear();
+			/*
+			 * Java mod persistent data.
+			 *
+			 * This is deliberately stored outside world1/world2
+			 * so the core Towns serialization remains unchanged.
+			 */
+			ModSaveDataRegistry.writeTo(
+					out);
 
 			// Complete the ZIP file
 			out.flush();
@@ -1252,7 +1306,8 @@ public final class Utils {
 		try {
 			// Lo descomprimimos
 			ZipFile zipFile = new ZipFile(new File(sFolder + sZipFilename));
-			ZipInputStream zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(new File(sFolder + sZipFilename))));
+			ZipInputStream zis = new ZipInputStream(
+					new BufferedInputStream(new FileInputStream(new File(sFolder + sZipFilename))));
 			ZipEntry zipEntry = zis.getNextEntry();
 			InputStream is = zipFile.getInputStream(zipEntry);
 
@@ -1260,13 +1315,13 @@ public final class Utils {
 			ObjectInputStream ois = new ObjectInputStream(is);
 			Game.SAVEGAME_LOADING_VERSION = ois.readInt();
 			if (TownsProperties.DEBUG_MODE) {
-				System.out.println ("Loading version: " + Game.SAVEGAME_LOADING_VERSION); //$NON-NLS-1$
+				System.out.println("Loading version: " + Game.SAVEGAME_LOADING_VERSION); //$NON-NLS-1$
 			}
 
 			World world = new World();
 			world.readExternal(ois);
 			Game.setWorld(world);
-			//POPOGame.setWorld ((World) ois.readObject ());
+			// POPOGame.setWorld ((World) ois.readObject ());
 
 			// Celdas
 			int iDepth = ois.readInt();
@@ -1280,7 +1335,7 @@ public final class Utils {
 				zipEntry = zis.getNextEntry();
 				is = zipFile.getInputStream(zipEntry);
 				ois = new ObjectInputStream(is);
-				//POPOWorld.cells [x] = (Cell [][]) ois.readObject ();
+				// POPOWorld.cells [x] = (Cell [][]) ois.readObject ();
 				for (int y = 0; y < World.MAP_HEIGHT; y++) {
 					for (int z = 0; z < iDepth; z++) {
 						World.cells[x][y][z] = new Cell();
@@ -1326,11 +1381,21 @@ public final class Utils {
 
 			// Mission data
 			if (Game.SAVEGAME_LOADING_VERSION >= Game.SAVEGAME_V14d) {
-				Game.setCurrentMissionData ((MissionData) ois.readObject ());
+				Game.setCurrentMissionData((MissionData) ois.readObject());
 			}
 
 			ois.close();
 			is.close();
+
+			/*
+			 * Load optional Java-mod save data.
+			 *
+			 * Old saves contain no moddata entries, which simply
+			 * results in empty stores.
+			 */
+			ModSaveDataRegistry.readFrom(
+					zipFile);
+
 			zis.close();
 			zipFile.close();
 
@@ -1354,7 +1419,8 @@ public final class Utils {
 						if (alLivings != null) {
 							for (int i = 0; i < alLivings.size(); i++) {
 								if (LivingEntityManager.getItem(alLivings.get(i).getIniHeader()) == null) {
-									throw new Exception(Messages.getString("LivingEntity.10") + " [" + alLivings.get(i).getIniHeader() + "]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+									throw new Exception(Messages.getString("LivingEntity.10") + " [" //$NON-NLS-1$ //$NON-NLS-2$
+											+ alLivings.get(i).getIniHeader() + "]"); //$NON-NLS-1$
 								}
 							}
 						}
@@ -1430,7 +1496,8 @@ public final class Utils {
 			}
 		}
 
-		String sBuryFolder = Game.getUserFolder() + Game.getFileSeparator() + Game.BURY_FOLDER1 + Game.getFileSeparator();
+		String sBuryFolder = Game.getUserFolder() + Game.getFileSeparator() + Game.BURY_FOLDER1
+				+ Game.getFileSeparator();
 		String sDestFileName = "b_" + Game.getSavegameName() + ".zip"; //$NON-NLS-1$ //$NON-NLS-2$
 
 		String sTemporaryFileName = Long.toString(System.currentTimeMillis()) + ".zip"; //$NON-NLS-1$
@@ -1493,7 +1560,8 @@ public final class Utils {
 	 */
 	public static BuryData getRandomBuryData(String sServerName) {
 		BuryData bd = new BuryData();
-		String sBuryFolder = Game.getUserFolder() + Game.getFileSeparator() + Game.BURY_FOLDER1 + Game.getFileSeparator();
+		String sBuryFolder = Game.getUserFolder() + Game.getFileSeparator() + Game.BURY_FOLDER1
+				+ Game.getFileSeparator();
 		File fBuryFolder = new File(sBuryFolder);
 		if (!fBuryFolder.exists()) {
 			return bd;
@@ -1558,7 +1626,8 @@ public final class Utils {
 
 	public static boolean existsSavegame(String sName) {
 		try {
-			String sSaveFolder = Game.getUserFolder() + Game.getFileSeparator() + Game.SAVE_FOLDER1 + Game.getFileSeparator();
+			String sSaveFolder = Game.getUserFolder() + Game.getFileSeparator() + Game.SAVE_FOLDER1
+					+ Game.getFileSeparator();
 			File fAux = new File(sSaveFolder + sName + ".zip"); //$NON-NLS-1$
 			return fAux.exists();
 		} catch (Exception e) {
@@ -1572,7 +1641,8 @@ public final class Utils {
 	 * @return una lista con todos los savegame names o null si no hay
 	 */
 	public static ArrayList<File> getSaveFiles() {
-		String sSaveFolder = Game.getUserFolder() + Game.getFileSeparator() + Game.SAVE_FOLDER1 + Game.getFileSeparator();
+		String sSaveFolder = Game.getUserFolder() + Game.getFileSeparator() + Game.SAVE_FOLDER1
+				+ Game.getFileSeparator();
 		File fFolder = new File(sSaveFolder);
 		File[] aFiles = fFolder.listFiles();
 
@@ -1582,7 +1652,8 @@ public final class Utils {
 
 		ArrayList<File> alFiles = new ArrayList<File>(aFiles.length);
 		for (int i = 0; i < aFiles.length; i++) {
-			if (aFiles[i] != null && aFiles[i].getName() != null && aFiles[i].isFile() && aFiles[i].getName().endsWith(".zip")) { //$NON-NLS-1$
+			if (aFiles[i] != null && aFiles[i].getName() != null && aFiles[i].isFile()
+					&& aFiles[i].getName().endsWith(".zip")) { //$NON-NLS-1$
 				// Bingo
 				alFiles.add(aFiles[i]);
 			}
@@ -1608,7 +1679,8 @@ public final class Utils {
 	}
 
 	public static void deleteSavegame(String sName) {
-		String sSaveFolder = Game.getUserFolder() + Game.getFileSeparator() + Game.SAVE_FOLDER1 + Game.getFileSeparator();
+		String sSaveFolder = Game.getUserFolder() + Game.getFileSeparator() + Game.SAVE_FOLDER1
+				+ Game.getFileSeparator();
 		File f = new File(sSaveFolder + sName);
 		if (f.exists()) {
 			f.delete();
@@ -1621,7 +1693,8 @@ public final class Utils {
 	 * @return una lista con todos los savegame names o null si no hay
 	 */
 	public static ArrayList<File> getModsFolders() {
-		String sModsFolder = Game.getUserFolder() + Game.getFileSeparator() + Game.MODS_FOLDER1 + Game.getFileSeparator();
+		String sModsFolder = Game.getUserFolder() + Game.getFileSeparator() + Game.MODS_FOLDER1
+				+ Game.getFileSeparator();
 		File fFolder = new File(sModsFolder);
 		File[] aFiles = fFolder.listFiles();
 
@@ -1665,7 +1738,7 @@ public final class Utils {
 	 * @param sCampaignID
 	 * @param sMissionID
 	 * @return la ruta entera a un fichero, teniendo en cuenta si está en una
-	 * misión o no
+	 *         misión o no
 	 */
 	public static ArrayList<String> getPathToFile(String sOriginalFile, String sCampaignID, String sMissionID) {
 		ArrayList<String> alReturn = new ArrayList<String>();
@@ -1694,7 +1767,8 @@ public final class Utils {
 			}
 
 			// Ahora la de campaña + misión
-			sPath = Towns.getPropertiesString("CAMPAIGNS_FOLDER") + sCampaignID + File.separator + sMissionID + File.separator + sOriginalFile; //$NON-NLS-1$
+			sPath = Towns.getPropertiesString("CAMPAIGNS_FOLDER") + sCampaignID + File.separator + sMissionID //$NON-NLS-1$
+					+ File.separator + sOriginalFile;
 			f = new File(sPath);
 			if (f.exists()) {
 				alReturn.add(sPath);
@@ -1716,9 +1790,10 @@ public final class Utils {
 	 * @param sCampaignID
 	 * @param sMissionID
 	 * @return la ruta entera a un fichero, teniendo en cuenta si está en una
-	 * misión o no
+	 *         misión o no
 	 */
-	private static void getPathToFileMods(ArrayList<String> alList, String sOriginalFile, String sCampaignID, String sMissionID) {
+	private static void getPathToFileMods(ArrayList<String> alList, String sOriginalFile, String sCampaignID,
+			String sMissionID) {
 		File fUserFolder = new File(Game.getUserFolder());
 		if (!fUserFolder.exists() || !fUserFolder.isDirectory()) {
 			return;
@@ -1736,26 +1811,36 @@ public final class Utils {
 
 			if (sMissionID == null || sMissionID.trim().length() == 0) {
 				// Sin misión, lo pillamos de la carpeta data
-				String sModActionsPath = fUserFolder.getAbsolutePath() + System.getProperty("file.separator") + Game.MODS_FOLDER1 + System.getProperty("file.separator") + sModName + System.getProperty("file.separator") + Towns.getPropertiesString("DATA_FOLDER") + sOriginalFile; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				String sModActionsPath = fUserFolder.getAbsolutePath() + System.getProperty("file.separator") //$NON-NLS-1$
+						+ Game.MODS_FOLDER1 + System.getProperty("file.separator") + sModName //$NON-NLS-1$
+						+ System.getProperty("file.separator") + Towns.getPropertiesString("DATA_FOLDER") //$NON-NLS-1$ //$NON-NLS-2$
+						+ sOriginalFile;
 				File f = new File(sModActionsPath);
 				if (f.exists()) {
 					alList.add(sModActionsPath);
 				}
 			} else {
 				// Primero miramos la carpeta del mod
-				String sPath = fUserFolder.getAbsolutePath() + System.getProperty("file.separator") + Game.MODS_FOLDER1 + System.getProperty("file.separator") + sModName + System.getProperty("file.separator") + Towns.getPropertiesString("DATA_FOLDER") + sOriginalFile; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				String sPath = fUserFolder.getAbsolutePath() + System.getProperty("file.separator") + Game.MODS_FOLDER1 //$NON-NLS-1$
+						+ System.getProperty("file.separator") + sModName + System.getProperty("file.separator") //$NON-NLS-1$ //$NON-NLS-2$
+						+ Towns.getPropertiesString("DATA_FOLDER") + sOriginalFile; //$NON-NLS-1$
 				if (new File(sPath).exists()) {
 					alList.add(sPath);
 				}
 
 				// Ahora miramos la carpeta de la campaña
-				sPath = fUserFolder.getAbsolutePath() + System.getProperty("file.separator") + Game.MODS_FOLDER1 + System.getProperty("file.separator") + sModName + System.getProperty("file.separator") + Towns.getPropertiesString("CAMPAIGNS_FOLDER") + sCampaignID + File.separator + sOriginalFile; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				sPath = fUserFolder.getAbsolutePath() + System.getProperty("file.separator") + Game.MODS_FOLDER1 //$NON-NLS-1$
+						+ System.getProperty("file.separator") + sModName + System.getProperty("file.separator") //$NON-NLS-1$ //$NON-NLS-2$
+						+ Towns.getPropertiesString("CAMPAIGNS_FOLDER") + sCampaignID + File.separator + sOriginalFile; //$NON-NLS-1$
 				if (new File(sPath).exists()) {
 					alList.add(sPath);
 				}
 
 				// Ahora la carpeta de campa+a+misión
-				sPath = fUserFolder.getAbsolutePath() + System.getProperty("file.separator") + Game.MODS_FOLDER1 + System.getProperty("file.separator") + sModName + System.getProperty("file.separator") + Towns.getPropertiesString("CAMPAIGNS_FOLDER") + sCampaignID + File.separator + sMissionID + File.separator + sOriginalFile; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				sPath = fUserFolder.getAbsolutePath() + System.getProperty("file.separator") + Game.MODS_FOLDER1 //$NON-NLS-1$
+						+ System.getProperty("file.separator") + sModName + System.getProperty("file.separator") //$NON-NLS-1$ //$NON-NLS-2$
+						+ Towns.getPropertiesString("CAMPAIGNS_FOLDER") + sCampaignID + File.separator + sMissionID //$NON-NLS-1$
+						+ File.separator + sOriginalFile;
 				if (new File(sPath).exists()) {
 					alList.add(sPath);
 				}
@@ -1819,47 +1904,56 @@ public final class Utils {
 		}
 
 		if (!fFolderTowns.exists()) {
-			Log.log(Log.LEVEL_ERROR, Messages.getString("Utils.20") + " [" + fFolderTowns.getAbsolutePath() + "]", "Utils"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			Log.log(Log.LEVEL_ERROR, Messages.getString("Utils.20") + " [" + fFolderTowns.getAbsolutePath() + "]", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					"Utils"); //$NON-NLS-1$
 			return null;
 		}
 
-		File fFolderSave = new File(fFolderTowns.getAbsolutePath() + System.getProperty("file.separator") + Game.SAVE_FOLDER1); //$NON-NLS-1$
+		File fFolderSave = new File(
+				fFolderTowns.getAbsolutePath() + System.getProperty("file.separator") + Game.SAVE_FOLDER1); //$NON-NLS-1$
 		if (!fFolderSave.exists()) {
 			fFolderSave.mkdir();
 		}
 
 		if (!fFolderSave.exists()) {
-			Log.log(Log.LEVEL_ERROR, Messages.getString("Utils.25") + " [" + fFolderSave.getAbsolutePath() + "]", "Utils"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			Log.log(Log.LEVEL_ERROR, Messages.getString("Utils.25") + " [" + fFolderSave.getAbsolutePath() + "]", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					"Utils"); //$NON-NLS-1$
 			return null;
 		}
 
-		File fFolderMods = new File(fFolderTowns.getAbsolutePath() + System.getProperty("file.separator") + Game.MODS_FOLDER1 + System.getProperty("file.separator")); //$NON-NLS-1$ //$NON-NLS-2$
+		File fFolderMods = new File(fFolderTowns.getAbsolutePath() + System.getProperty("file.separator") //$NON-NLS-1$
+				+ Game.MODS_FOLDER1 + System.getProperty("file.separator")); //$NON-NLS-1$
 		if (!fFolderMods.exists()) {
 			fFolderMods.mkdir();
 		}
 
 		if (!fFolderMods.exists()) {
-			Log.log(Log.LEVEL_ERROR, Messages.getString("Utils.29") + " [" + fFolderMods.getAbsolutePath() + "]", "Utils"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			Log.log(Log.LEVEL_ERROR, Messages.getString("Utils.29") + " [" + fFolderMods.getAbsolutePath() + "]", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					"Utils"); //$NON-NLS-1$
 			return null;
 		}
 
-		File fFolderBury = new File(fFolderTowns.getAbsolutePath() + System.getProperty("file.separator") + Game.BURY_FOLDER1 + System.getProperty("file.separator")); //$NON-NLS-1$ //$NON-NLS-2$
+		File fFolderBury = new File(fFolderTowns.getAbsolutePath() + System.getProperty("file.separator") //$NON-NLS-1$
+				+ Game.BURY_FOLDER1 + System.getProperty("file.separator")); //$NON-NLS-1$
 		if (!fFolderBury.exists()) {
 			fFolderBury.mkdir();
 		}
 
 		if (!fFolderBury.exists()) {
-			Log.log(Log.LEVEL_ERROR, Messages.getString("Utils.29") + " [" + fFolderBury.getAbsolutePath() + "]", "Utils"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			Log.log(Log.LEVEL_ERROR, Messages.getString("Utils.29") + " [" + fFolderBury.getAbsolutePath() + "]", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					"Utils"); //$NON-NLS-1$
 			return null;
 		}
 
-		File fFolderScreenshots = new File(fFolderTowns.getAbsolutePath() + System.getProperty("file.separator") + Game.SCREENSHOTS_FOLDER1 + System.getProperty("file.separator")); //$NON-NLS-1$ //$NON-NLS-2$
+		File fFolderScreenshots = new File(fFolderTowns.getAbsolutePath() + System.getProperty("file.separator") //$NON-NLS-1$
+				+ Game.SCREENSHOTS_FOLDER1 + System.getProperty("file.separator")); //$NON-NLS-1$
 		if (!fFolderScreenshots.exists()) {
 			fFolderScreenshots.mkdir();
 		}
 
 		if (!fFolderScreenshots.exists()) {
-			Log.log(Log.LEVEL_ERROR, Messages.getString("Utils.18") + " [" + fFolderScreenshots.getAbsolutePath() + "]", "Utils"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			Log.log(Log.LEVEL_ERROR, Messages.getString("Utils.18") + " [" + fFolderScreenshots.getAbsolutePath() + "]", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					"Utils"); //$NON-NLS-1$
 			return null;
 		}
 
@@ -1893,42 +1987,54 @@ public final class Utils {
 				iIndex = sString.indexOf("__MOUSE_SCROLL__"); //$NON-NLS-1$
 				if (iIndex != -1) {
 					// Mouse scroll ON?
-					String sMouseScrollON = Game.isMouseScrollON() ? Messages.getString("Utils.4") : Messages.getString("Utils.5"); //$NON-NLS-1$ //$NON-NLS-2$
-					sAux = sString.substring(0, iIndex) + sMouseScrollON + sString.substring(iIndex + "__MOUSE_SCROLL__".length()); //$NON-NLS-1$
+					String sMouseScrollON = Game.isMouseScrollON() ? Messages.getString("Utils.4") //$NON-NLS-1$
+							: Messages.getString("Utils.5"); //$NON-NLS-1$
+					sAux = sString.substring(0, iIndex) + sMouseScrollON
+							+ sString.substring(iIndex + "__MOUSE_SCROLL__".length()); //$NON-NLS-1$
 					return getDynamicString(sAux);
 				} else {
 					iIndex = sString.indexOf("__MOUSE_SCROLL_EARS__"); //$NON-NLS-1$
 					if (iIndex != -1) {
 						// Mouse scroll EARS ON?
-						String sMouseScrollEarsON = Game.isMouseScrollEarsON() ? Messages.getString("Utils.4") : Messages.getString("Utils.5"); //$NON-NLS-1$ //$NON-NLS-2$
-						sAux = sString.substring(0, iIndex) + sMouseScrollEarsON + sString.substring(iIndex + "__MOUSE_SCROLL_EARS__".length()); //$NON-NLS-1$
+						String sMouseScrollEarsON = Game.isMouseScrollEarsON() ? Messages.getString("Utils.4") //$NON-NLS-1$
+								: Messages.getString("Utils.5"); //$NON-NLS-1$
+						sAux = sString.substring(0, iIndex) + sMouseScrollEarsON
+								+ sString.substring(iIndex + "__MOUSE_SCROLL_EARS__".length()); //$NON-NLS-1$
 						return getDynamicString(sAux);
 					} else {
 						iIndex = sString.indexOf("__MOUSE_2D_CUBES__"); //$NON-NLS-1$
 						if (iIndex != -1) {
-							String sMouse2DCubes = Game.isMouse2DCubesON() ? Messages.getString("Utils.4") : Messages.getString("Utils.5"); //$NON-NLS-1$ //$NON-NLS-2$
-							sAux = sString.substring(0, iIndex) + sMouse2DCubes + sString.substring(iIndex + "__MOUSE_2D_CUBES__".length()); //$NON-NLS-1$
+							String sMouse2DCubes = Game.isMouse2DCubesON() ? Messages.getString("Utils.4") //$NON-NLS-1$
+									: Messages.getString("Utils.5"); //$NON-NLS-1$
+							sAux = sString.substring(0, iIndex) + sMouse2DCubes
+									+ sString.substring(iIndex + "__MOUSE_2D_CUBES__".length()); //$NON-NLS-1$
 							return getDynamicString(sAux);
 						} else {
 							iIndex = sString.indexOf("__DISABLE_ITEMS__"); //$NON-NLS-1$
 							if (iIndex != -1) {
 								// Disabled items ON?
-								String sDisabledItemsON = Game.isDisabledItemsON() ? Messages.getString("Utils.4") : Messages.getString("Utils.5"); //$NON-NLS-1$ //$NON-NLS-2$
-								sAux = sString.substring(0, iIndex) + sDisabledItemsON + sString.substring(iIndex + "__DISABLE_ITEMS__".length()); //$NON-NLS-1$
+								String sDisabledItemsON = Game.isDisabledItemsON() ? Messages.getString("Utils.4") //$NON-NLS-1$
+										: Messages.getString("Utils.5"); //$NON-NLS-1$
+								sAux = sString.substring(0, iIndex) + sDisabledItemsON
+										+ sString.substring(iIndex + "__DISABLE_ITEMS__".length()); //$NON-NLS-1$
 								return getDynamicString(sAux);
 							} else {
 								iIndex = sString.indexOf("__DISABLE_GODS__"); //$NON-NLS-1$
 								if (iIndex != -1) {
 									// Disabled gods ON?
-									String sDisabledGodsON = Game.isDisabledGodsON() ? Messages.getString("Utils.4") : Messages.getString("Utils.5"); //$NON-NLS-1$ //$NON-NLS-2$
-									sAux = sString.substring(0, iIndex) + sDisabledGodsON + sString.substring(iIndex + "__DISABLE_GODS__".length()); //$NON-NLS-1$
+									String sDisabledGodsON = Game.isDisabledGodsON() ? Messages.getString("Utils.4") //$NON-NLS-1$
+											: Messages.getString("Utils.5"); //$NON-NLS-1$
+									sAux = sString.substring(0, iIndex) + sDisabledGodsON
+											+ sString.substring(iIndex + "__DISABLE_GODS__".length()); //$NON-NLS-1$
 									return getDynamicString(sAux);
 								} else {
 									iIndex = sString.indexOf("__PAUSE_START__"); //$NON-NLS-1$
 									if (iIndex != -1) {
 										// Pause at start ON?
-										String sPauseStartON = Game.isPauseStartON() ? Messages.getString("Utils.4") : Messages.getString("Utils.5"); //$NON-NLS-1$ //$NON-NLS-2$
-										sAux = sString.substring(0, iIndex) + sPauseStartON + sString.substring(iIndex + "__PAUSE_START__".length()); //$NON-NLS-1$
+										String sPauseStartON = Game.isPauseStartON() ? Messages.getString("Utils.4") //$NON-NLS-1$
+												: Messages.getString("Utils.5"); //$NON-NLS-1$
+										sAux = sString.substring(0, iIndex) + sPauseStartON
+												+ sString.substring(iIndex + "__PAUSE_START__".length()); //$NON-NLS-1$
 										return getDynamicString(sAux);
 									} else {
 										iIndex = sString.indexOf("__SAVE_DAYS__"); //$NON-NLS-1$
@@ -1942,7 +2048,8 @@ public final class Utils {
 											} else {
 												sAutosave = iDays + Messages.getString("Utils.9"); //$NON-NLS-1$
 											}
-											sAux = sString.substring(0, iIndex) + sAutosave + sString.substring(iIndex + "__SAVE_DAYS__".length()); //$NON-NLS-1$
+											sAux = sString.substring(0, iIndex) + sAutosave
+													+ sString.substring(iIndex + "__SAVE_DAYS__".length()); //$NON-NLS-1$
 											return getDynamicString(sAux);
 										} else {
 											iIndex = sString.indexOf("__SIEGES__"); //$NON-NLS-1$
@@ -1961,31 +2068,40 @@ public final class Utils {
 												} else {
 													sSiegeDifficulty = Messages.getString("Utils.15"); //$NON-NLS-1$
 												}
-												sAux = sString.substring(0, iIndex) + sSiegeDifficulty + sString.substring(iIndex + "__SIEGES__".length()); //$NON-NLS-1$
+												sAux = sString.substring(0, iIndex) + sSiegeDifficulty
+														+ sString.substring(iIndex + "__SIEGES__".length()); //$NON-NLS-1$
 												return getDynamicString(sAux);
 											} else {
 												iIndex = sString.indexOf("__SIEGE_PAUSE__"); //$NON-NLS-1$
 												if (iIndex != -1) {
-													String sSiegePauseON = Game.isSiegePause() ? Messages.getString("Utils.4") : Messages.getString("Utils.5"); //$NON-NLS-1$ //$NON-NLS-2$
-													sAux = sString.substring(0, iIndex) + sSiegePauseON + sString.substring(iIndex + "__SIEGE_PAUSE__".length()); //$NON-NLS-1$
+													String sSiegePauseON = Game.isSiegePause()
+															? Messages.getString("Utils.4") //$NON-NLS-1$
+															: Messages.getString("Utils.5"); //$NON-NLS-1$
+													sAux = sString.substring(0, iIndex) + sSiegePauseON
+															+ sString.substring(iIndex + "__SIEGE_PAUSE__".length()); //$NON-NLS-1$
 													return getDynamicString(sAux);
 												} else {
 													iIndex = sString.indexOf("__CARAVAN_PAUSE__"); //$NON-NLS-1$
 													if (iIndex != -1) {
-														String sCaravanPauseON = Game.isCaravanPause() ? Messages.getString("Utils.4") : Messages.getString("Utils.5"); //$NON-NLS-1$ //$NON-NLS-2$
-														sAux = sString.substring(0, iIndex) + sCaravanPauseON + sString.substring(iIndex + "__CARAVAN_PAUSE__".length()); //$NON-NLS-1$
+														String sCaravanPauseON = Game.isCaravanPause()
+																? Messages.getString("Utils.4") //$NON-NLS-1$
+																: Messages.getString("Utils.5"); //$NON-NLS-1$
+														sAux = sString.substring(0, iIndex) + sCaravanPauseON + sString
+																.substring(iIndex + "__CARAVAN_PAUSE__".length()); //$NON-NLS-1$
 														return getDynamicString(sAux);
 													} else {
 														iIndex = sString.indexOf("__VOLMUSIC__"); //$NON-NLS-1$
 														if (iIndex != -1) {
 															String sVolMusic = (Game.getVolumeMusic() * 10) + "%"; //$NON-NLS-1$
-															sAux = sString.substring(0, iIndex) + sVolMusic + sString.substring(iIndex + "__VOLMUSIC__".length()); //$NON-NLS-1$
+															sAux = sString.substring(0, iIndex) + sVolMusic + sString
+																	.substring(iIndex + "__VOLMUSIC__".length()); //$NON-NLS-1$
 															return getDynamicString(sAux);
 														} else {
 															iIndex = sString.indexOf("__VOLFX__"); //$NON-NLS-1$
 															if (iIndex != -1) {
 																String sVolFX = (Game.getVolumeFX() * 10) + "%"; //$NON-NLS-1$
-																sAux = sString.substring(0, iIndex) + sVolFX + sString.substring(iIndex + "__VOLFX__".length()); //$NON-NLS-1$
+																sAux = sString.substring(0, iIndex) + sVolFX + sString
+																		.substring(iIndex + "__VOLFX__".length()); //$NON-NLS-1$
 																return getDynamicString(sAux);
 															} else {
 																iIndex = sString.indexOf("__MOD__"); //$NON-NLS-1$
@@ -1995,25 +2111,39 @@ public final class Utils {
 																	int iIndexEndMod = sSubStr.indexOf("__/MOD__"); //$NON-NLS-1$
 																	if (iIndexEndMod != -1) {
 																		// Tenemos mod y /mod
-																		String sModName = sSubStr.substring("__MOD__".length(), iIndexEndMod); //$NON-NLS-1$
-																		String sModON = Game.isModLoaded(sModName) ? Messages.getString("Utils.4") : Messages.getString("Utils.5"); //$NON-NLS-1$ //$NON-NLS-2$
-																		sAux = sString.substring(0, iIndex) + sModON + sSubStr.substring(iIndexEndMod + "__/MOD__".length()); //$NON-NLS-1$
+																		String sModName = sSubStr.substring(
+																				"__MOD__".length(), iIndexEndMod); //$NON-NLS-1$
+																		String sModON = Game.isModLoaded(sModName)
+																				? Messages.getString("Utils.4") //$NON-NLS-1$
+																				: Messages.getString("Utils.5"); //$NON-NLS-1$
+																		sAux = sString.substring(0, iIndex) + sModON
+																				+ sSubStr.substring(iIndexEndMod
+																						+ "__/MOD__".length()); //$NON-NLS-1$
 																	} else {
-																		// Raro, raro, borramos el __MOD__ para que siga mirando dynamic strings
-																		sAux = sString.substring(0, iIndex) + sString.substring(iIndex + "__MOD__".length()); //$NON-NLS-1$
+																		// Raro, raro, borramos el __MOD__ para que siga
+																		// mirando dynamic strings
+																		sAux = sString.substring(0, iIndex) + sString
+																				.substring(iIndex + "__MOD__".length()); //$NON-NLS-1$
 																	}
 																	return getDynamicString(sAux);
 																} else {
 																	iIndex = sString.indexOf("__BURY__"); //$NON-NLS-1$
 																	if (iIndex != -1) {
-																		String sBury = Game.isAllowBury() ? Messages.getString("Utils.4") : Messages.getString("Utils.5"); //$NON-NLS-1$ //$NON-NLS-2$
-																		sAux = sString.substring(0, iIndex) + sBury + sString.substring(iIndex + "__BURY__".length()); //$NON-NLS-1$
+																		String sBury = Game.isAllowBury()
+																				? Messages.getString("Utils.4") //$NON-NLS-1$
+																				: Messages.getString("Utils.5"); //$NON-NLS-1$
+																		sAux = sString.substring(0, iIndex) + sBury
+																				+ sString.substring(
+																						iIndex + "__BURY__".length()); //$NON-NLS-1$
 																		return getDynamicString(sAux);
 																	} else {
 																		iIndex = sString.indexOf("__CPUPF__"); //$NON-NLS-1$
 																		if (iIndex != -1) {
-																			String sLevel = Integer.toString(Game.getPathfindingCPULevel());
-																			sAux = sString.substring(0, iIndex) + sLevel + sString.substring(iIndex + "__CPUPF__".length()); //$NON-NLS-1$
+																			String sLevel = Integer.toString(
+																					Game.getPathfindingCPULevel());
+																			sAux = sString.substring(0, iIndex) + sLevel
+																					+ sString.substring(iIndex
+																							+ "__CPUPF__".length()); //$NON-NLS-1$
 																			return getDynamicString(sAux);
 																		}
 																	}
@@ -2042,7 +2172,7 @@ public final class Utils {
 	 *
 	 * @param sChain Cadena
 	 * @return un array de strings a partir de un string con elementos separados
-	 * por comas ",". Null en caso de error/cadena vacía
+	 *         por comas ",". Null en caso de error/cadena vacía
 	 */
 	public static ArrayList<String> getArray(String sChain) {
 		if (sChain != null && sChain.trim().length() > 0) {
@@ -2064,7 +2194,7 @@ public final class Utils {
 	 *
 	 * @param sChain Cadena
 	 * @return un array de Integers a partir de un string con elementos
-	 * separados por comas ",". Null en caso de error/cadena vacía
+	 *         separados por comas ",". Null en caso de error/cadena vacía
 	 */
 	public static ArrayList<Integer> getArrayIntegers(String sChain) throws Exception {
 		if (sChain != null && sChain.trim().length() > 0) {
@@ -2075,7 +2205,8 @@ public final class Utils {
 				try {
 					alReturn.add(Integer.valueOf(sToken));
 				} catch (Exception e) {
-					throw new Exception(Messages.getString("Utils.22") + tokenizer.nextToken() + Messages.getString("Utils.24")); //$NON-NLS-1$ //$NON-NLS-2$
+					throw new Exception(
+							Messages.getString("Utils.22") + tokenizer.nextToken() + Messages.getString("Utils.24")); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			}
 
@@ -2090,7 +2221,7 @@ public final class Utils {
 	 * en_US, ....)
 	 *
 	 * @return una lista de Strings con los languages encontrados (es_ES, en_US,
-	 * ....)
+	 *         ....)
 	 */
 	public static ArrayList<LanguageData> getLanguages() {
 		ArrayList<LanguageData> alReturn = new ArrayList<LanguageData>();
@@ -2112,7 +2243,8 @@ public final class Utils {
 					// Name
 					Properties prop = new Properties();
 					try {
-						prop.load(new FileInputStream(fLanguagesFolder.getAbsolutePath() + File.separator + asFiles[i]));
+						prop.load(
+								new FileInputStream(fLanguagesFolder.getAbsolutePath() + File.separator + asFiles[i]));
 						ld.name = prop.getProperty("LANGUAGE_NAME"); //$NON-NLS-1$
 					} catch (Exception e) {
 						ld.name = null;
@@ -2170,7 +2302,9 @@ public final class Utils {
 		for (int m = 0; m < alModsLoaded.size(); m++) {
 			sModName = alModsLoaded.get(m);
 
-			String sModLanguagesPath = fUserFolder.getAbsolutePath() + System.getProperty("file.separator") + Game.MODS_FOLDER1 + System.getProperty("file.separator") + sModName + System.getProperty("file.separator") + Towns.getPropertiesString("DATA_FOLDER") + "/languages/"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+			String sModLanguagesPath = fUserFolder.getAbsolutePath() + System.getProperty("file.separator") //$NON-NLS-1$
+					+ Game.MODS_FOLDER1 + System.getProperty("file.separator") + sModName //$NON-NLS-1$
+					+ System.getProperty("file.separator") + Towns.getPropertiesString("DATA_FOLDER") + "/languages/"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			File f = new File(sModLanguagesPath);
 			if (f.exists()) {
 				String[] asFiles = f.list();

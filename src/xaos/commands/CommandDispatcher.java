@@ -59,6 +59,7 @@ import xaos.commands.ui.PauseCommandHandler;
 import xaos.commands.ui.SaveCommandHandler;
 import xaos.commands.ui.TradeCommandHandler;
 import xaos.commands.ui.ViewEntityCommandHandler;
+import xaos.commands.ui.ModActionCommandHandler;
 
 public final class CommandDispatcher {
 
@@ -73,12 +74,12 @@ public final class CommandDispatcher {
 
                 if (handler == null) {
                         handleUnknownCommand(context);
-                       
+
                         return;
                 }
 
                 handler.execute(context);
-                
+
         }
 
         private void registerHandlers() {
@@ -598,6 +599,13 @@ public final class CommandDispatcher {
                 handlers.put(CommandPanel.COMMAND_ADD_ITEM, new AddItemCommandHandler());
                 handlers.put(CommandPanel.COMMAND_ADD_LIVING, new AddLivingCommandHandler());
                 handlers.put(CommandPanel.COMMAND_ADD_EVENT, new AddEventCommandHandler());
+                // ============================================================
+                // MOD COMMANDS
+                // ============================================================
+
+                handlers.put(
+                                CommandPanel.COMMAND_MOD_ACTION,
+                                new ModActionCommandHandler());
         }
 
         private void handleUnknownCommand(CommandContext context) {
@@ -611,4 +619,3 @@ public final class CommandDispatcher {
                                 "CommandPanel");
         }
 }
-

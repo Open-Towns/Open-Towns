@@ -701,3 +701,32 @@ tasks.named('test') {
         exceptionFormat "full"
     }
 }
+
+/*
+ * Builds the public Open Towns modding API.
+ *
+ * Only classes beneath xaos.api are included.
+ * Runtime implementations live beneath xaos.internal.api
+ * and are therefore automatically excluded.
+ */
+tasks.register('apiJar', Jar) {
+    dependsOn 'classes'
+
+    archiveFileName = 'opentowns-api.jar'
+
+    from sourceSets.main.output
+
+    include 'xaos/api/**'
+
+    /*
+     * Runtime mod-loader implementation.
+     *
+     * These classes currently live beneath xaos.api for historical
+     * reasons, but are not part of the public SDK surface.
+     */
+    exclude 'xaos/api/mods/JavaModLoader*.class'
+    exclude 'xaos/api/mods/LoadedJavaMod*.class'
+    exclude 'xaos/api/mods/DefaultModLogger*.class'
+    exclude 'xaos/api/GameApiBootstrap*.class'
+    exclude 'xaos/api/definitions/DefinitionSnapshotFactory*.class'
+}

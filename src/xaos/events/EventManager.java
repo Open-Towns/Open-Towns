@@ -19,6 +19,11 @@ import xaos.utils.Messages;
 import xaos.utils.Utils;
 import xaos.utils.UtilsXML;
 
+import xaos.api.definitions.DefinitionId;
+import xaos.internal.api.definitions.DefinitionKind;
+import xaos.internal.api.definitions.DefinitionOwnershipRegistry;
+import xaos.internal.api.mods.ModNamespaceResolver;
+
 public class EventManager {
 
     private static HashMap<String, EventManagerItem> eventsList;
@@ -27,7 +32,7 @@ public class EventManager {
         eventsList = new HashMap<String, EventManagerItem>();
 
         // Cargar de fichero
-        loadXMLEvents(Towns.getPropertiesString("DATA_FOLDER") + "events.xml", true); //$NON-NLS-1$ //$NON-NLS-2$
+        loadXMLEvents(Towns.getPropertiesString("DATA_FOLDER") + "events.xml", true, DefinitionId.DEFAULT_NAMESPACE); //$NON-NLS-1$ //$NON-NLS-2$
 
         // Mods
         File fUserFolder = new File(Game.getUserFolder());
@@ -38,15 +43,27 @@ public class EventManager {
         ArrayList<String> alMods = Game.getModsLoaded();
         if (alMods != null && alMods.size() > 0) {
             for (int i = 0; i < alMods.size(); i++) {
-                String sModActionsPath = fUserFolder.getAbsolutePath() + System.getProperty("file.separator") + Game.MODS_FOLDER1 + System.getProperty("file.separator") + alMods.get(i) + System.getProperty("file.separator") + Towns.getPropertiesString("DATA_FOLDER") + "events.xml"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+                String sModActionsPath = fUserFolder.getAbsolutePath() + System.getProperty("file.separator") //$NON-NLS-1$
+                        + Game.MODS_FOLDER1 + System.getProperty("file.separator") + alMods.get(i) //$NON-NLS-1$
+                        + System.getProperty("file.separator") + Towns.getPropertiesString("DATA_FOLDER") //$NON-NLS-1$ //$NON-NLS-2$
+                        + "events.xml"; //$NON-NLS-1$
                 File fIni = new File(sModActionsPath);
                 if (fIni.exists()) {
-                    loadXMLEvents(sModActionsPath, false);
+
+                    String namespace = ModNamespaceResolver.resolve(
+                            alMods.get(i));
+
+                    loadXMLEvents(
+                            sModActionsPath,
+                            false,
+                            namespace);
                 }
             }
         }
 
-        // Miramos que los items, itemSpawnLivings, siegeLivings, afterEvents, prerequisites, eventsInmune, effects, effectsAfterEat y effectsAfterSleep existan
+        // Miramos que los items, itemSpawnLivings, siegeLivings, afterEvents,
+        // prerequisites, eventsInmune, effects, effectsAfterEat y effectsAfterSleep
+        // existan
         Iterator<EventManagerItem> itEffects = eventsList.values().iterator();
         EventManagerItem emi;
         while (itEffects.hasNext()) {
@@ -56,7 +73,9 @@ public class EventManager {
             if (emi.getItems() != null && emi.getItems().size() > 0) {
                 for (int e = 0; e < emi.getItems().size(); e++) {
                     if (ItemManager.getItem(emi.getItems().get(e)) == null) {
-                        Log.log(Log.LEVEL_ERROR, Messages.getString("EventManager.0") + " [" + emi.getItems().get(e) + "]", "EventManager"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                        Log.log(Log.LEVEL_ERROR,
+                                Messages.getString("EventManager.0") + " [" + emi.getItems().get(e) + "]", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                                "EventManager"); //$NON-NLS-1$
                         Game.exit();
                     }
                 }
@@ -66,7 +85,9 @@ public class EventManager {
             if (emi.getItemsSpawnLiving() != null && emi.getItemsSpawnLiving().size() > 0) {
                 for (int e = 0; e < emi.getItemsSpawnLiving().size(); e++) {
                     if (LivingEntityManager.getItem(emi.getItemsSpawnLiving().get(e)) == null) {
-                        Log.log(Log.LEVEL_ERROR, Messages.getString("EventManager.2") + " [" + emi.getItemsSpawnLiving().get(e) + "]", "EventManager"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                        Log.log(Log.LEVEL_ERROR,
+                                Messages.getString("EventManager.2") + " [" + emi.getItemsSpawnLiving().get(e) + "]", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                                "EventManager"); //$NON-NLS-1$
                         Game.exit();
                     }
                 }
@@ -76,7 +97,9 @@ public class EventManager {
             if (emi.getSiegeLivings() != null && emi.getSiegeLivings().size() > 0) {
                 for (int e = 0; e < emi.getSiegeLivings().size(); e++) {
                     if (LivingEntityManager.getItem(emi.getSiegeLivings().get(e)) == null) {
-                        Log.log(Log.LEVEL_ERROR, Messages.getString("EventManager.3") + " [" + emi.getSiegeLivings().get(e) + "]", "EventManager"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                        Log.log(Log.LEVEL_ERROR,
+                                Messages.getString("EventManager.3") + " [" + emi.getSiegeLivings().get(e) + "]", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                                "EventManager"); //$NON-NLS-1$
                         Game.exit();
                     }
                 }
@@ -86,7 +109,9 @@ public class EventManager {
             if (emi.getAfterEvents() != null && emi.getAfterEvents().size() > 0) {
                 for (int e = 0; e < emi.getAfterEvents().size(); e++) {
                     if (!eventsList.containsKey(emi.getAfterEvents().get(e))) {
-                        Log.log(Log.LEVEL_ERROR, Messages.getString("EventManager.4") + " [" + emi.getAfterEvents().get(e) + "]", "EventManager"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                        Log.log(Log.LEVEL_ERROR,
+                                Messages.getString("EventManager.4") + " [" + emi.getAfterEvents().get(e) + "]", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                                "EventManager"); //$NON-NLS-1$
                         Game.exit();
                     }
                 }
@@ -96,7 +121,9 @@ public class EventManager {
             if (emi.getPrerequisites() != null && emi.getPrerequisites().size() > 0) {
                 for (int e = 0; e < emi.getPrerequisites().size(); e++) {
                     if (!eventsList.containsKey(emi.getPrerequisites().get(e))) {
-                        Log.log(Log.LEVEL_ERROR, Messages.getString("EventManager.8") + " [" + emi.getPrerequisites().get(e) + "]", "EventManager"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                        Log.log(Log.LEVEL_ERROR,
+                                Messages.getString("EventManager.8") + " [" + emi.getPrerequisites().get(e) + "]", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                                "EventManager"); //$NON-NLS-1$
                         Game.exit();
                     }
                 }
@@ -106,7 +133,9 @@ public class EventManager {
             if (emi.getEventsImmune() != null && emi.getEventsImmune().size() > 0) {
                 for (int e = 0; e < emi.getEventsImmune().size(); e++) {
                     if (!eventsList.containsKey(emi.getEventsImmune().get(e))) {
-                        Log.log(Log.LEVEL_ERROR, Messages.getString("EventManager.12") + " [" + emi.getEventsImmune().get(e) + "]", "EventManager"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                        Log.log(Log.LEVEL_ERROR,
+                                Messages.getString("EventManager.12") + " [" + emi.getEventsImmune().get(e) + "]", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                                "EventManager"); //$NON-NLS-1$
                         Game.exit();
                     }
                 }
@@ -116,7 +145,9 @@ public class EventManager {
             if (emi.getEffects() != null && emi.getEffects().size() > 0) {
                 for (int e = 0; e < emi.getEffects().size(); e++) {
                     if (EffectManager.getItem(emi.getEffects().get(e)) == null) {
-                        Log.log(Log.LEVEL_ERROR, Messages.getString("EventManager.16") + " [" + emi.getEffects().get(e) + "]", "EventManager"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                        Log.log(Log.LEVEL_ERROR,
+                                Messages.getString("EventManager.16") + " [" + emi.getEffects().get(e) + "]", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                                "EventManager"); //$NON-NLS-1$
                         Game.exit();
                     }
                 }
@@ -126,7 +157,9 @@ public class EventManager {
             if (emi.getEffectsAfterEat() != null && emi.getEffectsAfterEat().size() > 0) {
                 for (int e = 0; e < emi.getEffectsAfterEat().size(); e++) {
                     if (EffectManager.getItem(emi.getEffectsAfterEat().get(e)) == null) {
-                        Log.log(Log.LEVEL_ERROR, Messages.getString("EventManager.1") + " [" + emi.getEffectsAfterEat().get(e) + "]", "EventManager"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                        Log.log(Log.LEVEL_ERROR,
+                                Messages.getString("EventManager.1") + " [" + emi.getEffectsAfterEat().get(e) + "]", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                                "EventManager"); //$NON-NLS-1$
                         Game.exit();
                     }
                 }
@@ -136,7 +169,9 @@ public class EventManager {
             if (emi.getEffectsAfterSleep() != null && emi.getEffectsAfterSleep().size() > 0) {
                 for (int e = 0; e < emi.getEffectsAfterSleep().size(); e++) {
                     if (EffectManager.getItem(emi.getEffectsAfterSleep().get(e)) == null) {
-                        Log.log(Log.LEVEL_ERROR, Messages.getString("EventManager.24") + " [" + emi.getEffectsAfterSleep().get(e) + "]", "EventManager"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                        Log.log(Log.LEVEL_ERROR,
+                                Messages.getString("EventManager.24") + " [" + emi.getEffectsAfterSleep().get(e) + "]", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                                "EventManager"); //$NON-NLS-1$
                         Game.exit();
                     }
                 }
@@ -179,13 +214,14 @@ public class EventManager {
         return getItem(alRandomEvents.get(Utils.getRandomBetween(0, (alRandomEvents.size() - 1))));
     }
 
-    private static void loadXMLEvents(String sXMLName, boolean bLoadingMain) {
+    private static void loadXMLEvents(String sXMLName, boolean bLoadingMain, String namespace) {
 
         try {
-            Document doc = UtilsXML.loadXMLFile(sXMLName); //$NON-NLS-1$
+            Document doc = UtilsXML.loadXMLFile(sXMLName); // $NON-NLS-1$
 
-			// Tenemos el documento XML parseado
-            // Lo recorremos entero y vamos añadiendo las skills (SkillManagerItem) a la hash
+            // Tenemos el documento XML parseado
+            // Lo recorremos entero y vamos añadiendo las skills (SkillManagerItem) a la
+            // hash
             NodeList nodeList = doc.getDocumentElement().getChildNodes();
             Node node;
             EventManagerItem emi;
@@ -199,7 +235,39 @@ public class EventManager {
                         if (node.getAttributes() != null && node.getAttributes().getNamedItem("id") != null) { //$NON-NLS-1$
                             String sIDToDelete = node.getAttributes().getNamedItem("id").getNodeValue(); //$NON-NLS-1$
                             if (sIDToDelete != null) {
-                                eventsList.remove(sIDToDelete);
+
+                                if (!bLoadingMain
+                                        && eventsList.containsKey(sIDToDelete)
+                                        && DefinitionOwnershipRegistry
+                                                .conflictsWithOwner(
+                                                        DefinitionKind.EVENT,
+                                                        sIDToDelete,
+                                                        namespace)) {
+
+                                    String existingNamespace = DefinitionOwnershipRegistry.namespaceFor(
+                                            DefinitionKind.EVENT,
+                                            sIDToDelete);
+
+                                    Log.log(
+                                            Log.LEVEL_ERROR,
+                                            "Definition delete collision for event ["
+                                                    + sIDToDelete
+                                                    + "]: mod namespace ["
+                                                    + namespace
+                                                    + "] attempted to delete a definition owned by ["
+                                                    + existingNamespace
+                                                    + "]. Delete ignored.",
+                                            "EventManager");
+
+                                    continue;
+                                }
+
+                                eventsList.remove(
+                                        sIDToDelete);
+
+                                DefinitionOwnershipRegistry.unregister(
+                                        DefinitionKind.EVENT,
+                                        sIDToDelete);
                             }
                         }
                         continue;
@@ -210,9 +278,41 @@ public class EventManager {
                         throw new Exception(Messages.getString("EventManager.31")); //$NON-NLS-1$
                     }
 
-                    boolean bExists = eventsList.containsKey(sIniHeader);
+                    boolean bExists = eventsList.containsKey(
+                            sIniHeader);
 
-                    // Mod cambiando valores de un item que ya existe?
+                    /*
+                     * Mods may modify base-game events, but must not
+                     * accidentally overwrite an event owned by another mod.
+                     */
+                    if (bExists && !bLoadingMain) {
+
+                        if (DefinitionOwnershipRegistry
+                                .conflictsWithOwner(
+                                        DefinitionKind.EVENT,
+                                        sIniHeader,
+                                        namespace)) {
+
+                            String existingNamespace = DefinitionOwnershipRegistry.namespaceFor(
+                                    DefinitionKind.EVENT,
+                                    sIniHeader);
+
+                            Log.log(
+                                    Log.LEVEL_ERROR,
+                                    "Definition collision for event ["
+                                            + sIniHeader
+                                            + "]: mod namespace ["
+                                            + namespace
+                                            + "] attempted to use an ID already owned by ["
+                                            + existingNamespace
+                                            + "]. Definition ignored.",
+                                    "EventManager");
+
+                            continue;
+                        }
+                    }
+
+                    // Mod changing values of an event that already exists?
                     boolean bModChangingValues = (bExists && !bLoadingMain);
 
                     if (bModChangingValues) {
@@ -406,44 +506,73 @@ public class EventManager {
                         emi.setRed(UtilsXML.getChildValue(node.getChildNodes(), "red")); //$NON-NLS-1$
                         emi.setGreen(UtilsXML.getChildValue(node.getChildNodes(), "green")); //$NON-NLS-1$
                         emi.setBlue(UtilsXML.getChildValue(node.getChildNodes(), "blue")); //$NON-NLS-1$
-                        emi.setPrerequisites(Utils.getArray(UtilsXML.getChildValue(node.getChildNodes(), "prerequisites"))); //$NON-NLS-1$
-                        emi.setEventsImmune(Utils.getArray(UtilsXML.getChildValue(node.getChildNodes(), "eventsImmune"))); //$NON-NLS-1$
+                        emi.setPrerequisites(
+                                Utils.getArray(UtilsXML.getChildValue(node.getChildNodes(), "prerequisites"))); //$NON-NLS-1$
+                        emi.setEventsImmune(
+                                Utils.getArray(UtilsXML.getChildValue(node.getChildNodes(), "eventsImmune"))); //$NON-NLS-1$
                         emi.setWaitPCT(UtilsXML.getChildValue(node.getChildNodes(), "waitPCT")); //$NON-NLS-1$
                         emi.setWalkSpeedPCT(UtilsXML.getChildValue(node.getChildNodes(), "walkSpeedPCT")); //$NON-NLS-1$
                         emi.setHappinessPCT(UtilsXML.getChildValue(node.getChildNodes(), "happinessPCT")); //$NON-NLS-1$
                         emi.setSiege(UtilsXML.getChildValue(node.getChildNodes(), "siege")); //$NON-NLS-1$
                         emi.setSiegeUnderground(UtilsXML.getChildValue(node.getChildNodes(), "siegeUnderground")); //$NON-NLS-1$
-                        emi.setSiegeLivings(Utils.getArray(UtilsXML.getChildValue(node.getChildNodes(), "siegeLivings"))); //$NON-NLS-1$
+                        emi.setSiegeLivings(
+                                Utils.getArray(UtilsXML.getChildValue(node.getChildNodes(), "siegeLivings"))); //$NON-NLS-1$
                         emi.setSiegeSize(Utils.getArray(UtilsXML.getChildValue(node.getChildNodes(), "siegeSize"))); //$NON-NLS-1$
                         emi.setTargets(UtilsXML.getChildValue(node.getChildNodes(), "targets")); //$NON-NLS-1$
                         emi.setTargetsPCT(Utils.getArray(UtilsXML.getChildValue(node.getChildNodes(), "targetsPCT"))); //$NON-NLS-1$
                         emi.setTargetsRandomCell(UtilsXML.getChildValue(node.getChildNodes(), "targetsRandomCell")); //$NON-NLS-1$
                         emi.setTargetsOpenCell(UtilsXML.getChildValue(node.getChildNodes(), "targetsOpenCell")); //$NON-NLS-1$
                         emi.setEffects(Utils.getArray(UtilsXML.getChildValue(node.getChildNodes(), "effects"))); //$NON-NLS-1$
-                        emi.setEffectsAfterEat(Utils.getArray(UtilsXML.getChildValue(node.getChildNodes(), "effectsAfterEat"))); //$NON-NLS-1$
-                        emi.setEffectsAfterSleep(Utils.getArray(UtilsXML.getChildValue(node.getChildNodes(), "effectsAfterSleep"))); //$NON-NLS-1$
+                        emi.setEffectsAfterEat(
+                                Utils.getArray(UtilsXML.getChildValue(node.getChildNodes(), "effectsAfterEat"))); //$NON-NLS-1$
+                        emi.setEffectsAfterSleep(
+                                Utils.getArray(UtilsXML.getChildValue(node.getChildNodes(), "effectsAfterSleep"))); //$NON-NLS-1$
                         emi.setItems(Utils.getArray(UtilsXML.getChildValue(node.getChildNodes(), "items"))); //$NON-NLS-1$
-                        emi.setItemsMaxAgePCT(Utils.getArray(UtilsXML.getChildValue(node.getChildNodes(), "itemsMaxAgePCT"))); //$NON-NLS-1$
-                        emi.setItemsDeletePCT(Utils.getArray(UtilsXML.getChildValue(node.getChildNodes(), "itemsDeletePCT"))); //$NON-NLS-1$
-                        emi.setItemsSpawnLiving(Utils.getArray(UtilsXML.getChildValue(node.getChildNodes(), "itemsSpawnLiving"))); //$NON-NLS-1$
-                        emi.setItemsSpawnLivingSize(Utils.getArray(UtilsXML.getChildValue(node.getChildNodes(), "itemsSpawnLivingSize"))); //$NON-NLS-1$
+                        emi.setItemsMaxAgePCT(
+                                Utils.getArray(UtilsXML.getChildValue(node.getChildNodes(), "itemsMaxAgePCT"))); //$NON-NLS-1$
+                        emi.setItemsDeletePCT(
+                                Utils.getArray(UtilsXML.getChildValue(node.getChildNodes(), "itemsDeletePCT"))); //$NON-NLS-1$
+                        emi.setItemsSpawnLiving(
+                                Utils.getArray(UtilsXML.getChildValue(node.getChildNodes(), "itemsSpawnLiving"))); //$NON-NLS-1$
+                        emi.setItemsSpawnLivingSize(
+                                Utils.getArray(UtilsXML.getChildValue(node.getChildNodes(), "itemsSpawnLivingSize"))); //$NON-NLS-1$
                         emi.setFxBeforeCooldown(UtilsXML.getChildValue(node.getChildNodes(), "fxBeforeCooldown")); //$NON-NLS-1$
                         emi.setFxAfterCooldown(UtilsXML.getChildValue(node.getChildNodes(), "fxAfterCooldown")); //$NON-NLS-1$
                         emi.setFxRunning(UtilsXML.getChildValue(node.getChildNodes(), "fxRunning")); //$NON-NLS-1$
                         emi.setFxRunningTurns(UtilsXML.getChildValue(node.getChildNodes(), "fxRunningTurns")); //$NON-NLS-1$
                         emi.setFxFinish(UtilsXML.getChildValue(node.getChildNodes(), "fxFinish")); //$NON-NLS-1$
-                        emi.setInjectActions(Utils.getArray(UtilsXML.getChildValue(node.getChildNodes(), "injectActions"))); //$NON-NLS-1$
+                        emi.setInjectActions(
+                                Utils.getArray(UtilsXML.getChildValue(node.getChildNodes(), "injectActions"))); //$NON-NLS-1$
                         emi.setUseFile(UtilsXML.getChildValue(node.getChildNodes(), "useFile")); //$NON-NLS-1$
                         emi.setUseFileIDs(Utils.getArray(UtilsXML.getChildValue(node.getChildNodes(), "useFileIDs"))); //$NON-NLS-1$
                         emi.loadUseFile(sXMLName);
                     }
 
-                    // Lo añadimos a la hash
-                    eventsList.put(sIniHeader, emi);
+                    /*
+                     * New event definitions inherit the namespace of
+                     * the content source that introduced them.
+                     *
+                     * Overrides retain their existing owner.
+                     */
+                    if (!bModChangingValues) {
+                        DefinitionOwnershipRegistry.register(
+                                DefinitionKind.EVENT,
+                                sIniHeader,
+                                namespace);
+                    }
+
+                    /*
+                     * Keep the legacy EventManager keyed by its original
+                     * bare event ID.
+                     */
+                    eventsList.put(
+                            sIniHeader,
+                            emi);
                 }
             }
         } catch (Exception e) {
-            Log.log(Log.LEVEL_ERROR, Messages.getString("EventManager.32") + " [" + e.getMessage() + "]", "EventManager"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+            Log.log(Log.LEVEL_ERROR, Messages.getString("EventManager.32") + " [" + e.getMessage() + "]", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    "EventManager"); //$NON-NLS-1$
             Game.exit();
         }
     }
