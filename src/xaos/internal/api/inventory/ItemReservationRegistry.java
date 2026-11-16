@@ -123,6 +123,6 @@ public final class ItemReservationRegistry {
         byItem.clear();
         byReservation.clear();
 
-        nextReservationId = 1;
+       
     }
 }

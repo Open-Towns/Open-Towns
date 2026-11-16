@@ -91,10 +91,7 @@ public final class DefaultUiApi implements UiApi {
                 action);
     }
 
-    @Override
-    public void unregisterGameAction(String id) {
-        UiActionRegistry.unregister(id);
-    }
+    
 
     private static void showInfoDialogNow(
             String title,

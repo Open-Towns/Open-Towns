@@ -9,7 +9,7 @@ public final class SdkVersion {
      * Human-readable SDK release version.
      */
     public static final String SDK_VERSION =
-            "0.1.0-dev";
+            "0.1.0";
 
     /**
      * Current public API version.

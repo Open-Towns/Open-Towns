@@ -117,6 +117,98 @@ GitHub may still show its automatic source-code zip and tarball, but the intende
 
 Release archives intentionally exclude original graphics, audio, fonts, and Steam DLLs. For local Steam compatibility testing, overlay the `data` and `lib` folders from a legally owned Towns install into the package root.
 
+## Modding
+
+Open Towns includes a public Java modding SDK alongside the existing Towns XML/content mod system.
+
+The SDK is designed to give mods a stable API boundary through `xaos.api.*` rather than requiring direct access to the game's internal classes.
+
+SDK 0.1 / API version 1 currently exposes systems for:
+
+- world and cell queries
+- definitions and namespaced IDs
+- entities, items and buildings
+- tasks and area selection
+- events
+- inventory, containers and stockpiles
+- item and building behaviours
+- fluids
+- production and actions
+- UI messages and game actions
+- mod save data
+- lifecycle-managed mod resources
+- Java mod dependencies
+
+Java and traditional Towns content can be used together, allowing XML/data files to define content while Java provides custom behaviour.
+
+### Modding documentation
+
+Start with the user-facing modding guide:
+
+[Open Towns Modding Guide](./docs/modding/MODDING_GUIDE.md)
+
+For the complete public Java API surface:
+
+[SDK API Reference](./docs/modding/API_REFERENCE.md)
+
+The API reference is generated directly from `opentowns-api.jar` and represents the supported Java surface available to mods.
+
+### Example mods
+
+Three example mods demonstrate progressively more advanced SDK features:
+
+- **OpenTownsExampleMod** — minimal project structure, lifecycle, `ModContext`, logging and UI access  
+  `[add repo link]`
+
+- **OpenTownsLavaBuckets** — custom definitions, production, actions, area selection and fluids  
+  `[add repo link]`
+
+- **OpenTownsConveyorBelts** — directional items, item behaviours, containers, inventory reservations and automated item transfer  
+  `[add repo link]`
+
+For a new mod, start with **OpenTownsExampleMod** and use the other examples when you need more advanced systems.
+
+### Building a mod
+
+The example mod projects include Gradle tasks for compiling against the Open Towns SDK and installing a development build.
+
+On Windows:
+
+```powershell
+.\gradlew.bat build
+.\gradlew.bat installMod
+```
+
+The default development mod directory is:
+
+```text
+C:\Users\<username>\.towns\mods
+```
+
+Mods should use the public:
+
+```text
+xaos.api.*
+```
+
+packages wherever possible.
+
+Classes under `xaos.internal.*` and the original Towns implementation are not part of the supported mod API and may change without maintaining mod compatibility.
+
+### SDK compatibility
+
+Open Towns mods declare the API version they require.
+
+SDK 0.1 introduces:
+
+```text
+API version 1
+```
+
+If a mod requires an unsupported API version, Open Towns rejects it during loading rather than attempting to run it against an incompatible interface.
+
+Mod dependencies are also resolved before loading. Missing dependencies, failed dependencies and circular dependency chains prevent the affected mod from loading.
+
 ## Current Runtime
 
  - [x] JDK Version 25
